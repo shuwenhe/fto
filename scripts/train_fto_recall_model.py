@@ -415,7 +415,7 @@ def train_neurx_recall(samples, epochs, lr):
         optimizer.step()
         loss_value = float(loss.item())
 
-    coeffs = model.weight.data.reshape(-1).tolist()
+    coeffs = model.weight.to_numpy().reshape(-1).tolist()
     return [float(value) for value in coeffs], loss_value
 
 
