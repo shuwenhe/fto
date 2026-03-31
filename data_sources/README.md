@@ -3,7 +3,17 @@
 This directory stores patent source datasets for FTO retrieval.
 
 - `patents.jsonl`: newline-delimited JSON records used by backend local retrieval.
+- `patents.json`: JSON array mirror of the same dataset.
 - Import helper: `node /app/fto/scripts/save_google_patent.mjs <PATENT_ID>`
+
+## Keep JSON and JSONL In Sync
+
+```bash
+cd /app/fto
+make sync-patent-data
+```
+
+The sync script auto-detects newer file as source (`patents.jsonl` or `patents.json`) and rewrites both files with de-duplicated records.
 
 JSONL schema:
 
