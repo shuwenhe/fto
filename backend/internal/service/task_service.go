@@ -50,7 +50,7 @@ func (s *taskService) CreateTask(ctx context.Context, query string) (*model.Task
 		return nil, err
 	}
 
-	go s.simulateTask(taskID)
+	go s.runTask(*task)
 	return task, nil
 }
 
@@ -69,31 +69,24 @@ func (s *taskService) GetTaskResult(ctx context.Context, taskID string) ([]model
 	return task.Result, task.Status, nil
 }
 
-func (s *taskService) simulateTask(taskID string) {
+func (s *taskService) runTask(task model.TaskState) {
 	ctx := context.Background()
-	steps := []int{20, 45, 70, 100}
-	for _, p := range steps {
-		time.Sleep(1200 * time.Millisecond)
-		task, err := s.repo.GetTask(ctx, taskID)
-		if err != nil {
-			return
-		}
-		task.Progress = p
-		task.UpdatedAt = nowUTC()
-		if p < 100 {
-			task.Status = "running"
-		} else {
-			task.Status = "succeeded"
-			results, searchErr := s.patentRepo.Search(ctx, task.Query, s.topK)
-			if searchErr != nil {
-				task.Status = "failed"
-				task.Result = []model.TaskResultItem{}
-			} else {
-				task.Result = results
-			}
-		}
-		if err := s.repo.UpdateTask(ctx, task); err != nil {
-			return
-		}
+	task.Status = "running"
+	task.Progress = 30
+	task.UpdatedAt = nowUTC()
+	if err := s.repo.UpdateTask(ctx, &task); err != nil {
+		return
 	}
+
+	results, err := s.patentRepo.Search(ctx, task.Query, s.topK)
+	task.Progress = 100
+	task.UpdatedAt = nowUTC()
+	if err != nil {
+		task.Status = "failed"
+		task.Result = []model.TaskResultItem{}
+	} else {
+		task.Status = "succeeded"
+		task.Result = results
+	}
+	_ = s.repo.UpdateTask(ctx, &task)
 }

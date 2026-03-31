@@ -36,6 +36,7 @@ type scoredPatent struct {
 type LocalPatentRepository struct {
 	mu          sync.RWMutex
 	records     []model.PatentRecord
+	semanticVec []map[string]float64
 	rankingMode string
 	dualRatio   int
 }
@@ -95,8 +96,14 @@ func NewLocalPatentRepositoryWithStrategy(dataPath string, rankingMode string, d
 	if len(records) == 0 {
 		return nil, fmt.Errorf("no patent records loaded from %s", dataPath)
 	}
+	semanticVec := make([]map[string]float64, 0, len(records))
+	for _, rec := range records {
+		docText := fmt.Sprintf("%s %s %s %s", rec.Title, rec.Abstract, rec.Claim, strings.Join(rec.Keywords, " "))
+		semanticVec = append(semanticVec, buildSemanticVector(docText))
+	}
 	return &LocalPatentRepository{
 		records:     records,
+		semanticVec: semanticVec,
 		rankingMode: normalizeRankingMode(rankingMode),
 		dualRatio:   clampPercent(dualRatio),
 	}, nil
@@ -356,7 +363,7 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 	ranked := make([]scoredPatent, 0, len(r.records))
 	maxLex := 0
 	maxSem := 0.0
-	for _, rec := range r.records {
+	for i, rec := range r.records {
 		titleScore, titleMatched := containsAny(rec.Title, tokens)
 		absScore, absMatched := containsAny(rec.Abstract, tokens)
 		claimScore, claimMatched := containsAny(rec.Claim, tokens)
@@ -374,8 +381,7 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 		}
 
 		lexical := titleScore*4 + absScore*2 + claimScore*3 + keywordHits*2
-		docText := fmt.Sprintf("%s %s %s %s", rec.Title, rec.Abstract, rec.Claim, strings.Join(rec.Keywords, " "))
-		semantic := cosineSim(queryVec, buildSemanticVector(docText))
+		semantic := cosineSim(queryVec, r.semanticVec[i])
 
 		if lexical == 0 && semantic == 0 {
 			continue
