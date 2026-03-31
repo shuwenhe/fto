@@ -56,8 +56,6 @@ export default function HomePage() {
     <main className="page">
       <section className="card">
         <h1>FTO 专利防侵权</h1>
-        <p>基于 Next.js + Gin 的最小联调骨架。</p>
-
         <textarea
           placeholder="输入技术方案描述，例如：一种无线充电散热结构..."
           value={query}
