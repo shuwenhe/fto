@@ -79,9 +79,15 @@ button:hover {
 .progressWrap {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 10px;
   flex: 1;
   min-width: 260px;
+  white-space: nowrap;
+}
+
+.progressTag {
+  flex-shrink: 0;
 }
 
 .progressBar {
