@@ -8,6 +8,7 @@
 - `internal/model` 数据模型
 
 当前任务状态已从内存 map 切换到 Redis 存储。
+并且已接入本地专利数据源（JSONL）用于检索。
 
 ## Run
 
@@ -22,6 +23,7 @@ go run main.go
 ```bash
 export REDIS_ADDR=127.0.0.1:6379
 export REDIS_PASSWORD=""
+export PATENT_DATA_PATH=/app/fto/data_sources/patents.jsonl
 ```
 
 ## API
