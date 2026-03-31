@@ -12,12 +12,24 @@ JUDGE_ARTIFACT="${ROOT_DIR}/model_artifacts/fto_judge_neurx_v1.json"
 TS="$(date +%Y%m%d_%H%M%S)"
 LOG_FILE="${LOG_DIR}/fto_judge_train_eval_${TS}.log"
 
+# Force neurx to use Ascend NPU backend by default.
+: "${ASCEND_VISIBLE_DEVICES:=0}"
+export ASCEND_VISIBLE_DEVICES
+export TENSOR_DEVICE="npu"
+
 mkdir -p "${LOG_DIR}"
 
 exec > >(tee -a "${LOG_FILE}") 2>&1
 
 echo "[info] root=${ROOT_DIR}"
 echo "[info] log_file=${LOG_FILE}"
+echo "[info] tensor_device=${TENSOR_DEVICE}"
+echo "[info] ascend_visible_devices=${ASCEND_VISIBLE_DEVICES}"
+
+if ! command -v npu-smi >/dev/null 2>&1; then
+  echo "[error] npu-smi not found, cannot validate 310P3 runtime"
+  exit 1
+fi
 
 if [[ ! -x "${PYTHON_BIN}" ]]; then
   echo "[info] creating venv at ${VENV_DIR}"
@@ -29,6 +41,15 @@ echo "[info] upgrading pip/setuptools/wheel"
 
 echo "[info] installing neurx editable package and scipy"
 "${PIP_BIN}" install -e /app/neurx scipy
+
+echo "[info] validating neurx npu backend"
+"${PYTHON_BIN}" - <<'PY'
+import neurx
+
+x = neurx.Tensor([[1.0, 2.0], [3.0, 4.0]], requires_grad=False)
+y = (x * 2.0 + 1.0).mean()
+print(f"[ok] neurx_npu_smoke={float(y.to_numpy()):.6f}")
+PY
 
 if [[ ! -f "${RECALL_ARTIFACT}" ]]; then
   echo "[info] recall artifact missing, bootstrapping recall training"
