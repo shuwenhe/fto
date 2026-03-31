@@ -28,7 +28,7 @@ type scoredPatent struct {
 }
 
 type LocalPatentRepository struct {
-	records      []model.PatentRecord
+	records     []model.PatentRecord
 	rankingMode string
 	dualRatio   int
 }
@@ -89,7 +89,7 @@ func NewLocalPatentRepositoryWithStrategy(dataPath string, rankingMode string, d
 		return nil, fmt.Errorf("no patent records loaded from %s", dataPath)
 	}
 	return &LocalPatentRepository{
-		records:      records,
+		records:     records,
 		rankingMode: normalizeRankingMode(rankingMode),
 		dualRatio:   clampPercent(dualRatio),
 	}, nil
