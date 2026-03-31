@@ -1,0 +1,17 @@
+[Unit]
+Description=FTO Backend Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/app/fto
+EnvironmentFile=-/etc/default/fto-backend
+Environment=GIN_MODE=release
+ExecStart=/usr/bin/make -C /app/fto backend-run
+Restart=always
+RestartSec=2
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+[Unit]
+Description=FTO Frontend Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/app/fto/frontend
+ExecStartPre=/usr/bin/npm run build
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=2
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
