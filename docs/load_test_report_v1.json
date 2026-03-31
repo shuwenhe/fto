@@ -1,20 +1,32 @@
 {
-  "started_at": "2026-03-31T03:35:07.990Z",
-  "ended_at": "2026-03-31T03:35:17.909Z",
-  "duration_sec": 9.919,
-  "concurrency": 2,
-  "total_requests": 4,
-  "succeeded": 4,
-  "failed": 0,
-  "error_rate": 0,
-  "throughput_rps": 0.403,
-  "latency_ms": {
-    "min": 4891,
-    "avg": 4945.5,
-    "p50": 4898,
-    "p95": 5028,
-    "p99": 5028,
-    "max": 5028
+  "ts": "2026-03-31T03:41:46.367Z",
+  "base_url": "http://127.0.0.1/fto/api",
+  "config": {
+    "queries": "/app/fto/data_sources/queries.jsonl",
+    "concurrency": 1,
+    "duration_sec": 6,
+    "poll_ms": 300,
+    "timeout_ms": 20000
   },
-  "errors": {}
+  "report": {
+    "started_at": "2026-03-31T03:41:36.429Z",
+    "ended_at": "2026-03-31T03:41:46.366Z",
+    "duration_sec": 9.937,
+    "concurrency": 1,
+    "total_requests": 2,
+    "succeeded": 2,
+    "failed": 0,
+    "error_rate": 0,
+    "throughput_rps": 0.201,
+    "latency_ms": {
+      "min": 4912,
+      "avg": 4968,
+      "p50": 4912,
+      "p95": 5024,
+      "p99": 5024,
+      "max": 5024
+    },
+    "errors": {}
+  },
+  "compare_with_last": null
 }
