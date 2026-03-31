@@ -4,6 +4,11 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SYSTEMD_DIR="/etc/systemd/system"
 
+if [[ ! -f /root/.nvm/nvm.sh ]]; then
+  echo "[error] /root/.nvm/nvm.sh not found, frontend service requires Node from nvm"
+  exit 1
+fi
+
 install -m 0644 "$REPO_ROOT/deploy/systemd/fto-backend.service" "$SYSTEMD_DIR/fto-backend.service"
 install -m 0644 "$REPO_ROOT/deploy/systemd/fto-frontend.service" "$SYSTEMD_DIR/fto-frontend.service"
 
