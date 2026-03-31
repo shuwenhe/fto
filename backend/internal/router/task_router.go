@@ -12,7 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *observability.Metrics) {
+type rankingConfigRequest struct {
+	Mode      string `json:"mode"`
+	DualRatio int    `json:"dual_ratio"`
+}
+
+func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *observability.Metrics, rankingCtrl repository.RankingConfigController) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"ok": true, "service": "fto-backend-gin"})
 	})
@@ -23,6 +28,31 @@ func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *obs
 			return
 		}
 		c.Data(http.StatusOK, "text/plain; version=0.0.4", []byte(metrics.RenderPrometheus()))
+	})
+
+	r.GET("/ops/ranking-config", func(c *gin.Context) {
+		if rankingCtrl == nil {
+			c.JSON(http.StatusNotImplemented, gin.H{"error": "ranking config controller not available"})
+			return
+		}
+		mode, ratio := rankingCtrl.GetRankingConfig()
+		c.JSON(http.StatusOK, gin.H{"mode": mode, "dual_ratio": ratio})
+	})
+
+	r.POST("/ops/ranking-config", func(c *gin.Context) {
+		if rankingCtrl == nil {
+			c.JSON(http.StatusNotImplemented, gin.H{"error": "ranking config controller not available"})
+			return
+		}
+		var req rankingConfigRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid body"})
+			return
+		}
+		rankingCtrl.UpdateRankingConfig(req.Mode, req.DualRatio)
+		mode, ratio := rankingCtrl.GetRankingConfig()
+		observability.LogTaskEvent(c, "ranking_config_updated", map[string]interface{}{"mode": mode, "dual_ratio": ratio})
+		c.JSON(http.StatusOK, gin.H{"mode": mode, "dual_ratio": ratio})
 	})
 
 	r.POST("/tasks", func(c *gin.Context) {
