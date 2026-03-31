@@ -24,3 +24,9 @@ make import-patent PATENT_ID=CN202410001A
 ```
 
 This fetches metadata/content from Google Patents and upserts it into `patents.jsonl`.
+
+If server cannot access Google directly, save page source from browser and import offline:
+
+```bash
+node /app/fto/scripts/save_google_patent.mjs --html /path/to/patent.html --id CN202410001A
+```
