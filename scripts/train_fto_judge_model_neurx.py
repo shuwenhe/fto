@@ -182,11 +182,9 @@ def train_model(samples, epochs, lr):
 
         if dist.is_initialized() and dist.get_world_size() > 1:
             for model in models:
-                state = model.state_dict()
-                reduced = {}
-                for name, value in state.items():
-                    reduced[name] = dist.all_reduce(np.asarray(value), operation="mean")
-                model.load_state_dict(reduced, strict=True)
+                for param in model.parameters():
+                    reduced = dist.all_reduce(np.asarray(param.to_numpy()), operation="mean")
+                    param.data = reduced
 
     mse_by_head = {}
     for class_idx, model in enumerate(models):
