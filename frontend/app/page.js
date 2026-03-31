@@ -94,13 +94,13 @@ export default function HomePage() {
               rows.map((r) => (
                 <tr key={r.patent_id}>
                   <td>
-                    {r.patent_url ? (
-                      <a href={r.patent_url} target="_blank" rel="noopener noreferrer">
-                        {r.patent_id}
-                      </a>
-                    ) : (
-                      r.patent_id
-                    )}
+                    <a
+                      href={r.patent_url || `https://patents.google.com/patent/${r.patent_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {r.patent_id}
+                    </a>
                   </td>
                   <td>{r.title}</td>
                   <td>{r.risk_level}</td>
