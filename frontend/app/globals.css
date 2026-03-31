@@ -40,11 +40,12 @@ body {
   align-items: baseline;
   gap: 10px;
   line-height: 1;
+  --brand-size: clamp(24px, 3.2vw, 38px);
 }
 
 .brandLatin {
   font-family: 'SpaceX', 'Orbitron', 'Eurostile', 'Bank Gothic', sans-serif;
-  font-size: clamp(30px, 4vw, 46px);
+  font-size: var(--brand-size);
   letter-spacing: 0.1em;
   font-weight: 700;
   text-transform: uppercase;
@@ -52,7 +53,7 @@ body {
 
 .brandCn {
   font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-size: clamp(20px, 2vw, 26px);
+  font-size: var(--brand-size);
   font-weight: 700;
 }
 
@@ -169,13 +170,6 @@ td {
 
   .brand {
     gap: 8px;
-  }
-
-  .brandLatin {
-    font-size: clamp(24px, 7vw, 36px);
-  }
-
-  .brandCn {
-    font-size: clamp(16px, 4vw, 22px);
+    --brand-size: clamp(22px, 7vw, 34px);
   }
 }
