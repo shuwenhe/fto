@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -74,5 +73,4 @@ func main() {
 	if err := r.Run(":8010"); err != nil {
 		log.Fatalf("run server failed: %v", err)
 	}
-	fmt.Println("")
 }
