@@ -69,6 +69,10 @@ button:hover {
   flex-wrap: wrap;
 }
 
+.progressRow {
+  flex-wrap: nowrap;
+}
+
 .tag {
   background: #f1f5f9;
   border-radius: 999px;
@@ -82,7 +86,7 @@ button:hover {
   flex-wrap: nowrap;
   gap: 10px;
   flex: 1;
-  min-width: 260px;
+  min-width: 180px;
   white-space: nowrap;
 }
 
@@ -92,6 +96,7 @@ button:hover {
 
 .progressBar {
   flex: 1;
+  min-width: 100px;
   height: 12px;
   border-radius: 999px;
   background: #e2e8f0;
@@ -139,6 +144,10 @@ td {
   .page {
     width: calc(100% - 24px);
     margin: 12px auto;
+  }
+
+  .progressRow {
+    flex-wrap: wrap;
   }
 
   .progressWrap {
