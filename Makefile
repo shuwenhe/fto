@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health data-source-check curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health data-source-check import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
@@ -10,6 +10,7 @@ help:
 	@echo "  make backend-run      # Run Gin backend on :8010"
 	@echo "  make backend-health   # Check backend health via /fto/api/health"
 	@echo "  make data-source-check # Check patent data source JSONL file"
+	@echo "  make import-patent PATENT_ID=CN202410001A # Import from Google Patents"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
 	@echo "  make git-auto-status # Show git auto daemon status"
@@ -53,6 +54,10 @@ backend-health:
 
 data-source-check:
 	@test -f /app/fto/data_sources/patents.jsonl && echo "[ok] /app/fto/data_sources/patents.jsonl"
+
+import-patent:
+	@test -n "$(PATENT_ID)" || (echo "Usage: make import-patent PATENT_ID=CN202410001A" && exit 1)
+	node scripts/save_google_patent.mjs $(PATENT_ID)
 
 curl:
 	curl -sS -I http://127.0.0.1/fto/ | sed -n '1,20p'
