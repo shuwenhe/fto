@@ -71,6 +71,21 @@ make git-auto-status
 
 ```bash
 cd /app/fto
+make logs
+```
+
+只看单个服务日志：
+
+```bash
+cd /app/fto
+make logs SERVICE=backend
+make logs SERVICE=frontend
+```
+
+Git 自动提交日志：
+
+```bash
+cd /app/fto
 make git-auto-log
 ```
 

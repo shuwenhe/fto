@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log service-install service-start service-stop service-restart service-status service-restart-backend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend
 
 help:
 	@echo "Available targets:"
@@ -28,6 +28,7 @@ help:
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
 	@echo "  make git-auto-status # Show git auto daemon status"
 	@echo "  make git-auto-log    # Tail git auto daemon log"
+	@echo "  make logs [SERVICE=all|backend|frontend] # Tail systemd service logs"
 	@echo "  make service-install # Install and enable systemd services"
 	@echo "  make service-start   # Start systemd services"
 	@echo "  make service-stop    # Stop systemd services"
@@ -64,6 +65,18 @@ git-auto-status:
 
 git-auto-log:
 	tail -n 100 -f .git/.auto-commit.log
+
+logs:
+	@if [ "$(SERVICE)" = "backend" ]; then \
+		journalctl -u fto-backend -n 100 -f --no-pager; \
+	elif [ "$(SERVICE)" = "frontend" ]; then \
+		journalctl -u fto-frontend -n 100 -f --no-pager; \
+	elif [ -z "$(SERVICE)" ] || [ "$(SERVICE)" = "all" ]; then \
+		journalctl -u fto-backend -u fto-frontend -n 100 -f --no-pager; \
+	else \
+		echo "Usage: make logs [SERVICE=all|backend|frontend]"; \
+		exit 1; \
+	fi
 
 backend-run:
 	cd backend && go run main.go
