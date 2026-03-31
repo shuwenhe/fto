@@ -17,12 +17,17 @@ type TaskService interface {
 }
 
 type taskService struct {
-	repo repository.TaskRepository
-	seq  uint64
+	repo       repository.TaskRepository
+	patentRepo repository.PatentDataRepository
+	topK       int
+	seq        uint64
 }
 
-func NewTaskService(repo repository.TaskRepository) TaskService {
-	return &taskService{repo: repo}
+func NewTaskService(repo repository.TaskRepository, patentRepo repository.PatentDataRepository, topK int) TaskService {
+	if topK <= 0 {
+		topK = 5
+	}
+	return &taskService{repo: repo, patentRepo: patentRepo, topK: topK}
 }
 
 func nowUTC() string {
@@ -79,19 +84,12 @@ func (s *taskService) simulateTask(taskID string) {
 			task.Status = "running"
 		} else {
 			task.Status = "succeeded"
-			task.Result = []model.TaskResultItem{
-				{
-					PatentID:  "CN202410001A",
-					Title:     "一种用于无线充电的温控结构",
-					RiskLevel: "medium",
-					Reason:    "核心结构相似，建议调整散热层叠设计。",
-				},
-				{
-					PatentID:  "US20240123456A1",
-					Title:     "Wireless charging coil arrangement",
-					RiskLevel: "low",
-					Reason:    "技术路线相近但关键参数不同，侵权风险较低。",
-				},
+			results, searchErr := s.patentRepo.Search(ctx, task.Query, s.topK)
+			if searchErr != nil {
+				task.Status = "failed"
+				task.Result = []model.TaskResultItem{}
+			} else {
+				task.Result = results
 			}
 		}
 		if err := s.repo.UpdateTask(ctx, task); err != nil {
