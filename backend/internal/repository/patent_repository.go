@@ -89,14 +89,14 @@ type neurxRanker struct {
 }
 
 type LocalPatentRepository struct {
-	mu          sync.RWMutex
-	records     []model.PatentRecord
-	semanticVec []map[string]float64
-	rankingMode string
-	dualRatio   int
-	ranker      *neurxRanker
-	deepEnabled bool
-	deepTopN    int
+	mu           sync.RWMutex
+	records      []model.PatentRecord
+	semanticVec  []map[string]float64
+	rankingMode  string
+	dualRatio    int
+	ranker       *neurxRanker
+	deepEnabled  bool
+	deepTopN     int
 	deepMixAlpha float64
 }
 
@@ -223,13 +223,13 @@ func NewLocalPatentRepositoryWithModel(dataPath string, rankingMode string, dual
 		semanticVec = append(semanticVec, buildSemanticVector(docText))
 	}
 	return &LocalPatentRepository{
-		records:     records,
-		semanticVec: semanticVec,
-		rankingMode: normalizeRankingMode(rankingMode),
-		dualRatio:   clampPercent(dualRatio),
-		ranker:      ranker,
-		deepEnabled: false,
-		deepTopN:    8,
+		records:      records,
+		semanticVec:  semanticVec,
+		rankingMode:  normalizeRankingMode(rankingMode),
+		dualRatio:    clampPercent(dualRatio),
+		ranker:       ranker,
+		deepEnabled:  false,
+		deepTopN:     8,
 		deepMixAlpha: 0.35,
 	}, nil
 }
@@ -542,16 +542,16 @@ func buildResultItemDual(item scoredPatent) model.TaskResultItem {
 				item.record.LegalStatus,
 			)
 		} else {
-		reason = fmt.Sprintf(
-			"命中关键词: %s；Neurx模型分=%.4f（lexical=%d semantic=%.4f lex_norm=%.4f sem_norm=%.4f）；法律状态: %s。",
-			matched,
-			item.modelScore,
-			item.lexicalScore,
-			item.semanticScore,
-			item.lexicalNorm,
-			item.semanticNorm,
-			item.record.LegalStatus,
-		)
+			reason = fmt.Sprintf(
+				"命中关键词: %s；Neurx模型分=%.4f（lexical=%d semantic=%.4f lex_norm=%.4f sem_norm=%.4f）；法律状态: %s。",
+				matched,
+				item.modelScore,
+				item.lexicalScore,
+				item.semanticScore,
+				item.lexicalNorm,
+				item.semanticNorm,
+				item.record.LegalStatus,
+			)
 		}
 	} else {
 		reason = fmt.Sprintf(
