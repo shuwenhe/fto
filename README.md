@@ -97,3 +97,19 @@ export AUTO_COMMIT_PREFIX="chore(auto)"
 git config user.name "Your Name"
 git config user.email "you@example.com"
 ```
+
+## 召回一致性回归检查
+
+用于随机抽样 query，对比线上接口与本地双路召回排序 top-k 是否完全一致。
+
+```bash
+cd /app/fto
+make compare-online-offline
+```
+
+也可直接执行并自定义参数：
+
+```bash
+cd /app/fto
+node scripts/compare_online_offline.mjs --k 5 --sample 10 --seed 20260331 --base-url http://127.0.0.1/fto/api --verbose
+```
