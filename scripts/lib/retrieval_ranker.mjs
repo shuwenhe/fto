@@ -1,5 +1,15 @@
 import fs from 'fs';
 
+const DEFAULT_DUAL_RECALL_MODEL = {
+  titleWeight: 4,
+  abstractWeight: 2,
+  claimWeight: 3,
+  keywordWeight: 2,
+  fusionLexicalWeight: 0.65,
+  recallDepthMultiplier: 3,
+  recallDepthMin: 6,
+};
+
 export function readJsonl(filePath) {
   const lines = fs.readFileSync(filePath, 'utf-8').split('\n').map((x) => x.trim()).filter(Boolean);
   return lines.map((line, i) => {
@@ -9,6 +19,24 @@ export function readJsonl(filePath) {
       throw new Error(`Invalid JSONL at ${filePath}:${i + 1}: ${e.message}`);
     }
   });
+}
+
+export function loadDualRecallModel(filePath) {
+  const raw = fs.readFileSync(filePath, 'utf-8');
+  const parsed = JSON.parse(raw);
+  const params = parsed && typeof parsed === 'object' && parsed.params ? parsed.params : parsed;
+  if (!params || typeof params !== 'object') {
+    throw new Error(`Invalid recall model at ${filePath}: missing params`);
+  }
+  return {
+    titleWeight: Number(params.titleWeight),
+    abstractWeight: Number(params.abstractWeight),
+    claimWeight: Number(params.claimWeight),
+    keywordWeight: Number(params.keywordWeight),
+    fusionLexicalWeight: Number(params.fusionLexicalWeight),
+    recallDepthMultiplier: Math.max(1, Math.floor(Number(params.recallDepthMultiplier))),
+    recallDepthMin: Math.max(1, Math.floor(Number(params.recallDepthMin))),
+  };
 }
 
 function normalize(s) {
@@ -101,7 +129,7 @@ function uniqSorted(tokens) {
   return Array.from(new Set(tokens)).sort();
 }
 
-function scorePatent(rec, tokens, queryVec) {
+function scorePatent(rec, tokens, queryVec, model) {
   const titleRes = containsAny(rec.title, tokens);
   const absRes = containsAny(rec.abstract, tokens);
   const claimRes = containsAny(rec.claim, tokens);
@@ -119,7 +147,11 @@ function scorePatent(rec, tokens, queryVec) {
     }
   }
 
-  const lexical = titleRes.score * 4 + absRes.score * 2 + claimRes.score * 3 + keywordHits * 2;
+  const lexical =
+    titleRes.score * model.titleWeight +
+    absRes.score * model.abstractWeight +
+    claimRes.score * model.claimWeight +
+    keywordHits * model.keywordWeight;
   const docText = `${rec.title || ''} ${rec.abstract || ''} ${rec.claim || ''} ${kws.join(' ')}`;
   const semantic = cosineSim(queryVec, buildSemanticVector(docText));
   const matched = uniqSorted([...titleRes.matched, ...absRes.matched, ...claimRes.matched, ...keywordMatched]);
@@ -127,7 +159,7 @@ function scorePatent(rec, tokens, queryVec) {
   return { lexical, semantic, matched };
 }
 
-export function rankPatentsDualRecall(patents, query, k) {
+export function rankPatentsDualRecall(patents, query, k, model = DEFAULT_DUAL_RECALL_MODEL) {
   const tokens = splitQuery(query);
   if (tokens.length === 0) return [];
   const queryVec = buildSemanticVector(query);
@@ -137,7 +169,7 @@ export function rankPatentsDualRecall(patents, query, k) {
   let maxSem = 0;
 
   for (const p of patents) {
-    const { lexical, semantic, matched } = scorePatent(p, tokens, queryVec);
+    const { lexical, semantic, matched } = scorePatent(p, tokens, queryVec, model);
     if (lexical === 0 && semantic === 0) continue;
     ranked.push({ p, lexical, semantic, matched, fusion: 0 });
     if (lexical > maxLex) maxLex = lexical;
@@ -149,14 +181,16 @@ export function rankPatentsDualRecall(patents, query, k) {
   for (const item of ranked) {
     const lexNorm = maxLex > 0 ? item.lexical / maxLex : 0;
     const semNorm = maxSem > 0 ? item.semantic / maxSem : 0;
-    item.fusion = lexNorm * 0.65 + semNorm * 0.35;
+    item.fusion =
+      lexNorm * model.fusionLexicalWeight +
+      semNorm * (1 - model.fusionLexicalWeight);
   }
 
   const idxLex = [...ranked.keys()].sort((a, b) => ranked[b].lexical - ranked[a].lexical);
   const idxSem = [...ranked.keys()].sort((a, b) => ranked[b].semantic - ranked[a].semantic);
 
-  let recallDepth = k * 3;
-  if (recallDepth < 6) recallDepth = 6;
+  let recallDepth = k * model.recallDepthMultiplier;
+  if (recallDepth < model.recallDepthMin) recallDepth = model.recallDepthMin;
   if (recallDepth > ranked.length) recallDepth = ranked.length;
 
   const candidateIdx = new Set();
