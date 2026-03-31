@@ -159,7 +159,23 @@ cd /app/fto
 make backend-metrics
 ```
 
+告警阈值检查：
+
+```bash
+cd /app/fto
+make alert-check
+```
+
+趋势报告生成：
+
+```bash
+cd /app/fto
+make trend-report
+```
+
 可执行清单见：`docs/engineering_checklist_v1.md`
+
+运行手册见：`docs/runbook_v1.md`
 
 ## 压测（Load Test）
 

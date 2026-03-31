@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics load-test load-test-compare gray-rollout-guard rollback-now ci-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
@@ -10,6 +10,8 @@ help:
 	@echo "  make backend-run      # Run Gin backend on :8010"
 	@echo "  make backend-health   # Check backend health via /fto/api/health"
 	@echo "  make backend-metrics  # Show /fto/api/metrics"
+	@echo "  make alert-check      # Run threshold-based ops alerts check"
+	@echo "  make trend-report     # Generate trend summary from history"
 	@echo "  make load-test        # Run load test and print P50/P95/P99"
 	@echo "  make load-test-compare # Run load test and compare against last baseline"
 	@echo "  make gray-rollout-guard # Progressive gray rollout with auto rollback checks"
@@ -64,6 +66,12 @@ backend-health:
 
 backend-metrics:
 	curl -sS http://127.0.0.1/fto/api/metrics
+
+alert-check:
+	node scripts/alert_check.mjs --base-url http://127.0.0.1/fto/api --load-report docs/load_test_report_v1.json --gray-report docs/gray_rollout_report_latest.json --max-load-error-rate 0.01 --max-load-p95-ms 2000 --max-gray-error-rate 0.01 --max-gray-p95-ms 2000 --max-live-post-tasks-p95-ms 200 --max-http-errors-total 0
+
+trend-report:
+	node scripts/trend_report.mjs --load-history docs/load_test_history.jsonl --gray-history docs/gray_rollout_history.jsonl --out-json docs/trend_summary_v1.json --out-md docs/trend_summary_v1.md --lookback 20
 
 load-test:
 	node scripts/load_test_tasks.mjs --base-url http://127.0.0.1/fto/api --concurrency 10 --duration-sec 60 --out docs/load_test_report_v1.json
