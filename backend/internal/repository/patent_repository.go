@@ -10,6 +10,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
 	"unicode"
 
 	"fto-backend/internal/model"
@@ -17,6 +18,11 @@ import (
 
 type PatentDataRepository interface {
 	Search(ctx context.Context, query string, limit int) ([]model.TaskResultItem, error)
+}
+
+type RankingConfigController interface {
+	GetRankingConfig() (string, int)
+	UpdateRankingConfig(mode string, dualRatio int)
 }
 
 type scoredPatent struct {
@@ -28,7 +34,8 @@ type scoredPatent struct {
 }
 
 type LocalPatentRepository struct {
-	records     []model.PatentRecord
+	mu          sync.RWMutex
+	records      []model.PatentRecord
 	rankingMode string
 	dualRatio   int
 }
@@ -271,16 +278,30 @@ func hashPercent(s string) int {
 }
 
 func (r *LocalPatentRepository) useDualForQuery(query string) bool {
-	switch r.rankingMode {
+	mode, ratio := r.GetRankingConfig()
+	switch mode {
 	case "dual":
 		return true
 	case "lexical":
 		return false
 	case "gray":
-		return hashPercent(query) < r.dualRatio
+		return hashPercent(query) < ratio
 	default:
 		return true
 	}
+}
+
+func (r *LocalPatentRepository) GetRankingConfig() (string, int) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	return r.rankingMode, r.dualRatio
+}
+
+func (r *LocalPatentRepository) UpdateRankingConfig(mode string, dualRatio int) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.rankingMode = normalizeRankingMode(mode)
+	r.dualRatio = clampPercent(dualRatio)
 }
 
 func buildResultItemDual(item scoredPatent) model.TaskResultItem {
