@@ -6,16 +6,7 @@ export default function HomePage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('idle');
   const [taskId, setTaskId] = useState('-');
-  const [progress, setProgress] = useState(0);
   const [rows, setRows] = useState([]);
-
-  const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
-  const progressBarClass =
-    status === 'failed'
-      ? 'progressBarFill isFailed'
-      : status === 'succeeded'
-      ? 'progressBarFill isDone'
-      : 'progressBarFill';
 
   async function pollTask(id) {
     for (;;) {
@@ -26,7 +17,6 @@ export default function HomePage() {
       }
       const data = await res.json();
       setStatus(data.status);
-      setProgress(data.progress);
       setRows(data.result || []);
       if (data.status === 'succeeded' || data.status === 'failed') {
         return;
@@ -42,7 +32,6 @@ export default function HomePage() {
     }
     setStatus('submitting');
     setRows([]);
-    setProgress(0);
 
     const res = await fetch('/fto/api/tasks', {
       method: 'POST',
@@ -70,16 +59,9 @@ export default function HomePage() {
           onChange={(e) => setQuery(e.target.value)}
         />
 
-        <div className="row progressRow">
+        <div className="row">
           <button onClick={submitTask}>提交分析任务</button>
           <span className="tag">状态：{status}</span>
-          <div className="progressWrap" aria-label="任务进度">
-            <span className="tag progressTag">进度</span>
-            <div className="progressBar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={clampedProgress}>
-              <div className={progressBarClass} style={{ width: `${clampedProgress}%` }} />
-            </div>
-            <span className="progressText">{clampedProgress}%</span>
-          </div>
         </div>
 
         <div className="row">

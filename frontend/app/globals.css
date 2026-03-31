@@ -69,61 +69,11 @@ button:hover {
   flex-wrap: wrap;
 }
 
-.progressRow {
-  flex-wrap: nowrap;
-}
-
 .tag {
   background: #f1f5f9;
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 13px;
-}
-
-.progressWrap {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 10px;
-  flex: 1;
-  min-width: 180px;
-  white-space: nowrap;
-}
-
-.progressTag {
-  flex-shrink: 0;
-}
-
-.progressBar {
-  flex: 1;
-  min-width: 100px;
-  height: 12px;
-  border-radius: 999px;
-  background: #e2e8f0;
-  overflow: hidden;
-  border: 1px solid #cbd5e1;
-}
-
-.progressBarFill {
-  height: 100%;
-  width: 0;
-  background: linear-gradient(90deg, #0f766e, #14b8a6);
-  transition: width 0.35s ease;
-}
-
-.progressBarFill.isDone {
-  background: linear-gradient(90deg, #0f766e, #22c55e);
-}
-
-.progressBarFill.isFailed {
-  background: linear-gradient(90deg, #b91c1c, #ef4444);
-}
-
-.progressText {
-  min-width: 52px;
-  text-align: right;
-  font-size: 13px;
-  color: #334155;
 }
 
 table {
@@ -144,21 +94,5 @@ td {
   .page {
     width: calc(100% - 24px);
     margin: 12px auto;
-  }
-
-  .progressRow {
-    flex-wrap: wrap;
-  }
-
-  .progressWrap {
-    min-width: 0;
-  }
-
-  .progressBar {
-    min-width: 120px;
-  }
-
-  .progressText {
-    min-width: 0;
   }
 }
