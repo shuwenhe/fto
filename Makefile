@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
@@ -17,6 +17,7 @@ help:
 	@echo "  make gray-rollout-guard # Progressive gray rollout with auto rollback checks"
 	@echo "  make rollback-now     # Emergency rollback ranking mode"
 	@echo "  make ci-gate          # Run eval + consistency + sample report gate"
+	@echo "  make ops-gate         # Run ci-gate + trend-report (dual gate)"
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
 	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
@@ -87,6 +88,10 @@ rollback-now:
 
 ci-gate:
 	node scripts/ci_gate.mjs --k 5 --sample 5 --seed 20260331 --query-id q1 --base-url http://127.0.0.1/fto/api --report-out docs/report_sample_v1.json
+
+ops-gate:
+	$(MAKE) ci-gate
+	$(MAKE) trend-report
 
 data-source-check:
 	@test -f /app/fto/data_sources/patents.jsonl && echo "[ok] /app/fto/data_sources/patents.jsonl"

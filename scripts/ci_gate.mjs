@@ -10,6 +10,14 @@ function parseArgs(argv) {
     seed: 20260331,
     queryId: 'q1',
     reportOut: 'docs/report_sample_v1.json',
+    loadReport: 'docs/load_test_report_v1.json',
+    grayReport: 'docs/gray_rollout_report_latest.json',
+    maxLoadErrorRate: 0.01,
+    maxLoadP95Ms: 5500,
+    maxGrayErrorRate: 0.01,
+    maxGrayP95Ms: 5500,
+    maxLivePostTasksP95Ms: 200,
+    maxHttpErrorsTotal: 0,
   };
 
   for (let i = 2; i < argv.length; i++) {
@@ -20,6 +28,14 @@ function parseArgs(argv) {
     else if (a === '--seed') args.seed = Number(argv[++i] || '20260331');
     else if (a === '--query-id') args.queryId = argv[++i] || 'q1';
     else if (a === '--report-out') args.reportOut = argv[++i] || 'docs/report_sample_v1.json';
+    else if (a === '--load-report') args.loadReport = argv[++i] || args.loadReport;
+    else if (a === '--gray-report') args.grayReport = argv[++i] || args.grayReport;
+    else if (a === '--max-load-error-rate') args.maxLoadErrorRate = Number(argv[++i] || '0.01');
+    else if (a === '--max-load-p95-ms') args.maxLoadP95Ms = Number(argv[++i] || '5500');
+    else if (a === '--max-gray-error-rate') args.maxGrayErrorRate = Number(argv[++i] || '0.01');
+    else if (a === '--max-gray-p95-ms') args.maxGrayP95Ms = Number(argv[++i] || '5500');
+    else if (a === '--max-live-post-tasks-p95-ms') args.maxLivePostTasksP95Ms = Number(argv[++i] || '200');
+    else if (a === '--max-http-errors-total') args.maxHttpErrorsTotal = Number(argv[++i] || '0');
   }
 
   return args;
@@ -82,7 +98,20 @@ async function main() {
       '--out', args.reportOut,
     ]);
 
-    console.log('[ci-gate] all checks passed');
+    runNode([
+      'scripts/alert_check.mjs',
+      '--base-url', args.baseUrl,
+      '--load-report', args.loadReport,
+      '--gray-report', args.grayReport,
+      '--max-load-error-rate', String(args.maxLoadErrorRate),
+      '--max-load-p95-ms', String(args.maxLoadP95Ms),
+      '--max-gray-error-rate', String(args.maxGrayErrorRate),
+      '--max-gray-p95-ms', String(args.maxGrayP95Ms),
+      '--max-live-post-tasks-p95-ms', String(args.maxLivePostTasksP95Ms),
+      '--max-http-errors-total', String(args.maxHttpErrorsTotal),
+    ]);
+
+    console.log('[ci-gate] quality + ops checks passed');
   } finally {
     if (switched && originalConfig) {
       try {
