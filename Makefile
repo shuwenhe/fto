@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker compare-online-offline generate-report-sample train-fto-model train-fto-recall-model eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker compare-online-offline generate-report-sample train-fto-model train-fto-recall-model train-eval-fto-recall eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -26,6 +26,7 @@ help:
 	@echo "  make generate-report-sample # Generate docs/report_sample_v1.json"
 	@echo "  make train-fto-model  # Train neurx ranker and export model artifact"
 	@echo "  make train-fto-recall-model # Train neurx dual-recall model artifact"
+	@echo "  make train-eval-fto-recall # One-command reproducible env+train+eval+logs"
 	@echo "  make eval-retrieval-model # Eval retrieval with trained recall model"
 	@echo "  make import-patent PATENT_ID=CN202410001A # Import from Google Patents"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
@@ -142,6 +143,9 @@ train-fto-model:
 
 train-fto-recall-model:
 	python scripts/train_fto_recall_model.py --out model_artifacts/fto_recall_dual_v1.json
+
+train-eval-fto-recall:
+	bash scripts/run_fto_recall_pipeline.sh
 
 eval-retrieval-model:
 	node scripts/eval_retrieval.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --verbose
