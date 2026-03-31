@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample train-fto-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker compare-online-offline generate-report-sample train-fto-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -21,6 +21,7 @@ help:
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
 	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
+	@echo "  make eval-ab-reranker # Compare linear vs linear+deep(top-N) offline"
 	@echo "  make compare-online-offline # Compare backend top-k order with local ranker"
 	@echo "  make generate-report-sample # Generate docs/report_sample_v1.json"
 	@echo "  make train-fto-model  # Train neurx ranker and export model artifact"
@@ -124,6 +125,9 @@ sync-patent-data:
 
 eval-retrieval:
 	node scripts/eval_retrieval.mjs --k 5 --verbose
+
+eval-ab-reranker:
+	node scripts/eval_ab_reranker.mjs --k 5 --deep-top-n 8 --deep-mix-alpha 0.35 --verbose
 
 compare-online-offline:
 	node scripts/compare_online_offline.mjs --k 5 --sample 5 --verbose
