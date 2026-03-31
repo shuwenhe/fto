@@ -3,6 +3,43 @@
 版本日期：2026-03-31
 范围：第 8 条第一阶段（最小可用闭环）
 
+## G. 告警（新增）
+
+状态：已落地（基础版）
+
+- [x] 告警脚本：`scripts/alert_check.mjs`
+- [x] 校验维度：load 报告、gray 报告、实时 metrics
+- [x] 超阈值返回非 0，支持流水线拦截
+
+验收命令：
+
+```bash
+cd /app/fto
+make alert-check
+```
+
+## H. 趋势（新增）
+
+状态：已落地（基础版）
+
+- [x] 趋势脚本：`scripts/trend_report.mjs`
+- [x] 读取历史：`docs/load_test_history.jsonl`、`docs/gray_rollout_history.jsonl`
+- [x] 产出：`docs/trend_summary_v1.json`、`docs/trend_summary_v1.md`
+
+验收命令：
+
+```bash
+cd /app/fto
+make trend-report
+```
+
+## I. Runbook（新增）
+
+状态：已落地（基础版）
+
+- [x] 运行手册：`docs/runbook_v1.md`
+- [x] 覆盖日常巡检、发布前检查、灰度步骤、应急回滚、常见问题
+
 ## A. 结构化日志
 
 状态：已落地（基础版）
