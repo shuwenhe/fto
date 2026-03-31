@@ -1,13 +1,11 @@
-# FTO Backend (FastAPI)
+# FTO Backend (Gin)
 
 ## Run
 
 ```bash
 cd /app/fto/backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8010 --reload
+go mod tidy
+go run main.go
 ```
 
 ## API
