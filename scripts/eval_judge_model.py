@@ -2,18 +2,18 @@
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 from train_fto_judge_model_neurx import (
     DEFAULT_RECALL_MODEL,
     DEFAULT_RERANKER_MODEL,
-    classification_metrics,
     build_judge_samples,
     build_dataset,
+    classification_metrics,
     load_recall_params,
     load_reranker_artifact,
     read_jsonl,
-    score_sample,
 )
 from train_fto_model_neurx import DEFAULT_PATENTS, DEFAULT_QRELS, DEFAULT_QUERIES
 
@@ -36,30 +36,18 @@ def evaluate(model, samples, threshold):
     labels = []
     rows = []
 
-    class _DummyModel:
-        def __init__(self, weights, bias):
-            self.weights = weights
-            self.bias = bias
-
-        def __call__(self, scaled_features):
-            value = self.bias
-            for idx, feat in enumerate(scaled_features):
-                value += feat * self.weights[idx]
-            return value
-
     weights = [float(v) for v in model.get("weights", [])]
     bias = float(model.get("bias", 0.0))
 
-    # Reuse score_sample signature by emulating neurx model output.
-    # This keeps train/eval scoring path consistent with exported artifacts.
     def predict_prob(features):
         scaled = [(features[idx] - means[idx]) / (stds[idx] if abs(stds[idx]) > 1e-9 else 1.0) for idx in range(len(features))]
-        linear = _DummyModel(weights, bias)(scaled)
-        # sigmoid
+        linear = bias
+        for idx, feat in enumerate(scaled):
+            linear += feat * weights[idx]
         if linear >= 0:
-            z = pow(2.718281828459045, -linear)
+            z = math.exp(-linear)
             return 1.0 / (1.0 + z)
-        z = pow(2.718281828459045, linear)
+        z = math.exp(linear)
         return z / (1.0 + z)
 
     for sample in samples:
