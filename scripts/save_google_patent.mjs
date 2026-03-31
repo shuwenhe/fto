@@ -2,8 +2,17 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const ROOT = '/app/fto';
+function resolveRoot() {
+  const fromEnv = process.env.FTO_ROOT;
+  if (fromEnv && fs.existsSync(fromEnv)) return fromEnv;
+  if (fs.existsSync('/app/fto')) return '/app/fto';
+  const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+  return path.resolve(scriptDir, '..');
+}
+
+const ROOT = resolveRoot();
 const DATA_FILE = path.join(ROOT, 'data_sources', 'patents.jsonl');
 
 function decodeHtml(text) {

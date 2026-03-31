@@ -24,6 +24,19 @@ cd /app/fto
 make eval-retrieval
 ```
 
+## neurx Model Training
+
+Train the neurx-based FTO ranker artifact:
+
+```bash
+cd /app/fto
+make train-fto-model
+```
+
+Default artifact output:
+
+- `model_artifacts/fto_ranker_neurx_v1.json`
+
 This computes `Recall@K`, `MRR@K`, and `NDCG@K` using `queries.jsonl` and `qrels.jsonl`.
 
 JSONL schema:

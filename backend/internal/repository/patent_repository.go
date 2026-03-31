@@ -27,10 +27,33 @@ type RankingConfigController interface {
 
 type scoredPatent struct {
 	record        model.PatentRecord
+	titleScore    int
+	abstractScore int
+	claimScore    int
+	keywordHits   int
 	lexicalScore  int
 	semanticScore float64
 	fusionScore   float64
 	matched       []string
+}
+
+type neurxRankerArtifact struct {
+	ModelType    string    `json:"model_type"`
+	Version      int       `json:"version"`
+	FeatureNames []string  `json:"feature_names"`
+	FeatureMeans []float64 `json:"feature_means"`
+	FeatureStds  []float64 `json:"feature_stds"`
+	Weights      []float64 `json:"weights"`
+	Bias         float64   `json:"bias"`
+	Activation   string    `json:"activation"`
+}
+
+type neurxRanker struct {
+	means      []float64
+	stds       []float64
+	weights    []float64
+	bias       float64
+	activation string
 }
 
 type LocalPatentRepository struct {
@@ -39,10 +62,46 @@ type LocalPatentRepository struct {
 	semanticVec []map[string]float64
 	rankingMode string
 	dualRatio   int
+	ranker      *neurxRanker
 }
 
 func NewLocalPatentRepository(dataPath string) (*LocalPatentRepository, error) {
 	return NewLocalPatentRepositoryWithStrategy(dataPath, "dual", 50)
+}
+
+func LoadNeurxRanker(modelPath string) (*neurxRanker, error) {
+	if strings.TrimSpace(modelPath) == "" {
+		return nil, nil
+	}
+	data, err := os.ReadFile(modelPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var artifact neurxRankerArtifact
+	if err := json.Unmarshal(data, &artifact); err != nil {
+		return nil, fmt.Errorf("invalid neurx ranker artifact: %w", err)
+	}
+	if len(artifact.FeatureNames) == 0 {
+		return nil, fmt.Errorf("invalid neurx ranker artifact: feature_names empty")
+	}
+	if len(artifact.FeatureMeans) != len(artifact.FeatureNames) || len(artifact.FeatureStds) != len(artifact.FeatureNames) || len(artifact.Weights) != len(artifact.FeatureNames) {
+		return nil, fmt.Errorf("invalid neurx ranker artifact: feature dimensions mismatch")
+	}
+	stds := make([]float64, len(artifact.FeatureStds))
+	copy(stds, artifact.FeatureStds)
+	for i, v := range stds {
+		if math.Abs(v) < 1e-9 {
+			stds[i] = 1.0
+		}
+	}
+	return &neurxRanker{
+		means:      append([]float64(nil), artifact.FeatureMeans...),
+		stds:       stds,
+		weights:    append([]float64(nil), artifact.Weights...),
+		bias:       artifact.Bias,
+		activation: strings.ToLower(strings.TrimSpace(artifact.Activation)),
+	}, nil
 }
 
 func clampPercent(v int) int {
@@ -66,6 +125,10 @@ func normalizeRankingMode(mode string) string {
 }
 
 func NewLocalPatentRepositoryWithStrategy(dataPath string, rankingMode string, dualRatio int) (*LocalPatentRepository, error) {
+	return NewLocalPatentRepositoryWithModel(dataPath, rankingMode, dualRatio, nil)
+}
+
+func NewLocalPatentRepositoryWithModel(dataPath string, rankingMode string, dualRatio int, ranker *neurxRanker) (*LocalPatentRepository, error) {
 	f, err := os.Open(dataPath)
 	if err != nil {
 		return nil, err
@@ -106,6 +169,7 @@ func NewLocalPatentRepositoryWithStrategy(dataPath string, rankingMode string, d
 		semanticVec: semanticVec,
 		rankingMode: normalizeRankingMode(rankingMode),
 		dualRatio:   clampPercent(dualRatio),
+		ranker:      ranker,
 	}, nil
 }
 
@@ -278,6 +342,56 @@ func cosineSim(a, b map[string]float64) float64 {
 	return dot / (math.Sqrt(na) * math.Sqrt(nb))
 }
 
+func sigmoid(v float64) float64 {
+	if v >= 0 {
+		z := math.Exp(-v)
+		return 1 / (1 + z)
+	}
+	z := math.Exp(v)
+	return z / (1 + z)
+}
+
+func (r *neurxRanker) Score(features []float64) float64 {
+	if r == nil || len(features) != len(r.weights) {
+		return 0
+	}
+	sum := r.bias
+	for i, value := range features {
+		std := r.stds[i]
+		if math.Abs(std) < 1e-9 {
+			std = 1.0
+		}
+		sum += ((value - r.means[i]) / std) * r.weights[i]
+	}
+	if r.activation == "sigmoid" || r.activation == "" {
+		return sigmoid(sum)
+	}
+	return sum
+}
+
+func buildNeurxFeatures(item scoredPatent, tokenCount int, maxLex int, maxSem float64) []float64 {
+	lexNorm := 0.0
+	semNorm := 0.0
+	if maxLex > 0 {
+		lexNorm = float64(item.lexicalScore) / float64(maxLex)
+	}
+	if maxSem > 0 {
+		semNorm = item.semanticScore / maxSem
+	}
+	return []float64{
+		float64(item.titleScore),
+		float64(item.abstractScore),
+		float64(item.claimScore),
+		float64(item.keywordHits),
+		float64(len(item.matched)),
+		float64(tokenCount),
+		float64(item.lexicalScore),
+		item.semanticScore,
+		lexNorm,
+		semNorm,
+	}
+}
+
 func hashPercent(s string) int {
 	h := fnv.New32a()
 	_, _ = h.Write([]byte(s))
@@ -392,6 +506,10 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 
 		ranked = append(ranked, scoredPatent{
 			record:        rec,
+			titleScore:    titleScore,
+			abstractScore: absScore,
+			claimScore:    claimScore,
+			keywordHits:   keywordHits,
 			lexicalScore:  lexical,
 			semanticScore: semantic,
 			matched:       uniqSorted(matched),
@@ -418,6 +536,27 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 			semNorm = ranked[i].semanticScore / maxSem
 		}
 		ranked[i].fusionScore = lexNorm*0.65 + semNorm*0.35
+	}
+
+	if r.ranker != nil {
+		for i := range ranked {
+			features := buildNeurxFeatures(ranked[i], len(tokens), maxLex, maxSem)
+			ranked[i].fusionScore = r.ranker.Score(features)
+		}
+		sort.SliceStable(ranked, func(i, j int) bool {
+			if ranked[i].fusionScore == ranked[j].fusionScore {
+				return ranked[i].lexicalScore > ranked[j].lexicalScore
+			}
+			return ranked[i].fusionScore > ranked[j].fusionScore
+		})
+		if len(ranked) > limit {
+			ranked = ranked[:limit]
+		}
+		results := make([]model.TaskResultItem, 0, len(ranked))
+		for _, item := range ranked {
+			results = append(results, buildResultItemDual(item))
+		}
+		return results
 	}
 
 	idxLex := make([]int, len(ranked))
@@ -509,9 +648,13 @@ func (r *LocalPatentRepository) searchLexical(query string, limit int) []model.T
 		matched = append(matched, claimMatched...)
 		matched = append(matched, keywordMatched...)
 		ranked = append(ranked, scoredPatent{
-			record:       rec,
-			lexicalScore: lexical,
-			matched:      uniqSorted(matched),
+			record:        rec,
+			titleScore:    titleScore,
+			abstractScore: absScore,
+			claimScore:    claimScore,
+			keywordHits:   keywordHits,
+			lexicalScore:  lexical,
+			matched:       uniqSorted(matched),
 		})
 	}
 

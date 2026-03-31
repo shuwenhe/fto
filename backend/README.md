@@ -24,6 +24,7 @@ go run main.go
 export REDIS_ADDR=127.0.0.1:6379
 export REDIS_PASSWORD="<your_redis_password>"
 export PATENT_DATA_PATH=/app/fto/data_sources/patents.jsonl
+export RANKING_MODEL_PATH=/app/fto/model_artifacts/fto_ranker_neurx_v1.json
 ```
 
 ## API

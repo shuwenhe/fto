@@ -129,6 +129,30 @@ cd /app/fto
 node scripts/compare_online_offline.mjs --k 5 --sample 10 --seed 20260331 --base-url http://127.0.0.1/fto/api --verbose
 ```
 
+## 使用 neurx 训练 FTO 排序模型
+
+仓库已支持用 `neurx` 基于 `queries.jsonl + qrels.jsonl + patents.jsonl` 训练一个轻量排序器，并导出为后端可直接加载的 JSON 工件。
+
+训练：
+
+```bash
+cd /app/fto
+make train-fto-model
+```
+
+默认输出：
+
+```text
+/app/fto/model_artifacts/fto_ranker_neurx_v1.json
+```
+
+后端启动时会自动尝试加载该工件；若文件不存在，则回退到原先的启发式双路融合。也可以显式指定：
+
+```bash
+cd /app/fto/backend
+RANKING_MODEL_PATH=/app/fto/model_artifacts/fto_ranker_neurx_v1.json go run main.go
+```
+
 ## 验收与基线文档
 
 - 第 2 条验收清单（指标门槛 + 稳定性定义）：`docs/acceptance_checklist_v1.md`
