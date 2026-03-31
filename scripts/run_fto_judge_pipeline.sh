@@ -67,7 +67,9 @@ from neurx.core import neurx as core
 print(f"[info] neurx_accel_available={core._accelerator_available()}")
 
 x = neurx.Tensor([[1.0, 2.0], [3.0, 4.0]], requires_grad=False)
-y = (x * 2.0 + 1.0).mean()
+x2 = neurx.Tensor([[2.0, 2.0], [2.0, 2.0]], requires_grad=False)
+bias = neurx.Tensor([[1.0, 1.0], [1.0, 1.0]], requires_grad=False)
+y = (x * x2 + bias).mean()
 print(f"[ok] neurx_npu_smoke={float(y.to_numpy()):.6f}")
 print(f"[info] neurx_tensor_device={x.device}")
 PY
