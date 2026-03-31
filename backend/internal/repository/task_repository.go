@@ -9,7 +9,7 @@ import (
 
 	"fto-backend/internal/model"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/go-redis/redis/v8"
 )
 
 var ErrTaskNotFound = errors.New("task not found")
