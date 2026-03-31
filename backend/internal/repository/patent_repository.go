@@ -35,7 +35,7 @@ type scoredPatent struct {
 
 type LocalPatentRepository struct {
 	mu          sync.RWMutex
-	records      []model.PatentRecord
+	records     []model.PatentRecord
 	rankingMode string
 	dualRatio   int
 }
