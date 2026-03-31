@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/app/fto/frontend
-ExecStartPre=/usr/bin/npm run build
-ExecStart=/usr/bin/npm run start
+ExecStartPre=/bin/bash -lc 'source /root/.nvm/nvm.sh && npm run build'
+ExecStart=/bin/bash -lc 'source /root/.nvm/nvm.sh && npm run start'
 Restart=always
 RestartSec=2
 User=root
