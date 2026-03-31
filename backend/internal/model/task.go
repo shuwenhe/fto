@@ -6,6 +6,7 @@ type TaskCreateRequest struct {
 
 type TaskResultItem struct {
 	PatentID  string `json:"patent_id"`
+	PatentURL string `json:"patent_url"`
 	Title     string `json:"title"`
 	RiskLevel string `json:"risk_level"`
 	Reason    string `json:"reason"`
