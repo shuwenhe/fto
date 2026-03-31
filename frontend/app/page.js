@@ -74,13 +74,12 @@ export default function HomePage() {
           <button onClick={submitTask}>提交分析任务</button>
           <span className="tag">状态：{status}</span>
           <span className="tag">进度：{progress}%</span>
-        </div>
-
-        <div className="progressWrap" aria-label="任务进度">
-          <div className="progressBar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={clampedProgress}>
-            <div className={progressBarClass} style={{ width: `${clampedProgress}%` }} />
+          <div className="progressWrap" aria-label="任务进度">
+            <div className="progressBar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={clampedProgress}>
+              <div className={progressBarClass} style={{ width: `${clampedProgress}%` }} />
+            </div>
+            <span className="progressText">{clampedProgress}%</span>
           </div>
-          <span className="progressText">{clampedProgress}%</span>
         </div>
 
         <div className="row">
