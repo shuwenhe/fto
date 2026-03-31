@@ -39,6 +39,20 @@ Default artifact output:
 
 This computes `Recall@K`, `MRR@K`, and `NDCG@K` using `queries.jsonl` and `qrels.jsonl`.
 
+## Recall Model Training
+
+Train the weighted dual-recall model artifact first, then evaluate retrieval with this model:
+
+```bash
+cd /app/fto
+make train-fto-recall-model
+make eval-retrieval-model
+```
+
+Default recall artifact output:
+
+- `model_artifacts/fto_recall_dual_v1.json`
+
 JSONL schema:
 
 - `patent_id` string
