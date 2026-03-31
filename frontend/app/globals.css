@@ -76,6 +76,44 @@ button:hover {
   font-size: 13px;
 }
 
+.progressWrap {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 12px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+}
+
+.progressBarFill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #0f766e, #14b8a6);
+  transition: width 0.35s ease;
+}
+
+.progressBarFill.isDone {
+  background: linear-gradient(90deg, #0f766e, #22c55e);
+}
+
+.progressBarFill.isFailed {
+  background: linear-gradient(90deg, #b91c1c, #ef4444);
+}
+
+.progressText {
+  min-width: 52px;
+  text-align: right;
+  font-size: 13px;
+  color: #334155;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -88,4 +126,25 @@ td {
   border-bottom: 1px solid #e2e8f0;
   padding: 8px 6px;
   vertical-align: top;
+}
+
+@media (max-width: 900px) {
+  .page {
+    width: calc(100% - 24px);
+    margin: 12px auto;
+  }
+
+  .progressWrap {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .progressBar {
+    width: 100%;
+  }
+
+  .progressText {
+    min-width: 0;
+  }
 }
