@@ -1,0 +1,75 @@
+{
+  "run_id": "rollout-1774928536059",
+  "started_at": "2026-03-31T03:42:16.059Z",
+  "ended_at": "2026-03-31T03:42:35.733Z",
+  "base_url": "http://127.0.0.1/fto/api",
+  "thresholds": {
+    "max_error_rate": 0.5,
+    "max_p95_ms": 30000
+  },
+  "before": {
+    "dual_ratio": 50,
+    "mode": "gray"
+  },
+  "reports": [
+    {
+      "run_id": "rollout-1774928536059",
+      "ts": "2026-03-31T03:42:25.926Z",
+      "ratio": 10,
+      "mode": "gray",
+      "report": {
+        "started_at": "2026-03-31T03:42:16.069Z",
+        "ended_at": "2026-03-31T03:42:25.925Z",
+        "duration_sec": 9.856,
+        "concurrency": 1,
+        "total_requests": 2,
+        "succeeded": 2,
+        "failed": 0,
+        "error_rate": 0,
+        "throughput_rps": 0.203,
+        "latency_ms": {
+          "min": 4914,
+          "avg": 4928,
+          "p50": 4914,
+          "p95": 4942,
+          "p99": 4942,
+          "max": 4942
+        },
+        "errors": {}
+      },
+      "previous_comparison": null
+    },
+    {
+      "run_id": "rollout-1774928536059",
+      "ts": "2026-03-31T03:42:35.727Z",
+      "ratio": 20,
+      "mode": "gray",
+      "report": {
+        "started_at": "2026-03-31T03:42:25.933Z",
+        "ended_at": "2026-03-31T03:42:35.727Z",
+        "duration_sec": 9.794,
+        "concurrency": 1,
+        "total_requests": 2,
+        "succeeded": 2,
+        "failed": 0,
+        "error_rate": 0,
+        "throughput_rps": 0.204,
+        "latency_ms": {
+          "min": 4892,
+          "avg": 4897,
+          "p50": 4892,
+          "p95": 4902,
+          "p99": 4902,
+          "max": 4902
+        },
+        "errors": {}
+      },
+      "previous_comparison": null
+    }
+  ],
+  "after": {
+    "dual_ratio": 20,
+    "mode": "gray"
+  },
+  "status": "completed"
+}
