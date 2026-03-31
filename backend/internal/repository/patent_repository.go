@@ -264,7 +264,7 @@ func (r *LocalPatentRepository) Search(_ context.Context, query string, limit in
 		}
 
 		lexical := titleScore*4 + absScore*2 + claimScore*3 + keywordHits*2
- 		docText := fmt.Sprintf("%s %s %s %s", rec.Title, rec.Abstract, rec.Claim, strings.Join(rec.Keywords, " "))
+		docText := fmt.Sprintf("%s %s %s %s", rec.Title, rec.Abstract, rec.Claim, strings.Join(rec.Keywords, " "))
 		semantic := cosineSim(queryVec, buildSemanticVector(docText))
 
 		if lexical == 0 && semantic == 0 {
