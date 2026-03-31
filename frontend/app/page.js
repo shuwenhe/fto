@@ -9,6 +9,14 @@ export default function HomePage() {
   const [progress, setProgress] = useState(0);
   const [rows, setRows] = useState([]);
 
+  const clampedProgress = Math.max(0, Math.min(100, Number(progress) || 0));
+  const progressBarClass =
+    status === 'failed'
+      ? 'progressBarFill isFailed'
+      : status === 'succeeded'
+      ? 'progressBarFill isDone'
+      : 'progressBarFill';
+
   async function pollTask(id) {
     for (;;) {
       const res = await fetch(`/fto/api/tasks/${id}`);
@@ -66,6 +74,13 @@ export default function HomePage() {
           <button onClick={submitTask}>提交分析任务</button>
           <span className="tag">状态：{status}</span>
           <span className="tag">进度：{progress}%</span>
+        </div>
+
+        <div className="progressWrap" aria-label="任务进度">
+          <div className="progressBar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={clampedProgress}>
+            <div className={progressBarClass} style={{ width: `${clampedProgress}%` }} />
+          </div>
+          <span className="progressText">{clampedProgress}%</span>
         </div>
 
         <div className="row">
