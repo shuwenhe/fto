@@ -113,3 +113,10 @@ make compare-online-offline
 cd /app/fto
 node scripts/compare_online_offline.mjs --k 5 --sample 10 --seed 20260331 --base-url http://127.0.0.1/fto/api --verbose
 ```
+
+## 验收与基线文档
+
+- 第 2 条验收清单（指标门槛 + 稳定性定义）：`docs/acceptance_checklist_v1.md`
+- 基线冻结（数据快照、参数、命令）：`docs/baseline_v1.md`
+- 第 3 条报告 schema：`docs/report_schema_v1.json`
+- 第 3 条样例报告：`docs/report_sample_v1.json`
