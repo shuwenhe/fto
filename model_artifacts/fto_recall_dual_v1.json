@@ -1,16 +1,16 @@
 {
   "model_type": "fto_dual_recall",
   "version": 1,
-  "trained_at": "2026-03-31T14:20:54.999353+00:00",
+  "trained_at": "2026-03-31T14:36:55.901019+00:00",
   "k": 5,
-  "search_iterations": 600,
+  "search_iterations": 300,
   "seed": 20260331,
   "params": {
-    "titleWeight": 4.0,
-    "abstractWeight": 2.0,
-    "claimWeight": 3.0,
-    "keywordWeight": 2.0,
-    "fusionLexicalWeight": 0.65,
+    "titleWeight": 4.5614,
+    "abstractWeight": 1.4907,
+    "claimWeight": 0.4933,
+    "keywordWeight": 5.4546,
+    "fusionLexicalWeight": 0.9438,
     "recallDepthMultiplier": 3,
     "recallDepthMin": 6
   },
@@ -36,8 +36,8 @@
         "topk": [
           "CN202311998B",
           "CN202209876U",
-          "CN202355566A",
-          "JP2023176543A"
+          "JP2023176543A",
+          "CN202355566A"
         ],
         "recall": 1.0,
         "mrr": 1.0,
