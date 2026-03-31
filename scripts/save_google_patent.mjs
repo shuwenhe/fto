@@ -44,21 +44,7 @@ function extractKeywords(title, abs, patentId) {
   return uniq;
 }
 
-async function fetchPatentRecord(patentId) {
-  const url = `https://patents.google.com/patent/${encodeURIComponent(patentId)}/en`;
-  const res = await fetch(url, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36',
-      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`fetch failed for ${patentId}: HTTP ${res.status}`);
-  }
-
-  const html = await res.text();
-
+function parsePatentRecordFromHtml(patentId, html) {
   const title =
     firstMatch(html, /<meta\s+name=["']DC\.title["']\s+content=["']([^"']+)["']/i) ||
     firstMatch(html, /<title>([^<]+)<\/title>/i, patentId);
@@ -87,6 +73,23 @@ async function fetchPatentRecord(patentId) {
   };
 }
 
+async function fetchPatentRecord(patentId) {
+  const url = `https://patents.google.com/patent/${encodeURIComponent(patentId)}/en`;
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36',
+      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`fetch failed for ${patentId}: HTTP ${res.status}`);
+  }
+
+  const html = await res.text();
+  return parsePatentRecordFromHtml(patentId, html);
+}
+
 function loadExisting(filePath) {
   if (!fs.existsSync(filePath)) return [];
   const lines = fs.readFileSync(filePath, 'utf-8').split('\n').map((x) => x.trim()).filter(Boolean);
@@ -107,10 +110,27 @@ function saveJsonl(filePath, records) {
 }
 
 async function main() {
-  const args = process.argv.slice(2).map((x) => x.trim()).filter(Boolean);
-  if (args.length === 0) {
+  const rawArgs = process.argv.slice(2).map((x) => x.trim()).filter(Boolean);
+  if (rawArgs.length === 0) {
     console.error('Usage: node scripts/save_google_patent.mjs <PATENT_ID> [PATENT_ID ...]');
+    console.error('   or: node scripts/save_google_patent.mjs --html <file.html> --id <PATENT_ID>');
     process.exit(1);
+  }
+
+  let htmlFile = '';
+  let singleID = '';
+  const ids = [];
+  for (let i = 0; i < rawArgs.length; i++) {
+    const a = rawArgs[i];
+    if (a === '--html') {
+      htmlFile = rawArgs[++i] || '';
+      continue;
+    }
+    if (a === '--id') {
+      singleID = rawArgs[++i] || '';
+      continue;
+    }
+    ids.push(a);
   }
 
   const existing = loadExisting(DATA_FILE);
@@ -119,10 +139,21 @@ async function main() {
     if (rec && rec.patent_id) byId.set(rec.patent_id, rec);
   }
 
-  for (const patentId of args) {
-    const rec = await fetchPatentRecord(patentId);
+  if (htmlFile) {
+    if (!singleID) {
+      console.error('[error] when using --html you must provide --id <PATENT_ID>');
+      process.exit(1);
+    }
+    const html = fs.readFileSync(htmlFile, 'utf-8');
+    const rec = parsePatentRecordFromHtml(singleID, html);
     byId.set(rec.patent_id, rec);
-    console.log(`[ok] imported ${patentId}`);
+    console.log(`[ok] imported ${singleID} from html file ${htmlFile}`);
+  } else {
+    for (const patentId of ids) {
+      const rec = await fetchPatentRecord(patentId);
+      byId.set(rec.patent_id, rec);
+      console.log(`[ok] imported ${patentId}`);
+    }
   }
 
   const merged = Array.from(byId.values()).sort((a, b) => String(a.patent_id).localeCompare(String(b.patent_id)));
