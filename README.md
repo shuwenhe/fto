@@ -2,30 +2,39 @@
 
 ## 项目结构
 
-- `frontend/` 前端页面（通过 `/fto` 访问）
-- `backend/` FastAPI 后端（通过 `/fto/api` 访问）
+- `frontend/` Next.js 前端（通过 `/fto` 访问）
+- `backend/` Gin 后端（通过 `/fto/api` 访问）
 - `scripts/` 自动提交/推送脚本
 
 ## 最小联调启动
 
-1. 安装后端依赖
-
-```bash
-cd /app/fto/backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-2. 启动后端
+1. 安装前端依赖
 
 ```bash
 cd /app/fto
-source backend/.venv/bin/activate
+make frontend-install
+```
+
+2. 安装后端依赖
+
+```bash
+cd /app/fto
+make backend-deps
+```
+
+3. 启动前后端（两个终端）
+
+```bash
+cd /app/fto
+make frontend-dev
+```
+
+```bash
+cd /app/fto
 make backend-run
 ```
 
-3. 另一个终端检查联通
+4. 另一个终端检查联通
 
 ```bash
 cd /app/fto
@@ -34,7 +43,7 @@ make nginx-reload
 make backend-health
 ```
 
-4. 浏览器访问
+5. 浏览器访问
 
 ```text
 http://111.202.231.146:8080/fto
