@@ -198,3 +198,5 @@ make gray-rollout-guard
 cd /app/fto
 make ci-gate
 ```
+
+说明：`ci-gate` 会在执行前尝试把后端排序切到 `dual/100`，执行后恢复原灰度配置，避免被当前灰度流量状态干扰。

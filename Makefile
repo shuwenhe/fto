@@ -70,9 +70,7 @@ gray-rollout-guard:
 	node scripts/gray_rollout_guard.mjs --base-url http://127.0.0.1/fto/api --ratios 1,10,30,50,100 --concurrency 5 --duration-sec 20 --max-error-rate 0.01 --max-p95-ms 2000 --rollback-mode lexical --rollback-dual-ratio 0
 
 ci-gate:
-	node scripts/eval_retrieval.mjs --k 5
-	node scripts/compare_online_offline.mjs --k 5 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api
-	node scripts/generate_report_sample.mjs --k 5 --query-id q1 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api --out docs/report_sample_v1.json
+	node scripts/ci_gate.mjs --k 5 --sample 5 --seed 20260331 --query-id q1 --base-url http://127.0.0.1/fto/api --report-out docs/report_sample_v1.json
 
 data-source-check:
 	@test -f /app/fto/data_sources/patents.jsonl && echo "[ok] /app/fto/data_sources/patents.jsonl"

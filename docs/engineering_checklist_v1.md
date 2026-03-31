@@ -101,3 +101,4 @@ make gray-rollout-guard
 - [x] 单命令门禁：`make ci-gate`
 - [x] 依次执行：eval -> consistency -> report sample
 - [x] 任一失败即返回非 0
+- [x] 门禁前自动切换 `dual/100`，结束后恢复原配置
