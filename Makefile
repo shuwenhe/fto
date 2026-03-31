@@ -1,55 +1,36 @@
-.PHONY: help run run-bg stop status curl nginx-test nginx-reload backend-run backend-health git-auto-start git-auto-stop git-auto-status git-auto-log
-
-PORT ?= 5173
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
-	@echo "  make run          # Serve current folder on http://127.0.0.1:$(PORT)"
-	@echo "  make run-bg       # Run server in background (writes .server.pid/.server.log)"
-	@echo "  make stop         # Stop background server"
-	@echo "  make status       # Show background server status"
+	@echo "  make frontend-install # Install Next.js dependencies"
+	@echo "  make frontend-dev     # Run Next.js dev server on :3010"
+	@echo "  make frontend-build   # Build Next.js frontend"
+	@echo "  make frontend-start   # Start Next.js production server on :3010"
+	@echo "  make backend-deps     # Download Go dependencies"
+	@echo "  make backend-run      # Run Gin backend on :8010"
+	@echo "  make backend-health   # Check backend health via /fto/api/health"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
 	@echo "  make git-auto-status # Show git auto daemon status"
 	@echo "  make git-auto-log    # Tail git auto daemon log"
-	@echo "  make backend-run     # Run FastAPI backend on :8010"
-	@echo "  make backend-health  # Check backend health via /fto/api/health"
 	@echo "  make curl         # Quick check local nginx route: /fto/"
 	@echo "  make nginx-test   # Test nginx config"
 	@echo "  make nginx-reload # Reload nginx"
 
-run:
-	python3 -m http.server $(PORT)
+frontend-install:
+	cd frontend && npm install
 
-run-bg:
-	@if [ -f .server.pid ] && kill -0 "$$(cat .server.pid)" 2>/dev/null; then \
-		echo "[fto] server already running pid=$$(cat .server.pid)"; \
-		exit 0; \
-	fi
-	@nohup python3 -m http.server $(PORT) > .server.log 2>&1 & echo $$! > .server.pid
-	@echo "[fto] started pid=$$(cat .server.pid) port=$(PORT)"
-	@echo "[fto] log: /app/fto/.server.log"
+frontend-dev:
+	cd frontend && npm run dev
 
-stop:
-	@if [ ! -f .server.pid ]; then \
-		echo "[fto] not running"; \
-		exit 0; \
-	fi
-	@pid=$$(cat .server.pid); \
-	if kill -0 "$$pid" 2>/dev/null; then \
-		kill "$$pid"; \
-		echo "[fto] stopped pid=$$pid"; \
-	else \
-		echo "[fto] stale pid $$pid"; \
-	fi
-	@rm -f .server.pid
+frontend-build:
+	cd frontend && npm run build
 
-status:
-	@if [ -f .server.pid ] && kill -0 "$$(cat .server.pid)" 2>/dev/null; then \
-		echo "[fto] running pid=$$(cat .server.pid)"; \
-	else \
-		echo "[fto] not running"; \
-	fi
+frontend-start:
+	cd frontend && npm run start
+
+backend-deps:
+	cd backend && go mod tidy
 
 git-auto-start:
 	bash scripts/start_auto_push.sh
@@ -64,7 +45,7 @@ git-auto-log:
 	tail -n 100 -f .git/.auto-commit.log
 
 backend-run:
-	uvicorn backend.main:app --host 0.0.0.0 --port 8010 --reload
+	cd backend && go run main.go
 
 backend-health:
 	curl -sS http://127.0.0.1/fto/api/health
