@@ -136,3 +136,27 @@ make generate-report-sample
 cd /app/fto
 node scripts/generate_report_sample.mjs --k 5 --query-id q1 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api --out docs/report_sample_v1.json
 ```
+
+## 工程化（日志 + 监控 + 灰度）
+
+后端新增能力：
+
+- 结构化日志（含 request_id）
+- 指标端点：`/fto/api/metrics`
+- 灰度开关（dual / lexical / gray）
+
+启动示例：
+
+```bash
+cd /app/fto/backend
+REDIS_PASSWORD=123456 RANKING_MODE=gray RANKING_DUAL_RATIO=50 go run main.go
+```
+
+查看指标：
+
+```bash
+cd /app/fto
+make backend-metrics
+```
+
+可执行清单见：`docs/engineering_checklist_v1.md`

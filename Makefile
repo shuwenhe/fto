@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
@@ -9,6 +9,7 @@ help:
 	@echo "  make backend-deps     # Download Go dependencies"
 	@echo "  make backend-run      # Run Gin backend on :8010"
 	@echo "  make backend-health   # Check backend health via /fto/api/health"
+	@echo "  make backend-metrics  # Show /fto/api/metrics"
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
 	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
@@ -55,6 +56,9 @@ backend-run:
 
 backend-health:
 	curl -sS http://127.0.0.1/fto/api/health
+
+backend-metrics:
+	curl -sS http://127.0.0.1/fto/api/metrics
 
 data-source-check:
 	@test -f /app/fto/data_sources/patents.jsonl && echo "[ok] /app/fto/data_sources/patents.jsonl"
