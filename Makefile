@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health data-source-check sync-patent-data import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health data-source-check sync-patent-data eval-retrieval import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
@@ -11,6 +11,7 @@ help:
 	@echo "  make backend-health   # Check backend health via /fto/api/health"
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
+	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
 	@echo "  make import-patent PATENT_ID=CN202410001A # Import from Google Patents"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
@@ -59,6 +60,9 @@ data-source-check:
 
 sync-patent-data:
 	node scripts/sync_patent_data.mjs
+
+eval-retrieval:
+	node scripts/eval_retrieval.mjs --k 5 --verbose
 
 import-patent:
 	@test -n "$(PATENT_ID)" || (echo "Usage: make import-patent PATENT_ID=CN202410001A" && exit 1)
