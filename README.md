@@ -192,6 +192,25 @@ make trend-report
 
 运行手册见：`docs/runbook_v1.md`
 
+## 生产模式自动编译与自动刷新
+
+前端生产服务支持源码变更后自动执行构建，并在构建成功后自动重启前端服务。浏览器页面会轮询当前前端 build id，检测到新版本后自动刷新。
+
+首次安装或更新 systemd 服务：
+
+```bash
+cd /app/fto
+make service-install
+make service-restart
+```
+
+查看 watcher 日志：
+
+```bash
+cd /app/fto
+make logs SERVICE=watch
+```
+
 ## 压测（Load Test）
 
 运行默认压测（并发 10、60 秒），输出 P50/P95/P99 并保存报告：

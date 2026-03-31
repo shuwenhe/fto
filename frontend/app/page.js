@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
@@ -8,6 +8,43 @@ export default function HomePage() {
   const [progress, setProgress] = useState(null);
   const [taskId, setTaskId] = useState('-');
   const [rows, setRows] = useState([]);
+  const buildIdRef = useRef('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function checkBuildId() {
+      try {
+        const res = await fetch(`/fto/api/frontend-build-id?ts=${Date.now()}`, {
+          cache: 'no-store',
+        });
+        if (!res.ok) {
+          return;
+        }
+        const data = await res.json();
+        const nextBuildId = String(data.build_id || '');
+        if (!nextBuildId || cancelled) {
+          return;
+        }
+        if (!buildIdRef.current) {
+          buildIdRef.current = nextBuildId;
+          return;
+        }
+        if (buildIdRef.current !== nextBuildId) {
+          window.location.reload();
+        }
+      } catch {
+        // Ignore transient polling failures during restart.
+      }
+    }
+
+    checkBuildId();
+    const timer = setInterval(checkBuildId, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, []);
 
   async function pollTask(id) {
     for (;;) {

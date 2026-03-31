@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -35,6 +35,7 @@ help:
 	@echo "  make service-restart # Restart systemd services"
 	@echo "  make service-status  # Show systemd services status"
 	@echo "  make service-restart-backend # Restart backend only"
+	@echo "  make service-restart-frontend # Restart frontend only"
 	@echo "  make curl         # Quick check local nginx route: /fto/"
 	@echo "  make nginx-test   # Test nginx config"
 	@echo "  make nginx-reload # Reload nginx"
@@ -71,10 +72,12 @@ logs:
 		journalctl -u fto-backend -n 100 -f --no-pager; \
 	elif [ "$(SERVICE)" = "frontend" ]; then \
 		journalctl -u fto-frontend -n 100 -f --no-pager; \
+	elif [ "$(SERVICE)" = "watch" ]; then \
+		journalctl -u fto-frontend-watch -n 100 -f --no-pager; \
 	elif [ -z "$(SERVICE)" ] || [ "$(SERVICE)" = "all" ]; then \
-		journalctl -u fto-backend -u fto-frontend -n 100 -f --no-pager; \
+		journalctl -u fto-backend -u fto-frontend -u fto-frontend-watch -n 100 -f --no-pager; \
 	else \
-		echo "Usage: make logs [SERVICE=all|backend|frontend]"; \
+		echo "Usage: make logs [SERVICE=all|backend|frontend|watch]"; \
 		exit 1; \
 	fi
 
@@ -144,16 +147,19 @@ service-install:
 	bash scripts/install_systemd_services.sh
 
 service-start:
-	systemctl start fto-backend fto-frontend
+	systemctl start fto-backend fto-frontend fto-frontend-watch
 
 service-stop:
-	systemctl stop fto-backend fto-frontend
+	systemctl stop fto-frontend-watch fto-backend fto-frontend
 
 service-restart:
-	systemctl restart fto-backend fto-frontend
+	systemctl restart fto-backend fto-frontend fto-frontend-watch
 
 service-status:
-	systemctl --no-pager --full status fto-backend fto-frontend
+	systemctl --no-pager --full status fto-backend fto-frontend fto-frontend-watch
 
 service-restart-backend:
 	systemctl restart fto-backend
+
+service-restart-frontend:
+	systemctl restart fto-frontend

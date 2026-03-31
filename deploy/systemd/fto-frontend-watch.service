@@ -1,0 +1,15 @@
+[Unit]
+Description=FTO Frontend Auto Build Watcher
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/app/fto
+ExecStart=/usr/bin/node /app/fto/scripts/frontend_watch_prod.mjs
+Restart=always
+RestartSec=2
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

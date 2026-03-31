@@ -3,6 +3,8 @@ package router
 import (
 	"errors"
 	"net/http"
+	"os"
+	"strings"
 
 	"fto-backend/internal/model"
 	"fto-backend/internal/observability"
@@ -20,6 +22,15 @@ type rankingConfigRequest struct {
 func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *observability.Metrics, rankingCtrl repository.RankingConfigController) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"ok": true, "service": "fto-backend-gin"})
+	})
+
+	r.GET("/frontend-build-id", func(c *gin.Context) {
+		buildID, err := os.ReadFile("/app/fto/frontend/.next/BUILD_ID")
+		if err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "frontend build id not available"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"build_id": strings.TrimSpace(string(buildID))})
 	})
 
 	r.GET("/metrics", func(c *gin.Context) {
