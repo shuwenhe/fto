@@ -147,16 +147,36 @@ service-install:
 	bash scripts/install_systemd_services.sh
 
 service-start:
-	systemctl start fto-backend fto-frontend fto-frontend-watch
+	@units="fto-backend fto-frontend"; \
+	if systemctl cat fto-frontend-watch >/dev/null 2>&1; then \
+		units="$$units fto-frontend-watch"; \
+	else \
+		echo "[warn] fto-frontend-watch not installed, run 'make service-install' to enable auto build/reload"; \
+	fi; \
+	systemctl start $$units
 
 service-stop:
-	systemctl stop fto-frontend-watch fto-backend fto-frontend
+	@units="fto-backend fto-frontend"; \
+	if systemctl cat fto-frontend-watch >/dev/null 2>&1; then \
+		units="fto-frontend-watch $$units"; \
+	fi; \
+	systemctl stop $$units
 
 service-restart:
-	systemctl restart fto-backend fto-frontend fto-frontend-watch
+	@units="fto-backend fto-frontend"; \
+	if systemctl cat fto-frontend-watch >/dev/null 2>&1; then \
+		units="$$units fto-frontend-watch"; \
+	else \
+		echo "[warn] fto-frontend-watch not installed, run 'make service-install' to enable auto build/reload"; \
+	fi; \
+	systemctl restart $$units
 
 service-status:
-	systemctl --no-pager --full status fto-backend fto-frontend fto-frontend-watch
+	@units="fto-backend fto-frontend"; \
+	if systemctl cat fto-frontend-watch >/dev/null 2>&1; then \
+		units="$$units fto-frontend-watch"; \
+	fi; \
+	systemctl --no-pager --full status $$units
 
 service-restart-backend:
 	systemctl restart fto-backend
