@@ -28,7 +28,7 @@ help:
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
 	@echo "  make git-auto-status # Show git auto daemon status"
 	@echo "  make git-auto-log    # Tail git auto daemon log"
-	@echo "  make logs [SERVICE=all|backend|frontend] # Tail systemd service logs"
+	@echo "  make logs [SERVICE=all|backend|frontend|watch] # Tail systemd service logs"
 	@echo "  make service-install # Install and enable systemd services"
 	@echo "  make service-start   # Start systemd services"
 	@echo "  make service-stop    # Stop systemd services"
