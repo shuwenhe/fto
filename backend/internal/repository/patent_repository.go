@@ -707,12 +707,14 @@ func (r *LocalPatentRepository) ExplainQuery(_ context.Context, query string, li
 		resp.FeatureNames = append([]string(nil), r.ranker.featureNames...)
 	}
 	for idx, item := range ranked {
+		matched := make([]string, len(item.matched))
+		copy(matched, item.matched)
 		entry := model.RankingExplainItem{
 			Rank:          idx + 1,
 			PatentID:      item.record.PatentID,
 			PatentURL:     buildPatentURL(item.record.PatentID),
 			Title:         item.record.Title,
-			Matched:       append([]string(nil), item.matched...),
+			Matched:       matched,
 			TitleScore:    item.titleScore,
 			AbstractScore: item.abstractScore,
 			ClaimScore:    item.claimScore,
