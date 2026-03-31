@@ -60,6 +60,8 @@ type scoredPatent struct {
 	features      []float64
 	modelScore    float64
 	usedModel     bool
+	deepScore     float64
+	usedDeep      bool
 	tokenCount    int
 	matched       []string
 }
@@ -93,6 +95,9 @@ type LocalPatentRepository struct {
 	rankingMode string
 	dualRatio   int
 	ranker      *neurxRanker
+	deepEnabled bool
+	deepTopN    int
+	deepMixAlpha float64
 }
 
 func NewLocalPatentRepository(dataPath string) (*LocalPatentRepository, error) {
@@ -150,11 +155,31 @@ func clampPercent(v int) int {
 func normalizeRankingMode(mode string) string {
 	mode = strings.ToLower(strings.TrimSpace(mode))
 	switch mode {
-	case "lexical", "dual", "gray":
+	case "lexical", "dual", "gray", "dual_deep":
 		return mode
 	default:
 		return "dual"
 	}
+}
+
+func clampTopN(v int) int {
+	if v < 1 {
+		return 1
+	}
+	if v > 100 {
+		return 100
+	}
+	return v
+}
+
+func clampMixAlpha(v float64) float64 {
+	if v < 0 {
+		return 0
+	}
+	if v > 1 {
+		return 1
+	}
+	return v
 }
 
 func NewLocalPatentRepositoryWithStrategy(dataPath string, rankingMode string, dualRatio int) (*LocalPatentRepository, error) {
@@ -203,6 +228,9 @@ func NewLocalPatentRepositoryWithModel(dataPath string, rankingMode string, dual
 		rankingMode: normalizeRankingMode(rankingMode),
 		dualRatio:   clampPercent(dualRatio),
 		ranker:      ranker,
+		deepEnabled: false,
+		deepTopN:    8,
+		deepMixAlpha: 0.35,
 	}, nil
 }
 
@@ -436,6 +464,8 @@ func (r *LocalPatentRepository) useDualForQuery(query string) bool {
 	switch mode {
 	case "dual":
 		return true
+	case "dual_deep":
+		return true
 	case "lexical":
 		return false
 	case "gray":
@@ -464,6 +494,9 @@ func (r *LocalPatentRepository) GetRankingModelStatus() model.RankingModelStatus
 		RankingMode:  mode,
 		DualRatio:    ratio,
 		ModelLoaded:  r.ranker != nil,
+		DeepEnabled:  r.deepEnabled,
+		DeepTopN:     r.deepTopN,
+		DeepMixAlpha: r.deepMixAlpha,
 		FeatureNames: append([]string(nil), neurxFeatureNames...),
 		FeatureCount: len(neurxFeatureNames),
 		PatentCount:  len(r.records),
@@ -480,6 +513,14 @@ func (r *LocalPatentRepository) GetRankingModelStatus() model.RankingModelStatus
 	return status
 }
 
+func (r *LocalPatentRepository) ConfigureDeepReranker(enabled bool, topN int, mixAlpha float64) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.deepEnabled = enabled
+	r.deepTopN = clampTopN(topN)
+	r.deepMixAlpha = clampMixAlpha(mixAlpha)
+}
+
 func buildResultItemDual(item scoredPatent) model.TaskResultItem {
 	matched := strings.Join(item.matched, ", ")
 	if matched == "" {
@@ -487,6 +528,20 @@ func buildResultItemDual(item scoredPatent) model.TaskResultItem {
 	}
 	reason := ""
 	if item.usedModel {
+		if item.usedDeep {
+			reason = fmt.Sprintf(
+				"命中关键词: %s；Neurx模型分=%.4f，Deep重排分=%.4f，融合后=%.4f（lexical=%d semantic=%.4f lex_norm=%.4f sem_norm=%.4f）；法律状态: %s。",
+				matched,
+				item.modelScore,
+				item.deepScore,
+				item.fusionScore,
+				item.lexicalScore,
+				item.semanticScore,
+				item.lexicalNorm,
+				item.semanticNorm,
+				item.record.LegalStatus,
+			)
+		} else {
 		reason = fmt.Sprintf(
 			"命中关键词: %s；Neurx模型分=%.4f（lexical=%d semantic=%.4f lex_norm=%.4f sem_norm=%.4f）；法律状态: %s。",
 			matched,
@@ -497,6 +552,7 @@ func buildResultItemDual(item scoredPatent) model.TaskResultItem {
 			item.semanticNorm,
 			item.record.LegalStatus,
 		)
+		}
 	} else {
 		reason = fmt.Sprintf(
 			"命中关键词: %s；启发式融合分=%.4f（lexical=%d semantic=%.4f lex_norm=%.4f sem_norm=%.4f）；法律状态: %s。",
@@ -515,6 +571,55 @@ func buildResultItemDual(item scoredPatent) model.TaskResultItem {
 		Title:     item.record.Title,
 		RiskLevel: calcRiskByFusion(item.fusionScore),
 		Reason:    reason,
+	}
+}
+
+func deepRerankScore(item scoredPatent) float64 {
+	lex := item.lexicalNorm
+	sem := item.semanticNorm
+	matchedDensity := 0.0
+	if item.tokenCount > 0 {
+		matchedDensity = math.Min(1.0, float64(len(item.matched))/float64(item.tokenCount))
+	}
+	kwNorm := math.Min(1.0, float64(item.keywordHits)/4.0)
+	claimNorm := math.Min(1.0, float64(item.claimScore)/3.0)
+	lenPenalty := math.Min(1.0, float64(item.tokenCount)/12.0)
+
+	h1 := math.Tanh(1.20*sem + 0.80*lex + 0.60*matchedDensity - 0.20*lenPenalty)
+	h2 := math.Tanh(1.40*sem*matchedDensity + 0.50*kwNorm + 0.30*claimNorm)
+	return sigmoid(1.10*h1 + 0.90*h2 + 0.70*sem + 0.30*lex - 0.20)
+}
+
+func (r *LocalPatentRepository) shouldUseDeepReranker() bool {
+	if r.ranker == nil {
+		return false
+	}
+	if !r.deepEnabled {
+		return false
+	}
+	if r.deepTopN <= 0 {
+		return false
+	}
+	if r.deepMixAlpha <= 0 {
+		return false
+	}
+	return true
+}
+
+func (r *LocalPatentRepository) applyDeepRerank(ranked []scoredPatent) {
+	if len(ranked) == 0 || !r.shouldUseDeepReranker() {
+		return
+	}
+	topN := r.deepTopN
+	if topN > len(ranked) {
+		topN = len(ranked)
+	}
+	alpha := r.deepMixAlpha
+	for i := 0; i < topN; i++ {
+		deep := deepRerankScore(ranked[i])
+		ranked[i].deepScore = deep
+		ranked[i].usedDeep = true
+		ranked[i].fusionScore = (1.0-alpha)*ranked[i].fusionScore + alpha*deep
 	}
 }
 
@@ -629,6 +734,13 @@ func (r *LocalPatentRepository) rankDualCandidates(query string, limit int) ([]s
 			}
 			return ranked[i].fusionScore > ranked[j].fusionScore
 		})
+		r.applyDeepRerank(ranked)
+		sort.SliceStable(ranked, func(i, j int) bool {
+			if ranked[i].fusionScore == ranked[j].fusionScore {
+				return ranked[i].lexicalScore > ranked[j].lexicalScore
+			}
+			return ranked[i].fusionScore > ranked[j].fusionScore
+		})
 		if len(ranked) > limit {
 			ranked = ranked[:limit]
 		}
@@ -733,6 +845,10 @@ func (r *LocalPatentRepository) ExplainQuery(_ context.Context, query string, li
 		if item.usedModel {
 			score := item.modelScore
 			entry.ModelScore = &score
+		}
+		if item.usedDeep {
+			score := item.deepScore
+			entry.DeepScore = &score
 		}
 		resp.Results = append(resp.Results, entry)
 	}
