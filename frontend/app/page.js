@@ -5,6 +5,7 @@ import { useState } from 'react';
 export default function HomePage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('idle');
+  const [progress, setProgress] = useState(null);
   const [taskId, setTaskId] = useState('-');
   const [rows, setRows] = useState([]);
 
@@ -17,6 +18,7 @@ export default function HomePage() {
       }
       const data = await res.json();
       setStatus(data.status);
+      setProgress(typeof data.progress === 'number' ? data.progress : null);
       setRows(data.result || []);
       if (data.status === 'succeeded' || data.status === 'failed') {
         return;
@@ -31,6 +33,7 @@ export default function HomePage() {
       return;
     }
     setStatus('submitting');
+    setProgress(0);
     setRows([]);
 
     const res = await fetch('/fto/api/tasks', {
@@ -46,6 +49,7 @@ export default function HomePage() {
     const data = await res.json();
     setTaskId(data.task_id);
     setStatus(data.status);
+    setProgress(typeof data.progress === 'number' ? data.progress : 0);
     await pollTask(data.task_id);
   }
 
@@ -61,7 +65,10 @@ export default function HomePage() {
 
         <div className="row">
           <button onClick={submitTask}>提交分析任务</button>
-          <span className="tag">状态：{status}</span>
+          <span className="tag">
+            状态：{status}
+            {progress !== null ? ` ${progress}%` : ''}
+          </span>
         </div>
 
         <div className="row">
