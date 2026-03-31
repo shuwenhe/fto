@@ -3,12 +3,15 @@
 import argparse
 import json
 import math
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
 import neurx
+import neurx.distributed as dist
 import neurx.nn as nn
 import neurx.optim as optim
+import numpy as np
 
 from train_fto_model_neurx import (
     DEFAULT_PATENTS,
@@ -177,6 +180,14 @@ def train_model(samples, epochs, lr):
             loss.backward()
             optimizers[class_idx].step()
 
+        if dist.is_initialized() and dist.get_world_size() > 1:
+            for model in models:
+                state = model.state_dict()
+                reduced = {}
+                for name, value in state.items():
+                    reduced[name] = dist.all_reduce(np.asarray(value), operation="mean")
+                model.load_state_dict(reduced, strict=True)
+
     mse_by_head = {}
     for class_idx, model in enumerate(models):
         probs = model(features).sigmoid().to_numpy().reshape(-1).tolist()
@@ -334,11 +345,30 @@ def parse_args():
     parser.add_argument("--candidate-k", type=int, default=24)
     parser.add_argument("--medium-rel-threshold", type=float, default=2.0)
     parser.add_argument("--high-rel-threshold", type=float, default=3.0)
+    parser.add_argument("--distributed", action="store_true")
+    parser.add_argument("--backend", default=os.environ.get("TENSOR_DIST_BACKEND", "hccl"))
     return parser.parse_args()
+
+
+def shard_samples(samples, rank, world_size):
+    if world_size <= 1:
+        return samples
+    if world_size > len(samples):
+        return samples
+    return [sample for idx, sample in enumerate(samples) if idx % world_size == rank]
 
 
 def main():
     args = parse_args()
+    rank = 0
+    world_size = 1
+    dist_enabled = bool(args.distributed)
+
+    if dist_enabled:
+        dist.init_process_group(backend=args.backend)
+        rank = dist.get_rank()
+        world_size = dist.get_world_size()
+
     if args.candidate_k <= 0:
         raise ValueError("candidate-k must be > 0")
     if args.high_rel_threshold < args.medium_rel_threshold:
@@ -363,42 +393,63 @@ def main():
         args.medium_rel_threshold,
         args.high_rel_threshold,
     )
+
+    local_samples = shard_samples(judge_samples, rank, world_size)
+    if not local_samples:
+        local_samples = judge_samples
+
     means, stds = standardize_features(judge_samples)
-    models, train_mse = train_model(judge_samples, args.epochs, args.lr)
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+
+    if dist_enabled:
+        dist.barrier()
 
     metrics = evaluate(models, means, stds, judge_samples)
     metrics["train_mse"] = train_mse
     metrics["candidate_k"] = int(args.candidate_k)
+    metrics["distributed"] = {
+        "enabled": dist_enabled,
+        "rank": rank,
+        "world_size": world_size,
+        "backend": args.backend,
+    }
 
-    export_artifact(
-        models,
-        means,
-        stds,
-        metrics,
-        medium_rel_threshold=args.medium_rel_threshold,
-        high_rel_threshold=args.high_rel_threshold,
-        out_path=Path(args.out),
-    )
-
-    print(f"[ok] samples={metrics['samples']}")
-    print(f"[ok] candidate_k={args.candidate_k}")
-    print(f"[ok] medium_rel_threshold={args.medium_rel_threshold}")
-    print(f"[ok] high_rel_threshold={args.high_rel_threshold}")
-    print(
-        "[ok] train_mse="
-        + ", ".join(f"{label}:{train_mse[label]:.6f}" for label in RISK_LABELS)
-    )
-    print(f"[ok] accuracy={metrics['accuracy']:.4f}")
-    print(f"[ok] macro_precision={metrics['macro_precision']:.4f}")
-    print(f"[ok] macro_recall={metrics['macro_recall']:.4f}")
-    print(f"[ok] macro_f1={metrics['macro_f1']:.4f}")
-    print(f"[ok] weighted_f1={metrics['weighted_f1']:.4f}")
-    for label in RISK_LABELS:
-        per = metrics["per_class"][label]
-        print(
-            f"[ok] class={label} precision={per['precision']:.4f} recall={per['recall']:.4f} f1={per['f1']:.4f} auc={per['auc']:.4f}"
+    if rank == 0:
+        export_artifact(
+            models,
+            means,
+            stds,
+            metrics,
+            medium_rel_threshold=args.medium_rel_threshold,
+            high_rel_threshold=args.high_rel_threshold,
+            out_path=Path(args.out),
         )
-    print(f"[ok] artifact={args.out}")
+
+    if rank == 0:
+        print(f"[ok] samples={metrics['samples']}")
+        print(f"[ok] candidate_k={args.candidate_k}")
+        print(f"[ok] medium_rel_threshold={args.medium_rel_threshold}")
+        print(f"[ok] high_rel_threshold={args.high_rel_threshold}")
+        print(
+            "[ok] train_mse="
+            + ", ".join(f"{label}:{train_mse[label]:.6f}" for label in RISK_LABELS)
+        )
+        print(f"[ok] accuracy={metrics['accuracy']:.4f}")
+        print(f"[ok] macro_precision={metrics['macro_precision']:.4f}")
+        print(f"[ok] macro_recall={metrics['macro_recall']:.4f}")
+        print(f"[ok] macro_f1={metrics['macro_f1']:.4f}")
+        print(f"[ok] weighted_f1={metrics['weighted_f1']:.4f}")
+        for label in RISK_LABELS:
+            per = metrics["per_class"][label]
+            print(
+                f"[ok] class={label} precision={per['precision']:.4f} recall={per['recall']:.4f} f1={per['f1']:.4f} auc={per['auc']:.4f}"
+            )
+        print(f"[ok] distributed={dist_enabled} rank={rank} world_size={world_size} backend={args.backend}")
+        print(f"[ok] artifact={args.out}")
+
+    if dist_enabled:
+        dist.barrier()
+        dist.destroy_process_group()
 
 
 if __name__ == "__main__":
