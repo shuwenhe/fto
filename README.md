@@ -153,6 +153,30 @@ cd /app/fto/backend
 RANKING_MODEL_PATH=/app/fto/model_artifacts/fto_ranker_neurx_v1.json go run main.go
 ```
 
+## 训练召回模型（建议先做）
+
+新增了可训练的双路召回参数模型（标题/摘要/权利要求/关键词权重、融合权重、召回深度参数），用于先把 `Recall@K` 打稳。
+
+训练：
+
+```bash
+cd /app/fto
+make train-fto-recall-model
+```
+
+默认输出：
+
+```text
+/app/fto/model_artifacts/fto_recall_dual_v1.json
+```
+
+离线评测（使用训练后的召回模型）：
+
+```bash
+cd /app/fto
+make eval-retrieval-model
+```
+
 ## 验收与基线文档
 
 - 第 2 条验收清单（指标门槛 + 稳定性定义）：`docs/acceptance_checklist_v1.md`
