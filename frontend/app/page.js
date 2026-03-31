@@ -2,6 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+const navItems = [
+  { label: '首页', href: 'http://111.202.231.146:8080/fto' },
+  { label: '健康检查', href: 'http://111.202.231.146:8080/fto/api/health' },
+  { label: '运行指标', href: 'http://111.202.231.146:8080/fto/api/metrics' },
+  { label: '排序配置', href: 'http://111.202.231.146:8080/fto/api/ops/ranking-config' },
+  { label: '排序模型', href: 'http://111.202.231.146:8080/fto/api/ops/ranking-model' },
+];
+
 export default function HomePage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('idle');
@@ -95,14 +103,17 @@ export default function HomePage() {
       <nav className="topNav">
         <div className="brand">FTO 专利防侵权</div>
         <div className="navLinks">
-          <a
-            className="navLink"
-            href="http://111.202.231.146:8080/fto/api/ops/ranking-model"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            排序模型
-          </a>
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              className="navLink"
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {item.label}
+            </a>
+          ))}
         </div>
       </nav>
 
