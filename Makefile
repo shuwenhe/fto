@@ -90,8 +90,7 @@ ci-gate:
 	node scripts/ci_gate.mjs --k 5 --sample 5 --seed 20260331 --query-id q1 --base-url http://127.0.0.1/fto/api --report-out docs/report_sample_v1.json
 
 ops-gate:
-	$(MAKE) ci-gate
-	$(MAKE) trend-report
+	node scripts/ops_gate.mjs --out docs/ops_gate_latest.json --base-url http://127.0.0.1/fto/api --k 5 --sample 5 --seed 20260331 --query-id q1 --report-out docs/report_sample_v1.json --trend-out-json docs/trend_summary_v1.json --trend-out-md docs/trend_summary_v1.md --lookback 20
 
 data-source-check:
 	@test -f /app/fto/data_sources/patents.jsonl && echo "[ok] /app/fto/data_sources/patents.jsonl"

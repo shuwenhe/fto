@@ -251,3 +251,5 @@ make ci-gate
 cd /app/fto
 make ops-gate
 ```
+
+CI 可直接采集汇总文件：`docs/ops_gate_latest.json`。
