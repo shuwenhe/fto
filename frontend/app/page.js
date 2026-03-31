@@ -70,7 +70,7 @@ export default function HomePage() {
           onChange={(e) => setQuery(e.target.value)}
         />
 
-        <div className="row">
+        <div className="row progressRow">
           <button onClick={submitTask}>提交分析任务</button>
           <span className="tag">状态：{status}</span>
           <div className="progressWrap" aria-label="任务进度">
