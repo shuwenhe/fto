@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FTO 专利防侵权 Demo</title>
+  <style>
+    :root {
+      --bg-a: #ecfeff;
+      --bg-b: #f8fafc;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #cbd5e1;
+      --card: #ffffff;
+      --primary: #0f766e;
+      --primary-hover: #115e59;
+      --ok-bg: #ecfdf5;
+      --ok-text: #166534;
+      --warn-bg: #fffbeb;
+      --warn-text: #92400e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, var(--bg-a), var(--bg-b) 55%);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    p { margin: 0; color: var(--muted); }
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 15px;
+      margin-top: 12px;
+      resize: vertical;
+    }
+    .row { display: flex; gap: 12px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+    button {
+      border: 0;
+      background: var(--primary);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: var(--primary-hover); }
+    .pill {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      background: var(--warn-bg);
+      color: var(--warn-text);
+    }
+    .ok { background: var(--ok-bg); color: var(--ok-text); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: 8px 6px;
+      vertical-align: top;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <h1>FTO 专利防侵权 Demo</h1>
+      <p>输入技术方案描述，调用后端任务接口，查看进度和候选专利风险结果。</p>
+      <textarea id="query" placeholder="例如：一种面向手机的无线充电散热结构，包含线圈和导热层...\n"></textarea>
+      <div class="row">
+        <button id="submitBtn">提交分析任务</button>
+        <span id="status" class="pill">状态：idle</span>
+      </div>
+      <div class="row">
+        <strong>Task ID:</strong><span id="taskId">-</span>
+        <strong>Progress:</strong><span id="progress">0%</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3 style="margin:0 0 8px;">候选专利风险结果</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>专利号</th>
+            <th>标题</th>
+            <th>风险</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody">
+          <tr><td colspan="4" style="color:#64748b;">暂无结果</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const submitBtn = document.getElementById('submitBtn');
+    const queryEl = document.getElementById('query');
+    const statusEl = document.getElementById('status');
+    const taskIdEl = document.getElementById('taskId');
+    const progressEl = document.getElementById('progress');
+    const resultBody = document.getElementById('resultBody');
+
+    function setStatus(text, ok = false) {
+      statusEl.textContent = `状态：${text}`;
+      statusEl.classList.toggle('ok', ok);
+    }
+
+    function renderRows(rows) {
+      if (!rows || rows.length === 0) {
+        resultBody.innerHTML = '<tr><td colspan="4" style="color:#64748b;">暂无结果</td></tr>';
+        return;
+      }
+      resultBody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.patent_id}</td>
+          <td>${r.title}</td>
+          <td>${r.risk_level}</td>
+          <td>${r.reason}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function pollTask(taskId) {
+      for (;;) {
+        const res = await fetch(`/fto/api/tasks/${taskId}`);
+        if (!res.ok) {
+          setStatus('查询失败');
+          break;
+        }
+        const data = await res.json();
+        progressEl.textContent = `${data.progress}%`;
+        setStatus(data.status, data.status === 'succeeded');
+
+        if (data.status === 'succeeded') {
+          renderRows(data.result || []);
+          break;
+        }
+        if (data.status === 'failed') {
+          break;
+        }
+        await new Promise(r => setTimeout(r, 1000));
+      }
+    }
+
+    submitBtn.addEventListener('click', async () => {
+      const query = queryEl.value.trim();
+      if (!query) {
+        alert('请先输入技术方案描述');
+        return;
+      }
+      setStatus('submitting');
+      renderRows([]);
+      progressEl.textContent = '0%';
+
+      const res = await fetch('/fto/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+
+      if (!res.ok) {
+        setStatus('提交失败');
+        return;
+      }
+
+      const data = await res.json();
+      taskIdEl.textContent = data.task_id;
+      setStatus(data.status);
+      await pollTask(data.task_id);
+    });
+  </script>
+</body>
+</html>
