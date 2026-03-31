@@ -93,7 +93,15 @@ export default function HomePage() {
             ) : (
               rows.map((r) => (
                 <tr key={r.patent_id}>
-                  <td>{r.patent_id}</td>
+                  <td>
+                    {r.patent_url ? (
+                      <a href={r.patent_url} target="_blank" rel="noopener noreferrer">
+                        {r.patent_id}
+                      </a>
+                    ) : (
+                      r.patent_id
+                    )}
+                  </td>
                   <td>{r.title}</td>
                   <td>{r.risk_level}</td>
                   <td>{r.reason}</td>
