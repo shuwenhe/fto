@@ -160,3 +160,41 @@ make backend-metrics
 ```
 
 可执行清单见：`docs/engineering_checklist_v1.md`
+
+## 压测（Load Test）
+
+运行默认压测（并发 10、60 秒），输出 P50/P95/P99 并保存报告：
+
+```bash
+cd /app/fto
+make load-test
+```
+
+自定义参数示例：
+
+```bash
+cd /app/fto
+node scripts/load_test_tasks.mjs --base-url http://127.0.0.1/fto/api --concurrency 20 --duration-sec 120 --max-error-rate 0.01 --max-p95-ms 2000 --out docs/load_test_report_v1.json
+```
+
+## 灰度放量与自动回滚
+
+按比例逐步放量并做阈值检查，超阈值自动回滚：
+
+```bash
+cd /app/fto
+make gray-rollout-guard
+```
+
+默认放量比例：`1,10,30,50,100`。
+默认阈值：`error_rate <= 1%` 且 `p95 <= 2000ms`。
+若超阈值，自动回滚为 `lexical`。
+
+## CI 门禁
+
+单命令串行执行门禁：离线评测 + 一致性检查 + 样例报告生成。
+
+```bash
+cd /app/fto
+make ci-gate
+```

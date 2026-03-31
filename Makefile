@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics load-test gray-rollout-guard ci-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
@@ -10,6 +10,9 @@ help:
 	@echo "  make backend-run      # Run Gin backend on :8010"
 	@echo "  make backend-health   # Check backend health via /fto/api/health"
 	@echo "  make backend-metrics  # Show /fto/api/metrics"
+	@echo "  make load-test        # Run load test and print P50/P95/P99"
+	@echo "  make gray-rollout-guard # Progressive gray rollout with auto rollback checks"
+	@echo "  make ci-gate          # Run eval + consistency + sample report gate"
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
 	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
@@ -59,6 +62,17 @@ backend-health:
 
 backend-metrics:
 	curl -sS http://127.0.0.1/fto/api/metrics
+
+load-test:
+	node scripts/load_test_tasks.mjs --base-url http://127.0.0.1/fto/api --concurrency 10 --duration-sec 60 --out docs/load_test_report_v1.json
+
+gray-rollout-guard:
+	node scripts/gray_rollout_guard.mjs --base-url http://127.0.0.1/fto/api --ratios 1,10,30,50,100 --concurrency 5 --duration-sec 20 --max-error-rate 0.01 --max-p95-ms 2000 --rollback-mode lexical --rollback-dual-ratio 0
+
+ci-gate:
+	node scripts/eval_retrieval.mjs --k 5
+	node scripts/compare_online_offline.mjs --k 5 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api
+	node scripts/generate_report_sample.mjs --k 5 --query-id q1 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api --out docs/report_sample_v1.json
 
 data-source-check:
 	@test -f /app/fto/data_sources/patents.jsonl && echo "[ok] /app/fto/data_sources/patents.jsonl"

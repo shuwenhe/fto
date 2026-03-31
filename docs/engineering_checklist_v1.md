@@ -64,27 +64,40 @@ REDIS_PASSWORD=123456 RANKING_MODE=lexical go run main.go
 
 ## D. 压测（下一步马上做）
 
-状态：待落地
+状态：已落地（基础版）
 
-- [ ] 增加压测脚本（建议 `scripts/load_test_tasks.mjs`）
-- [ ] 固定场景：并发 10、持续 60 秒、固定 query 集
-- [ ] 输出：总请求、成功率、P50/P95/P99、错误分布
-- [ ] 设首版门槛：错误率 < 1%，P95 < 2s
+- [x] 增加压测脚本：`scripts/load_test_tasks.mjs`
+- [x] 固定场景：并发 10、持续 60 秒、固定 query 集
+- [x] 输出：总请求、成功率、P50/P95/P99、错误分布
+- [x] 阈值检查参数：`--max-error-rate`、`--max-p95-ms`
+
+验收命令：
+
+```bash
+cd /app/fto
+make load-test
+```
 
 ## E. 灰度放量策略（下一步）
 
-状态：待落地
+状态：已落地（基础版）
 
-- [ ] 增加运行时配置来源（env + 配置文件）
-- [ ] 放量顺序：1% -> 10% -> 30% -> 50% -> 100%
-- [ ] 每步观察窗口：15~30 分钟
-- [ ] 回滚条件：错误率或 P95 超阈值立即切回 lexical 或 dual 固定模式
+- [x] 增加运行时配置 API：`GET/POST /ops/ranking-config`
+- [x] 放量顺序自动化：1% -> 10% -> 30% -> 50% -> 100%
+- [x] 阈值检查：错误率与 P95
+- [x] 自动回滚：超阈值切回 `lexical`
+
+验收命令：
+
+```bash
+cd /app/fto
+make gray-rollout-guard
+```
 
 ## F. 门禁流水线（下一步）
 
-状态：待落地
+状态：已落地（基础版）
 
-- [ ] `make eval-retrieval`
-- [ ] `make compare-online-offline`
-- [ ] `make generate-report-sample`
-- [ ] 三者必须全通过才允许合并
+- [x] 单命令门禁：`make ci-gate`
+- [x] 依次执行：eval -> consistency -> report sample
+- [x] 任一失败即返回非 0
