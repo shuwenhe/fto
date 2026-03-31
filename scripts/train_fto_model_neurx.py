@@ -325,8 +325,8 @@ def train_model(samples, epochs, lr):
         loss.backward()
         optimizer.step()
 
-    preds = model(features).sigmoid().data.reshape(-1).tolist()
-    targets_flat = targets.data.reshape(-1).tolist()
+    preds = model(features).sigmoid().to_numpy().reshape(-1).tolist()
+    targets_flat = targets.to_numpy().reshape(-1).tolist()
     mse = sum((preds[i] - targets_flat[i]) ** 2 for i in range(len(preds))) / len(preds)
     return model, mse
 
@@ -334,7 +334,7 @@ def train_model(samples, epochs, lr):
 def score_sample(model, means, stds, features):
     scaled = [(features[idx] - means[idx]) / stds[idx] for idx in range(len(features))]
     tensor = neurx.Tensor([scaled], requires_grad=False)
-    score = model(tensor).sigmoid().data.reshape(-1)[0]
+    score = model(tensor).sigmoid().to_numpy().reshape(-1)[0]
     return float(score)
 
 
