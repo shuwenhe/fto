@@ -66,7 +66,7 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(observability.RequestIDMiddleware())
 	r.Use(observability.AccessLogMiddleware(metrics))
-	router.RegisterRoutes(r, taskService, metrics)
+	router.RegisterRoutes(r, taskService, metrics, patentRepo)
 
 	log.Printf("backend config: redis_addr=%s patent_data_path=%s ranking_mode=%s ranking_dual_ratio=%d", redisAddr, patentDataPath, rankingMode, dualRatio)
 
