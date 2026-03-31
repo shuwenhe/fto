@@ -7,6 +7,10 @@ import random
 from datetime import datetime, timezone
 from pathlib import Path
 
+import neurx
+import neurx.nn as nn
+import neurx.optim as optim
+
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PATENTS = ROOT / "data_sources" / "patents.jsonl"
 DEFAULT_QUERIES = ROOT / "data_sources" / "queries.jsonl"
@@ -22,6 +26,14 @@ BASELINE_PARAMS = {
     "recallDepthMultiplier": 3,
     "recallDepthMin": 6,
 }
+
+FEATURE_NAMES = [
+    "title_score",
+    "abstract_score",
+    "claim_score",
+    "keyword_hits",
+    "semantic_score",
+]
 
 
 def read_jsonl(path: Path):
@@ -171,6 +183,36 @@ def score_patent(record, tokens, query_vec, params):
     return lexical, semantic
 
 
+def extract_raw_features(record, tokens, query_vec):
+    title_score = float(contains_any(record.get("title", ""), tokens))
+    abstract_score = float(contains_any(record.get("abstract", ""), tokens))
+    claim_score = float(contains_any(record.get("claim", ""), tokens))
+
+    keyword_hits = 0.0
+    for keyword in record.get("keywords", []):
+        keyword_norm = normalize(keyword)
+        for token in tokens:
+            if token in keyword_norm or keyword_norm in token:
+                keyword_hits += 1.0
+
+    text = " ".join(
+        [
+            record.get("title", ""),
+            record.get("abstract", ""),
+            record.get("claim", ""),
+            " ".join(record.get("keywords", [])),
+        ]
+    )
+    semantic_score = float(cosine_sim(query_vec, build_semantic_vector(text)))
+    return {
+        "title_score": title_score,
+        "abstract_score": abstract_score,
+        "claim_score": claim_score,
+        "keyword_hits": keyword_hits,
+        "semantic_score": semantic_score,
+    }
+
+
 def rank_patents(patents, query_text, k, params):
     tokens = split_query(query_text)
     if not tokens:
@@ -297,6 +339,135 @@ def evaluate(patents, queries, rel_by_query, params, k):
     return metrics, score
 
 
+def build_training_samples(patents, queries, rel_by_query, negative_per_query, seed):
+    rng = random.Random(seed)
+    rows = []
+
+    for query in queries:
+        query_id = str(query["query_id"])
+        query_text = str(query["query"])
+        tokens = split_query(query_text)
+        if not tokens:
+            continue
+
+        query_vec = build_semantic_vector(query_text)
+        features_by_patent = {}
+        for patent in patents:
+            patent_id = str(patent.get("patent_id", ""))
+            feat = extract_raw_features(patent, tokens, query_vec)
+            if sum(feat.values()) <= 0.0:
+                continue
+            features_by_patent[patent_id] = feat
+
+        if not features_by_patent:
+            continue
+
+        rel_map = rel_by_query.get(query_id, {})
+        positives = [pid for pid, rel in rel_map.items() if rel > 0 and pid in features_by_patent]
+        if not positives:
+            continue
+
+        negatives_all = [pid for pid in features_by_patent.keys() if pid not in rel_map or rel_map.get(pid, 0.0) <= 0.0]
+        if not negatives_all:
+            continue
+
+        for patent_id in positives:
+            rel = float(rel_map.get(patent_id, 1.0))
+            rows.append(
+                {
+                    "features": [features_by_patent[patent_id][name] for name in FEATURE_NAMES],
+                    "label": 1.0,
+                    "weight": 1.0 + rel,
+                }
+            )
+
+        neg_count = max(len(positives), int(negative_per_query))
+        sampled_negatives = rng.sample(negatives_all, min(neg_count, len(negatives_all)))
+        for patent_id in sampled_negatives:
+            rows.append(
+                {
+                    "features": [features_by_patent[patent_id][name] for name in FEATURE_NAMES],
+                    "label": 0.0,
+                    "weight": 1.0,
+                }
+            )
+
+    if not rows:
+        raise ValueError("no training samples built from patents/queries/qrels")
+    return rows
+
+
+def train_neurx_recall(samples, epochs, lr):
+    features = neurx.Tensor([row["features"] for row in samples], requires_grad=False)
+    labels = neurx.Tensor([[row["label"]] for row in samples], requires_grad=False)
+    weights = neurx.Tensor([[row["weight"]] for row in samples], requires_grad=False)
+
+    model = nn.Linear(len(FEATURE_NAMES), 1)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    loss_value = 0.0
+    for _ in range(epochs):
+        model.zero_grad()
+        preds = model(features).sigmoid()
+        diff = preds - labels
+        loss = ((diff * diff) * weights).mean()
+        loss.backward()
+        optimizer.step()
+        loss_value = float(loss.item())
+
+    coeffs = model.weight.data.reshape(-1).tolist()
+    return [float(value) for value in coeffs], loss_value
+
+
+def softplus(value):
+    if value > 20:
+        return value
+    if value < -20:
+        return math.exp(value)
+    return math.log1p(math.exp(value))
+
+
+def derive_params_from_coeffs(coeffs):
+    raw = [softplus(value) for value in coeffs]
+    lexical = [max(0.01, value) for value in raw[:4]]
+    semantic = max(0.01, raw[4])
+
+    lexical_mean = sum(lexical) / max(1, len(lexical))
+    scale = 3.0 / lexical_mean if lexical_mean > 0 else 1.0
+    lexical = [value * scale for value in lexical]
+
+    lexical_total = sum(lexical)
+    alpha = lexical_total / (lexical_total + semantic)
+    alpha = min(0.95, max(0.05, alpha))
+
+    return {
+        "titleWeight": round(lexical[0], 4),
+        "abstractWeight": round(lexical[1], 4),
+        "claimWeight": round(lexical[2], 4),
+        "keywordWeight": round(lexical[3], 4),
+        "fusionLexicalWeight": round(alpha, 4),
+        "recallDepthMultiplier": BASELINE_PARAMS["recallDepthMultiplier"],
+        "recallDepthMin": BASELINE_PARAMS["recallDepthMin"],
+    }
+
+
+def tune_recall_depth(patents, queries, rel_by_query, params, k):
+    best_params = dict(params)
+    best_metrics, best_score = evaluate(patents, queries, rel_by_query, best_params, k)
+
+    for depth_multiplier in [2, 3, 4, 5, 6, 8]:
+        for depth_min in [4, 6, 8, 10, 12, 16, 20]:
+            candidate = dict(best_params)
+            candidate["recallDepthMultiplier"] = int(depth_multiplier)
+            candidate["recallDepthMin"] = int(depth_min)
+            metrics, score = evaluate(patents, queries, rel_by_query, candidate, k)
+            if score > best_score:
+                best_score = score
+                best_metrics = metrics
+                best_params = candidate
+    return best_params, best_metrics, best_score
+
+
 def sample_params(rng):
     return {
         "titleWeight": round(rng.uniform(1.0, 8.0), 4),
@@ -331,7 +502,9 @@ def parse_args():
     parser.add_argument("--qrels", default=str(DEFAULT_QRELS))
     parser.add_argument("--out", default=str(DEFAULT_OUT))
     parser.add_argument("--k", type=int, default=5)
-    parser.add_argument("--iterations", type=int, default=600)
+    parser.add_argument("--iterations", type=int, default=300)
+    parser.add_argument("--lr", type=float, default=0.03)
+    parser.add_argument("--negative-per-query", type=int, default=8)
     parser.add_argument("--seed", type=int, default=20260331)
     return parser.parse_args()
 
@@ -342,24 +515,27 @@ def main():
         raise ValueError("k must be > 0")
     if args.iterations <= 0:
         raise ValueError("iterations must be > 0")
+    if args.lr <= 0:
+        raise ValueError("lr must be > 0")
+    if args.negative_per_query <= 0:
+        raise ValueError("negative-per-query must be > 0")
 
     patents = read_jsonl(Path(args.patents))
     queries = read_jsonl(Path(args.queries))
     qrels = read_jsonl(Path(args.qrels))
     rel_by_query = build_rel_by_query(qrels)
 
-    rng = random.Random(args.seed)
+    samples = build_training_samples(
+        patents,
+        queries,
+        rel_by_query,
+        negative_per_query=args.negative_per_query,
+        seed=args.seed,
+    )
 
-    best_params = dict(BASELINE_PARAMS)
-    best_metrics, best_score = evaluate(patents, queries, rel_by_query, best_params, args.k)
-
-    for _ in range(args.iterations):
-        candidate = sample_params(rng)
-        metrics, score = evaluate(patents, queries, rel_by_query, candidate, args.k)
-        if score > best_score:
-            best_score = score
-            best_metrics = metrics
-            best_params = candidate
+    coeffs, train_loss = train_neurx_recall(samples, epochs=args.iterations, lr=args.lr)
+    learned = derive_params_from_coeffs(coeffs)
+    best_params, best_metrics, _ = tune_recall_depth(patents, queries, rel_by_query, learned, args.k)
 
     export_artifact(best_params, best_metrics, Path(args.out), args.k, args.iterations, args.seed)
 
@@ -367,6 +543,7 @@ def main():
     print(f"[ok] Recall@{args.k}={best_metrics['recall_at_k']:.4f}")
     print(f"[ok] MRR@{args.k}={best_metrics['mrr_at_k']:.4f}")
     print(f"[ok] NDCG@{args.k}={best_metrics['ndcg_at_k']:.4f}")
+    print(f"[ok] train_loss={train_loss:.6f}")
     print(f"[ok] artifact={args.out}")
     print(f"[ok] params={json.dumps(best_params, ensure_ascii=False)}")
 
