@@ -118,7 +118,6 @@ export default function HomePage() {
       </nav>
 
       <section className="card">
-        <h1>FTO 专利防侵权</h1>
         <textarea
           placeholder="输入技术方案描述，例如：一种无线充电散热结构..."
           value={query}
