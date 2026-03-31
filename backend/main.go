@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"fto-backend/internal/observability"
@@ -36,6 +37,27 @@ func getEnvInt(key string, fallback int) int {
 	return n
 }
 
+func getEnvBool(key string, fallback bool) bool {
+	val := os.Getenv(key)
+	if val == "" {
+		return fallback
+	}
+	v := strings.ToLower(strings.TrimSpace(val))
+	return v == "1" || v == "true" || v == "yes" || v == "on"
+}
+
+func getEnvFloat(key string, fallback float64) float64 {
+	val := os.Getenv(key)
+	if val == "" {
+		return fallback
+	}
+	n, err := strconv.ParseFloat(val, 64)
+	if err != nil {
+		return fallback
+	}
+	return n
+}
+
 func main() {
 	redisAddr := getEnv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPassword := getEnv("REDIS_PASSWORD", "")
@@ -43,6 +65,9 @@ func main() {
 	rankingMode := getEnv("RANKING_MODE", "dual")
 	dualRatio := getEnvInt("RANKING_DUAL_RATIO", 50)
 	rankingModelPath := getEnv("RANKING_MODEL_PATH", "/app/fto/model_artifacts/fto_ranker_neurx_v1.json")
+	deepRerankEnabled := getEnvBool("RANKING_DEEP_ENABLED", false)
+	deepRerankTopN := getEnvInt("RANKING_DEEP_TOP_N", 8)
+	deepRerankMixAlpha := getEnvFloat("RANKING_DEEP_MIX_ALPHA", 0.35)
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
@@ -66,6 +91,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("load patent data source failed: %v", err)
 	}
+	patentRepo.ConfigureDeepReranker(deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha)
 
 	taskService := service.NewTaskService(repo, patentRepo, 5)
 
@@ -77,7 +103,7 @@ func main() {
 	r.Use(observability.AccessLogMiddleware(metrics))
 	router.RegisterRoutes(r, taskService, metrics, patentRepo)
 
-	log.Printf("backend config: redis_addr=%s patent_data_path=%s ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t", redisAddr, patentDataPath, rankingMode, dualRatio, rankingModelPath, ranker != nil)
+	log.Printf("backend config: redis_addr=%s patent_data_path=%s ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f", redisAddr, patentDataPath, rankingMode, dualRatio, rankingModelPath, ranker != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha)
 
 	if err := r.Run(":8010"); err != nil {
 		log.Fatalf("run server failed: %v", err)
