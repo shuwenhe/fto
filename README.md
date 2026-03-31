@@ -155,7 +155,7 @@ RANKING_MODEL_PATH=/app/fto/model_artifacts/fto_ranker_neurx_v1.json go run main
 
 ## 训练召回模型（建议先做）
 
-新增了可训练的双路召回参数模型（标题/摘要/权利要求/关键词权重、融合权重、召回深度参数），用于先把 `Recall@K` 打稳。
+新增了基于 neurx 的可训练双路召回参数模型（标题/摘要/权利要求/关键词权重、融合权重、召回深度参数），用于先把 `Recall@K` 打稳。
 
 训练：
 
