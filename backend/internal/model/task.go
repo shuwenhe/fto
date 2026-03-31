@@ -18,15 +18,15 @@ type TaskResultItem struct {
 }
 
 type RankingModelStatus struct {
-	RankingMode string   `json:"ranking_mode"`
-	DualRatio   int      `json:"dual_ratio"`
-	ModelLoaded bool     `json:"model_loaded"`
-	ModelType   string   `json:"model_type,omitempty"`
-	ModelVersion int     `json:"model_version,omitempty"`
-	Activation  string   `json:"activation,omitempty"`
+	RankingMode  string   `json:"ranking_mode"`
+	DualRatio    int      `json:"dual_ratio"`
+	ModelLoaded  bool     `json:"model_loaded"`
+	ModelType    string   `json:"model_type,omitempty"`
+	ModelVersion int      `json:"model_version,omitempty"`
+	Activation   string   `json:"activation,omitempty"`
 	FeatureNames []string `json:"feature_names,omitempty"`
-	FeatureCount int     `json:"feature_count"`
-	PatentCount int      `json:"patent_count"`
+	FeatureCount int      `json:"feature_count"`
+	PatentCount  int      `json:"patent_count"`
 }
 
 type RankingExplainItem struct {

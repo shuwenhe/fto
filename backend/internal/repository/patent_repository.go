@@ -76,14 +76,14 @@ type neurxRankerArtifact struct {
 }
 
 type neurxRanker struct {
-	modelType  string
-	version    int
+	modelType    string
+	version      int
 	featureNames []string
-	means      []float64
-	stds       []float64
-	weights    []float64
-	bias       float64
-	activation string
+	means        []float64
+	stds         []float64
+	weights      []float64
+	bias         float64
+	activation   string
 }
 
 type LocalPatentRepository struct {
@@ -126,14 +126,14 @@ func LoadNeurxRanker(modelPath string) (*neurxRanker, error) {
 		}
 	}
 	return &neurxRanker{
-		modelType:  artifact.ModelType,
-		version:    artifact.Version,
+		modelType:    artifact.ModelType,
+		version:      artifact.Version,
 		featureNames: append([]string(nil), artifact.FeatureNames...),
-		means:      append([]float64(nil), artifact.FeatureMeans...),
-		stds:       stds,
-		weights:    append([]float64(nil), artifact.Weights...),
-		bias:       artifact.Bias,
-		activation: strings.ToLower(strings.TrimSpace(artifact.Activation)),
+		means:        append([]float64(nil), artifact.FeatureMeans...),
+		stds:         stds,
+		weights:      append([]float64(nil), artifact.Weights...),
+		bias:         artifact.Bias,
+		activation:   strings.ToLower(strings.TrimSpace(artifact.Activation)),
 	}, nil
 }
 
@@ -461,12 +461,12 @@ func (r *LocalPatentRepository) UpdateRankingConfig(mode string, dualRatio int) 
 func (r *LocalPatentRepository) GetRankingModelStatus() model.RankingModelStatus {
 	mode, ratio := r.GetRankingConfig()
 	status := model.RankingModelStatus{
-		RankingMode: mode,
-		DualRatio:   ratio,
-		ModelLoaded: r.ranker != nil,
+		RankingMode:  mode,
+		DualRatio:    ratio,
+		ModelLoaded:  r.ranker != nil,
 		FeatureNames: append([]string(nil), neurxFeatureNames...),
 		FeatureCount: len(neurxFeatureNames),
-		PatentCount: len(r.records),
+		PatentCount:  len(r.records),
 	}
 	if r.ranker != nil {
 		status.ModelType = r.ranker.modelType
