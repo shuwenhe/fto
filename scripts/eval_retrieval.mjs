@@ -1,29 +1,32 @@
 #!/usr/bin/env node
 
 import path from 'path';
-import { readJsonl, rankPatentsDualRecall } from './lib/retrieval_ranker.mjs';
+import { readJsonl, rankPatentsDualRecall, loadDualRecallModel } from './lib/retrieval_ranker.mjs';
 
 const ROOT = '/app/fto';
 const DEFAULT_PATENTS = path.join(ROOT, 'data_sources', 'patents.jsonl');
 const DEFAULT_QUERIES = path.join(ROOT, 'data_sources', 'queries.jsonl');
 const DEFAULT_QRELS = path.join(ROOT, 'data_sources', 'qrels.jsonl');
+const DEFAULT_MODEL = path.join(ROOT, 'model_artifacts', 'fto_recall_dual_v1.json');
 
 function parseArgs(argv) {
-  const args = { k: 5, patents: DEFAULT_PATENTS, queries: DEFAULT_QUERIES, qrels: DEFAULT_QRELS, verbose: false };
+  const args = { k: 5, patents: DEFAULT_PATENTS, queries: DEFAULT_QUERIES, qrels: DEFAULT_QRELS, model: '', verbose: false };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--k') args.k = Number(argv[++i] || '5');
     else if (a === '--patents') args.patents = argv[++i] || DEFAULT_PATENTS;
     else if (a === '--queries') args.queries = argv[++i] || DEFAULT_QUERIES;
     else if (a === '--qrels') args.qrels = argv[++i] || DEFAULT_QRELS;
+    else if (a === '--model') args.model = argv[++i] || '';
+    else if (a === '--use-default-model') args.model = DEFAULT_MODEL;
     else if (a === '--verbose') args.verbose = true;
   }
   if (!Number.isFinite(args.k) || args.k <= 0) args.k = 5;
   return args;
 }
 
-function rankPatents(patents, query, k) {
-  return rankPatentsDualRecall(patents, query, k);
+function rankPatents(patents, query, k, model) {
+  return rankPatentsDualRecall(patents, query, k, model);
 }
 
 function recallAtK(pred, relSet) {
@@ -67,6 +70,7 @@ function main() {
   const patents = readJsonl(args.patents);
   const queries = readJsonl(args.queries);
   const qrels = readJsonl(args.qrels);
+  const model = args.model ? loadDualRecallModel(args.model) : null;
 
   const relByQ = new Map();
   for (const r of qrels) {
@@ -81,7 +85,7 @@ function main() {
   for (const q of queries) {
     const qid = String(q.query_id);
     const query = String(q.query || '');
-    const pred = rankPatents(patents, query, args.k);
+    const pred = rankPatents(patents, query, args.k, model || undefined);
     const relMap = relByQ.get(qid) || new Map();
     const relSet = new Set(Array.from(relMap.entries()).filter((x) => x[1] > 0).map((x) => x[0]));
 
@@ -98,6 +102,7 @@ function main() {
   const avg = (key) => (rows.length ? rows.reduce((s, r) => s + r[key], 0) / rows.length : 0);
 
   console.log(`Eval@${args.k}`);
+  if (args.model) console.log(`model=${args.model}`);
   console.log(`queries=${rows.length}`);
   console.log(`Recall@${args.k}=${avg('recall').toFixed(4)}`);
   console.log(`MRR@${args.k}=${avg('mrr').toFixed(4)}`);
