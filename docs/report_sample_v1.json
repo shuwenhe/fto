@@ -1,6 +1,6 @@
 {
   "report_version": "v1",
-  "generated_at": "2026-03-31T03:37:57.867Z",
+  "generated_at": "2026-03-31T03:54:17.010Z",
   "environment": {
     "service": "fto-backend-gin",
     "base_url": "http://127.0.0.1/fto/api",
@@ -41,10 +41,10 @@
   "query_report": {
     "query_id": "q1",
     "query": "无线充电 温控 线圈",
-    "task_id": "task-1774928272993419898-24",
+    "task_id": "task-1774929252138919998-43",
     "status": "succeeded",
-    "created_at": "2026-03-31T03:37:52Z",
-    "updated_at": "2026-03-31T03:37:57Z",
+    "created_at": "2026-03-31T03:54:12Z",
+    "updated_at": "2026-03-31T03:54:16Z",
     "topk": [
       {
         "rank": 1,
