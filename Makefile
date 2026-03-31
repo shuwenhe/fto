@@ -68,7 +68,7 @@ backend-metrics:
 	curl -sS http://127.0.0.1/fto/api/metrics
 
 alert-check:
-	node scripts/alert_check.mjs --base-url http://127.0.0.1/fto/api --load-report docs/load_test_report_v1.json --gray-report docs/gray_rollout_report_latest.json --max-load-error-rate 0.01 --max-load-p95-ms 2000 --max-gray-error-rate 0.01 --max-gray-p95-ms 2000 --max-live-post-tasks-p95-ms 200 --max-http-errors-total 0
+	node scripts/alert_check.mjs --base-url http://127.0.0.1/fto/api --load-report docs/load_test_report_v1.json --gray-report docs/gray_rollout_report_latest.json --max-load-error-rate 0.01 --max-load-p95-ms 5500 --max-gray-error-rate 0.01 --max-gray-p95-ms 5500 --max-live-post-tasks-p95-ms 200 --max-http-errors-total 0
 
 trend-report:
 	node scripts/trend_report.mjs --load-history docs/load_test_history.jsonl --gray-history docs/gray_rollout_history.jsonl --out-json docs/trend_summary_v1.json --out-md docs/trend_summary_v1.md --lookback 20

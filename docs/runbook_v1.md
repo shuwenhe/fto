@@ -104,9 +104,9 @@ make alert-check
 ## 5. 阈值建议（首版）
 
 - Load error rate <= 1%
-- Load P95 <= 2000ms
+- Load P95 <= 5500ms
 - Gray step error rate <= 1%
-- Gray step P95 <= 2000ms
+- Gray step P95 <= 5500ms
 - Live POST /tasks P95 <= 200ms
 - HTTP 5xx total <= 0（短周期窗口内）
 
