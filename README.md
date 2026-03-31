@@ -120,3 +120,19 @@ node scripts/compare_online_offline.mjs --k 5 --sample 10 --seed 20260331 --base
 - 基线冻结（数据快照、参数、命令）：`docs/baseline_v1.md`
 - 第 3 条报告 schema：`docs/report_schema_v1.json`
 - 第 3 条样例报告：`docs/report_sample_v1.json`
+
+## 样例报告自动生成
+
+一键生成第 3 条样例报告（自动执行：离线评测 + 一致性检查 + 指定 query 在线任务结果采集）：
+
+```bash
+cd /app/fto
+make generate-report-sample
+```
+
+自定义参数示例：
+
+```bash
+cd /app/fto
+node scripts/generate_report_sample.mjs --k 5 --query-id q1 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api --out docs/report_sample_v1.json
+```
