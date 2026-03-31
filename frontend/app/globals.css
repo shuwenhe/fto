@@ -2,6 +2,13 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: 'SpaceX';
+  src: local('SpaceX'), local('SpaceX-Regular'), local('SpaceX Script'),
+    url('/fto/fonts/SpaceX.ttf') format('truetype');
+  font-display: swap;
+}
+
 body {
   margin: 0;
   font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -29,9 +36,24 @@ body {
 }
 
 .brand {
-  font-size: 18px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1;
+}
+
+.brandLatin {
+  font-family: 'SpaceX', 'Orbitron', 'Eurostile', 'Bank Gothic', sans-serif;
+  font-size: clamp(30px, 4vw, 46px);
+  letter-spacing: 0.1em;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.brandCn {
+  font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 700;
 }
 
 .navLinks {
@@ -143,5 +165,17 @@ td {
 
   .topNav {
     padding: 12px 14px;
+  }
+
+  .brand {
+    gap: 8px;
+  }
+
+  .brandLatin {
+    font-size: clamp(24px, 7vw, 36px);
+  }
+
+  .brandCn {
+    font-size: clamp(16px, 4vw, 22px);
   }
 }
