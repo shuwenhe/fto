@@ -25,6 +25,27 @@ type RankingConfigController interface {
 	UpdateRankingConfig(mode string, dualRatio int)
 }
 
+type RankingModelStatusProvider interface {
+	GetRankingModelStatus() model.RankingModelStatus
+}
+
+type RankingExplainProvider interface {
+	ExplainQuery(ctx context.Context, query string, limit int) (*model.RankingExplainResponse, error)
+}
+
+var neurxFeatureNames = []string{
+	"title_score",
+	"abstract_score",
+	"claim_score",
+	"keyword_hits",
+	"matched_count",
+	"token_count",
+	"lexical_score",
+	"semantic_score",
+	"lexical_norm",
+	"semantic_norm",
+}
+
 type scoredPatent struct {
 	record        model.PatentRecord
 	titleScore    int
@@ -34,6 +55,12 @@ type scoredPatent struct {
 	lexicalScore  int
 	semanticScore float64
 	fusionScore   float64
+	lexicalNorm   float64
+	semanticNorm  float64
+	features      []float64
+	modelScore    float64
+	usedModel     bool
+	tokenCount    int
 	matched       []string
 }
 
@@ -49,6 +76,9 @@ type neurxRankerArtifact struct {
 }
 
 type neurxRanker struct {
+	modelType  string
+	version    int
+	featureNames []string
 	means      []float64
 	stds       []float64
 	weights    []float64
@@ -96,6 +126,9 @@ func LoadNeurxRanker(modelPath string) (*neurxRanker, error) {
 		}
 	}
 	return &neurxRanker{
+		modelType:  artifact.ModelType,
+		version:    artifact.Version,
+		featureNames: append([]string(nil), artifact.FeatureNames...),
 		means:      append([]float64(nil), artifact.FeatureMeans...),
 		stds:       stds,
 		weights:    append([]float64(nil), artifact.Weights...),
@@ -425,19 +458,57 @@ func (r *LocalPatentRepository) UpdateRankingConfig(mode string, dualRatio int) 
 	r.dualRatio = clampPercent(dualRatio)
 }
 
+func (r *LocalPatentRepository) GetRankingModelStatus() model.RankingModelStatus {
+	mode, ratio := r.GetRankingConfig()
+	status := model.RankingModelStatus{
+		RankingMode: mode,
+		DualRatio:   ratio,
+		ModelLoaded: r.ranker != nil,
+		FeatureNames: append([]string(nil), neurxFeatureNames...),
+		FeatureCount: len(neurxFeatureNames),
+		PatentCount: len(r.records),
+	}
+	if r.ranker != nil {
+		status.ModelType = r.ranker.modelType
+		status.ModelVersion = r.ranker.version
+		status.Activation = r.ranker.activation
+		if len(r.ranker.featureNames) > 0 {
+			status.FeatureNames = append([]string(nil), r.ranker.featureNames...)
+			status.FeatureCount = len(r.ranker.featureNames)
+		}
+	}
+	return status
+}
+
 func buildResultItemDual(item scoredPatent) model.TaskResultItem {
 	matched := strings.Join(item.matched, ", ")
 	if matched == "" {
 		matched = "(语义召回命中)"
 	}
-	reason := fmt.Sprintf(
-		"命中关键词: %s；双路召回分 lexical=%d semantic=%.4f fusion=%.4f；法律状态: %s。",
-		matched,
-		item.lexicalScore,
-		item.semanticScore,
-		item.fusionScore,
-		item.record.LegalStatus,
-	)
+	reason := ""
+	if item.usedModel {
+		reason = fmt.Sprintf(
+			"命中关键词: %s；Neurx模型分=%.4f（lexical=%d semantic=%.4f lex_norm=%.4f sem_norm=%.4f）；法律状态: %s。",
+			matched,
+			item.modelScore,
+			item.lexicalScore,
+			item.semanticScore,
+			item.lexicalNorm,
+			item.semanticNorm,
+			item.record.LegalStatus,
+		)
+	} else {
+		reason = fmt.Sprintf(
+			"命中关键词: %s；启发式融合分=%.4f（lexical=%d semantic=%.4f lex_norm=%.4f sem_norm=%.4f）；法律状态: %s。",
+			matched,
+			item.fusionScore,
+			item.lexicalScore,
+			item.semanticScore,
+			item.lexicalNorm,
+			item.semanticNorm,
+			item.record.LegalStatus,
+		)
+	}
 	return model.TaskResultItem{
 		PatentID:  item.record.PatentID,
 		PatentURL: buildPatentURL(item.record.PatentID),
@@ -467,10 +538,13 @@ func buildResultItemLexical(item scoredPatent) model.TaskResultItem {
 	}
 }
 
-func (r *LocalPatentRepository) searchDual(query string, limit int) []model.TaskResultItem {
+func (r *LocalPatentRepository) rankDualCandidates(query string, limit int) ([]scoredPatent, int) {
 	tokens := splitQuery(query)
 	if len(tokens) == 0 {
-		return []model.TaskResultItem{}
+		return []scoredPatent{}, 0
+	}
+	if limit <= 0 {
+		limit = 5
 	}
 	queryVec := buildSemanticVector(query)
 
@@ -513,6 +587,7 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 			lexicalScore:  lexical,
 			semanticScore: semantic,
 			matched:       uniqSorted(matched),
+			tokenCount:    len(tokens),
 		})
 		if lexical > maxLex {
 			maxLex = lexical
@@ -522,8 +597,9 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 		}
 	}
 
-	if len(ranked) == 0 {
-		return []model.TaskResultItem{}
+	totalCandidates := len(ranked)
+	if totalCandidates == 0 {
+		return []scoredPatent{}, 0
 	}
 
 	for i := range ranked {
@@ -535,14 +611,18 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 		if maxSem > 0 {
 			semNorm = ranked[i].semanticScore / maxSem
 		}
+		ranked[i].lexicalNorm = lexNorm
+		ranked[i].semanticNorm = semNorm
+		ranked[i].features = buildNeurxFeatures(ranked[i], len(tokens), maxLex, maxSem)
 		ranked[i].fusionScore = lexNorm*0.65 + semNorm*0.35
+		if r.ranker != nil {
+			ranked[i].modelScore = r.ranker.Score(ranked[i].features)
+			ranked[i].usedModel = true
+			ranked[i].fusionScore = ranked[i].modelScore
+		}
 	}
 
 	if r.ranker != nil {
-		for i := range ranked {
-			features := buildNeurxFeatures(ranked[i], len(tokens), maxLex, maxSem)
-			ranked[i].fusionScore = r.ranker.Score(features)
-		}
 		sort.SliceStable(ranked, func(i, j int) bool {
 			if ranked[i].fusionScore == ranked[j].fusionScore {
 				return ranked[i].lexicalScore > ranked[j].lexicalScore
@@ -552,11 +632,7 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 		if len(ranked) > limit {
 			ranked = ranked[:limit]
 		}
-		results := make([]model.TaskResultItem, 0, len(ranked))
-		for _, item := range ranked {
-			results = append(results, buildResultItemDual(item))
-		}
-		return results
+		return ranked, totalCandidates
 	}
 
 	idxLex := make([]int, len(ranked))
@@ -608,9 +684,63 @@ func (r *LocalPatentRepository) searchDual(query string, limit int) []model.Task
 	if len(fused) > limit {
 		fused = fused[:limit]
 	}
+	return fused, totalCandidates
+}
 
-	results := make([]model.TaskResultItem, 0, len(fused))
-	for _, item := range fused {
+func (r *LocalPatentRepository) ExplainQuery(_ context.Context, query string, limit int) (*model.RankingExplainResponse, error) {
+	query = strings.TrimSpace(query)
+	if query == "" {
+		return nil, fmt.Errorf("query is required")
+	}
+	ranked, totalCandidates := r.rankDualCandidates(query, limit)
+	mode, _ := r.GetRankingConfig()
+	resp := &model.RankingExplainResponse{
+		Query:          query,
+		Limit:          limit,
+		RankingMode:    mode,
+		ModelLoaded:    r.ranker != nil,
+		FeatureNames:   append([]string(nil), neurxFeatureNames...),
+		CandidateCount: totalCandidates,
+		Results:        make([]model.RankingExplainItem, 0, len(ranked)),
+	}
+	if r.ranker != nil && len(r.ranker.featureNames) > 0 {
+		resp.FeatureNames = append([]string(nil), r.ranker.featureNames...)
+	}
+	for idx, item := range ranked {
+		entry := model.RankingExplainItem{
+			Rank:          idx + 1,
+			PatentID:      item.record.PatentID,
+			PatentURL:     buildPatentURL(item.record.PatentID),
+			Title:         item.record.Title,
+			Matched:       append([]string(nil), item.matched...),
+			TitleScore:    item.titleScore,
+			AbstractScore: item.abstractScore,
+			ClaimScore:    item.claimScore,
+			KeywordHits:   item.keywordHits,
+			MatchedCount:  len(item.matched),
+			TokenCount:    item.tokenCount,
+			LexicalScore:  item.lexicalScore,
+			SemanticScore: item.semanticScore,
+			LexicalNorm:   item.lexicalNorm,
+			SemanticNorm:  item.semanticNorm,
+			Features:      append([]float64(nil), item.features...),
+			FinalScore:    item.fusionScore,
+			Reason:        buildResultItemDual(item).Reason,
+			RiskLevel:     calcRiskByFusion(item.fusionScore),
+		}
+		if item.usedModel {
+			score := item.modelScore
+			entry.ModelScore = &score
+		}
+		resp.Results = append(resp.Results, entry)
+	}
+	return resp, nil
+}
+
+func (r *LocalPatentRepository) searchDual(query string, limit int) []model.TaskResultItem {
+	ranked, _ := r.rankDualCandidates(query, limit)
+	results := make([]model.TaskResultItem, 0, len(ranked))
+	for _, item := range ranked {
 		results = append(results, buildResultItemDual(item))
 	}
 	return results

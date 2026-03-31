@@ -50,6 +50,15 @@ func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *obs
 		c.JSON(http.StatusOK, gin.H{"mode": mode, "dual_ratio": ratio})
 	})
 
+	r.GET("/ops/ranking-model", func(c *gin.Context) {
+		provider, ok := rankingCtrl.(repository.RankingModelStatusProvider)
+		if !ok || provider == nil {
+			c.JSON(http.StatusNotImplemented, gin.H{"error": "ranking model status not available"})
+			return
+		}
+		c.JSON(http.StatusOK, provider.GetRankingModelStatus())
+	})
+
 	r.POST("/ops/ranking-config", func(c *gin.Context) {
 		if rankingCtrl == nil {
 			c.JSON(http.StatusNotImplemented, gin.H{"error": "ranking config controller not available"})
@@ -64,6 +73,29 @@ func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *obs
 		mode, ratio := rankingCtrl.GetRankingConfig()
 		observability.LogTaskEvent(c, "ranking_config_updated", map[string]interface{}{"mode": mode, "dual_ratio": ratio})
 		c.JSON(http.StatusOK, gin.H{"mode": mode, "dual_ratio": ratio})
+	})
+
+	r.POST("/ops/ranking-explain", func(c *gin.Context) {
+		provider, ok := rankingCtrl.(repository.RankingExplainProvider)
+		if !ok || provider == nil {
+			c.JSON(http.StatusNotImplemented, gin.H{"error": "ranking explain not available"})
+			return
+		}
+		var req model.RankingExplainRequest
+		if err := c.ShouldBindJSON(&req); err != nil || strings.TrimSpace(req.Query) == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid query"})
+			return
+		}
+		if req.Limit <= 0 {
+			req.Limit = 5
+		}
+		resp, err := provider.ExplainQuery(c.Request.Context(), req.Query, req.Limit)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		observability.LogTaskEvent(c, "ranking_explain_queried", map[string]interface{}{"query": req.Query, "limit": req.Limit, "results": len(resp.Results), "model_loaded": resp.ModelLoaded})
+		c.JSON(http.StatusOK, resp)
 	})
 
 	r.POST("/tasks", func(c *gin.Context) {
