@@ -10,9 +10,9 @@ body {
 }
 
 .page {
-  max-width: 960px;
+  width: 80%;
   margin: 24px auto;
-  padding: 0 16px;
+  padding: 0;
 }
 
 .card {
