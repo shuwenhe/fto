@@ -10,12 +10,15 @@ import neurx
 import neurx.nn as nn
 import neurx.optim as optim
 
+from train_fto_recall_model import BASELINE_PARAMS, rank_patents
+
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PATENTS = ROOT / "data_sources" / "patents.jsonl"
 DEFAULT_QUERIES = ROOT / "data_sources" / "queries.jsonl"
 DEFAULT_QRELS = ROOT / "data_sources" / "qrels.jsonl"
-DEFAULT_OUT = ROOT / "model_artifacts" / "fto_ranker_neurx_v1.json"
+DEFAULT_RECALL_MODEL = ROOT / "model_artifacts" / "fto_recall_dual_v1.json"
+DEFAULT_OUT = ROOT / "model_artifacts" / "fto_reranker_neurx_v1.json"
 
 FEATURE_NAMES = [
     "title_score",
@@ -199,7 +202,31 @@ def finalize_feature_vector(raw, max_lexical, max_semantic):
     return [float(values[name]) for name in FEATURE_NAMES]
 
 
-def build_dataset(patents, queries, qrels):
+def load_recall_params(path: Path):
+    if not path.exists():
+        return dict(BASELINE_PARAMS)
+
+    parsed = json.loads(path.read_text(encoding="utf-8"))
+    params = parsed.get("params", parsed) if isinstance(parsed, dict) else {}
+    if not isinstance(params, dict):
+        raise ValueError(f"invalid recall model at {path}: missing params")
+
+    return {
+        "titleWeight": float(params.get("titleWeight", BASELINE_PARAMS["titleWeight"])),
+        "abstractWeight": float(params.get("abstractWeight", BASELINE_PARAMS["abstractWeight"])),
+        "claimWeight": float(params.get("claimWeight", BASELINE_PARAMS["claimWeight"])),
+        "keywordWeight": float(params.get("keywordWeight", BASELINE_PARAMS["keywordWeight"])),
+        "fusionLexicalWeight": float(
+            params.get("fusionLexicalWeight", BASELINE_PARAMS["fusionLexicalWeight"])
+        ),
+        "recallDepthMultiplier": max(
+            1, int(params.get("recallDepthMultiplier", BASELINE_PARAMS["recallDepthMultiplier"]))
+        ),
+        "recallDepthMin": max(1, int(params.get("recallDepthMin", BASELINE_PARAMS["recallDepthMin"]))),
+    }
+
+
+def build_dataset(patents, queries, qrels, recall_params, candidate_k):
     patent_by_id = {str(row["patent_id"]): row for row in patents}
     rel_by_query = {}
     for row in qrels:
@@ -212,6 +239,8 @@ def build_dataset(patents, queries, qrels):
     for query in queries:
         query_id = str(query["query_id"])
         query_text = str(query["query"])
+        candidate_ids = rank_patents(patents, query_text, candidate_k, recall_params)
+        candidate_set = set(candidate_ids)
         tokens = split_query(query_text)
         query_vec = build_semantic_vector(query_text)
 
@@ -219,6 +248,9 @@ def build_dataset(patents, queries, qrels):
         max_lexical = 0.0
         max_semantic = 0.0
         for patent in patents:
+            patent_id = str(patent.get("patent_id", ""))
+            if patent_id not in candidate_set:
+                continue
             raw = compute_raw_features(patent, tokens, query_vec)
             if raw["lexical_score"] <= 0.0 and raw["semantic_score"] <= 0.0:
                 continue
@@ -393,31 +425,45 @@ def export_artifact(model, means, stds, metrics, out_path: Path):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Train FTO ranking model with neurx")
+    parser = argparse.ArgumentParser(description="Train FTO reranker model with neurx")
     parser.add_argument("--patents", default=str(DEFAULT_PATENTS))
     parser.add_argument("--queries", default=str(DEFAULT_QUERIES))
     parser.add_argument("--qrels", default=str(DEFAULT_QRELS))
+    parser.add_argument("--recall-model", default=str(DEFAULT_RECALL_MODEL))
     parser.add_argument("--out", default=str(DEFAULT_OUT))
     parser.add_argument("--epochs", type=int, default=800)
     parser.add_argument("--lr", type=float, default=0.05)
     parser.add_argument("--k", type=int, default=5)
+    parser.add_argument("--candidate-k", type=int, default=24)
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
+    if args.candidate_k <= 0:
+        raise ValueError("candidate-k must be > 0")
+
     patents = read_jsonl(Path(args.patents))
     queries = read_jsonl(Path(args.queries))
     qrels = read_jsonl(Path(args.qrels))
+    recall_params = load_recall_params(Path(args.recall_model))
 
-    samples, ranking_rows, rel_by_query = build_dataset(patents, queries, qrels)
+    samples, ranking_rows, rel_by_query = build_dataset(
+        patents,
+        queries,
+        qrels,
+        recall_params=recall_params,
+        candidate_k=args.candidate_k,
+    )
     means, stds = standardize_features(samples)
     model, train_mse = train_model(samples, args.epochs, args.lr)
     metrics = evaluate(model, means, stds, ranking_rows, rel_by_query, args.k)
     metrics["train_mse"] = train_mse
+    metrics["candidate_k"] = int(args.candidate_k)
     export_artifact(model, means, stds, metrics, Path(args.out))
 
     print(f"[ok] samples={len(samples)} queries={metrics['queries']}")
+    print(f"[ok] candidate_k={args.candidate_k}")
     print(f"[ok] train_mse={train_mse:.6f}")
     print(f"[ok] Recall@{args.k}={metrics['recall_at_k']:.4f}")
     print(f"[ok] MRR@{args.k}={metrics['mrr_at_k']:.4f}")

@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker compare-online-offline generate-report-sample train-fto-model train-fto-recall-model train-eval-fto-recall eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker eval-reranker-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-eval-fto-recall train-eval-fto-reranker eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -24,10 +24,13 @@ help:
 	@echo "  make eval-ab-reranker # Compare linear vs linear+deep(top-N) offline"
 	@echo "  make compare-online-offline # Compare backend top-k order with local ranker"
 	@echo "  make generate-report-sample # Generate docs/report_sample_v1.json"
-	@echo "  make train-fto-model  # Train neurx ranker and export model artifact"
+	@echo "  make train-fto-model  # Alias: train neurx reranker and export model artifact"
+	@echo "  make train-fto-reranker-model # Train neurx reranker from recall candidates"
 	@echo "  make train-fto-recall-model # Train neurx dual-recall model artifact"
 	@echo "  make train-eval-fto-recall # One-command reproducible env+train+eval+logs"
+	@echo "  make train-eval-fto-reranker # One-command reproducible env+train+eval+logs"
 	@echo "  make eval-retrieval-model # Eval retrieval with trained recall model"
+	@echo "  make eval-reranker-model # Eval reranker on recall candidates"
 	@echo "  make import-patent PATENT_ID=CN202410001A # Import from Google Patents"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
@@ -139,7 +142,10 @@ generate-report-sample:
 	node scripts/generate_report_sample.mjs --k 5 --query-id q1 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api --out docs/report_sample_v1.json
 
 train-fto-model:
-	python scripts/train_fto_model_neurx.py --out model_artifacts/fto_ranker_neurx_v1.json
+	python scripts/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
+
+train-fto-reranker-model:
+	python scripts/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
 
 train-fto-recall-model:
 	python scripts/train_fto_recall_model.py --out model_artifacts/fto_recall_dual_v1.json
@@ -147,8 +153,14 @@ train-fto-recall-model:
 train-eval-fto-recall:
 	bash scripts/run_fto_recall_pipeline.sh
 
+train-eval-fto-reranker:
+	bash scripts/run_fto_reranker_pipeline.sh
+
 eval-retrieval-model:
 	node scripts/eval_retrieval.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --verbose
+
+eval-reranker-model:
+	node scripts/eval_reranker_model.mjs --k 5 --candidate-k 24 --recall-model model_artifacts/fto_recall_dual_v1.json --model model_artifacts/fto_reranker_neurx_v1.json --verbose
 
 import-patent:
 	@test -n "$(PATENT_ID)" || (echo "Usage: make import-patent PATENT_ID=CN202410001A" && exit 1)
