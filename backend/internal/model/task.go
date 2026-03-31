@@ -21,6 +21,9 @@ type RankingModelStatus struct {
 	RankingMode  string   `json:"ranking_mode"`
 	DualRatio    int      `json:"dual_ratio"`
 	ModelLoaded  bool     `json:"model_loaded"`
+	DeepEnabled  bool     `json:"deep_enabled"`
+	DeepTopN     int      `json:"deep_top_n"`
+	DeepMixAlpha float64  `json:"deep_mix_alpha"`
 	ModelType    string   `json:"model_type,omitempty"`
 	ModelVersion int      `json:"model_version,omitempty"`
 	Activation   string   `json:"activation,omitempty"`
@@ -48,6 +51,7 @@ type RankingExplainItem struct {
 	Features      []float64 `json:"features"`
 	FinalScore    float64   `json:"final_score"`
 	ModelScore    *float64  `json:"model_score,omitempty"`
+	DeepScore     *float64  `json:"deep_score,omitempty"`
 	Reason        string    `json:"reason"`
 	RiskLevel     string    `json:"risk_level"`
 }
