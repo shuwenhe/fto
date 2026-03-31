@@ -179,8 +179,8 @@ def train_model(samples, epochs, lr):
 
     mse_by_head = {}
     for class_idx, model in enumerate(models):
-        probs = model(features).sigmoid().data.reshape(-1).tolist()
-        labels_flat = labels_by_head[class_idx].data.reshape(-1).tolist()
+        probs = model(features).sigmoid().to_numpy().reshape(-1).tolist()
+        labels_flat = labels_by_head[class_idx].to_numpy().reshape(-1).tolist()
         mse = sum((probs[i] - labels_flat[i]) ** 2 for i in range(len(probs))) / len(probs)
         mse_by_head[RISK_LABELS[class_idx]] = float(mse)
     return models, mse_by_head
@@ -189,7 +189,7 @@ def train_model(samples, epochs, lr):
 def score_sample(models, means, stds, features):
     scaled = [(features[idx] - means[idx]) / stds[idx] for idx in range(len(features))]
     tensor = neurx.Tensor([scaled], requires_grad=False)
-    raw_scores = [float(model(tensor).sigmoid().data.reshape(-1)[0]) for model in models]
+    raw_scores = [float(model(tensor).sigmoid().to_numpy().reshape(-1)[0]) for model in models]
     total = sum(raw_scores)
     if total <= 1e-9:
         return [1.0 / len(RISK_LABELS)] * len(RISK_LABELS)
