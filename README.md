@@ -234,7 +234,7 @@ make rollback-now
 
 ## CI 门禁
 
-单命令串行执行门禁：离线评测 + 一致性检查 + 样例报告生成。
+单命令串行执行门禁：离线评测 + 一致性检查 + 样例报告生成 + alert-check。
 
 ```bash
 cd /app/fto
@@ -242,3 +242,12 @@ make ci-gate
 ```
 
 说明：`ci-gate` 会在执行前尝试把后端排序切到 `dual/100`，执行后恢复原灰度配置，避免被当前灰度流量状态干扰。
+
+## 双闸门禁（质量 + 运维）
+
+`ops-gate` = `ci-gate` + `trend-report`，用于产出完整门禁结果与趋势快照。
+
+```bash
+cd /app/fto
+make ops-gate
+```
