@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"math"
 	"os"
 	"sort"
@@ -27,10 +28,36 @@ type scoredPatent struct {
 }
 
 type LocalPatentRepository struct {
-	records []model.PatentRecord
+	records      []model.PatentRecord
+	rankingMode string
+	dualRatio   int
 }
 
 func NewLocalPatentRepository(dataPath string) (*LocalPatentRepository, error) {
+	return NewLocalPatentRepositoryWithStrategy(dataPath, "dual", 50)
+}
+
+func clampPercent(v int) int {
+	if v < 0 {
+		return 0
+	}
+	if v > 100 {
+		return 100
+	}
+	return v
+}
+
+func normalizeRankingMode(mode string) string {
+	mode = strings.ToLower(strings.TrimSpace(mode))
+	switch mode {
+	case "lexical", "dual", "gray":
+		return mode
+	default:
+		return "dual"
+	}
+}
+
+func NewLocalPatentRepositoryWithStrategy(dataPath string, rankingMode string, dualRatio int) (*LocalPatentRepository, error) {
 	f, err := os.Open(dataPath)
 	if err != nil {
 		return nil, err
@@ -61,7 +88,11 @@ func NewLocalPatentRepository(dataPath string) (*LocalPatentRepository, error) {
 	if len(records) == 0 {
 		return nil, fmt.Errorf("no patent records loaded from %s", dataPath)
 	}
-	return &LocalPatentRepository{records: records}, nil
+	return &LocalPatentRepository{
+		records:      records,
+		rankingMode: normalizeRankingMode(rankingMode),
+		dualRatio:   clampPercent(dualRatio),
+	}, nil
 }
 
 func normalize(s string) string {
@@ -233,13 +264,71 @@ func cosineSim(a, b map[string]float64) float64 {
 	return dot / (math.Sqrt(na) * math.Sqrt(nb))
 }
 
-func (r *LocalPatentRepository) Search(_ context.Context, query string, limit int) ([]model.TaskResultItem, error) {
-	if limit <= 0 {
-		limit = 5
+func hashPercent(s string) int {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(s))
+	return int(h.Sum32() % 100)
+}
+
+func (r *LocalPatentRepository) useDualForQuery(query string) bool {
+	switch r.rankingMode {
+	case "dual":
+		return true
+	case "lexical":
+		return false
+	case "gray":
+		return hashPercent(query) < r.dualRatio
+	default:
+		return true
 	}
+}
+
+func buildResultItemDual(item scoredPatent) model.TaskResultItem {
+	matched := strings.Join(item.matched, ", ")
+	if matched == "" {
+		matched = "(语义召回命中)"
+	}
+	reason := fmt.Sprintf(
+		"命中关键词: %s；双路召回分 lexical=%d semantic=%.4f fusion=%.4f；法律状态: %s。",
+		matched,
+		item.lexicalScore,
+		item.semanticScore,
+		item.fusionScore,
+		item.record.LegalStatus,
+	)
+	return model.TaskResultItem{
+		PatentID:  item.record.PatentID,
+		PatentURL: buildPatentURL(item.record.PatentID),
+		Title:     item.record.Title,
+		RiskLevel: calcRiskByFusion(item.fusionScore),
+		Reason:    reason,
+	}
+}
+
+func buildResultItemLexical(item scoredPatent) model.TaskResultItem {
+	matched := strings.Join(item.matched, ", ")
+	if matched == "" {
+		matched = "(无词法命中)"
+	}
+	reason := fmt.Sprintf(
+		"命中关键词: %s；词法召回分 lexical=%d；法律状态: %s。",
+		matched,
+		item.lexicalScore,
+		item.record.LegalStatus,
+	)
+	return model.TaskResultItem{
+		PatentID:  item.record.PatentID,
+		PatentURL: buildPatentURL(item.record.PatentID),
+		Title:     item.record.Title,
+		RiskLevel: calcRisk(item.lexicalScore),
+		Reason:    reason,
+	}
+}
+
+func (r *LocalPatentRepository) searchDual(query string, limit int) []model.TaskResultItem {
 	tokens := splitQuery(query)
 	if len(tokens) == 0 {
-		return []model.TaskResultItem{}, nil
+		return []model.TaskResultItem{}
 	}
 	queryVec := buildSemanticVector(query)
 
@@ -289,7 +378,7 @@ func (r *LocalPatentRepository) Search(_ context.Context, query string, limit in
 	}
 
 	if len(ranked) == 0 {
-		return []model.TaskResultItem{}, nil
+		return []model.TaskResultItem{}
 	}
 
 	for i := range ranked {
@@ -301,7 +390,6 @@ func (r *LocalPatentRepository) Search(_ context.Context, query string, limit in
 		if maxSem > 0 {
 			semNorm = ranked[i].semanticScore / maxSem
 		}
-		// Fused score for final ranking.
 		ranked[i].fusionScore = lexNorm*0.65 + semNorm*0.35
 	}
 
@@ -357,25 +445,70 @@ func (r *LocalPatentRepository) Search(_ context.Context, query string, limit in
 
 	results := make([]model.TaskResultItem, 0, len(fused))
 	for _, item := range fused {
-		matched := strings.Join(item.matched, ", ")
-		if matched == "" {
-			matched = "(语义召回命中)"
+		results = append(results, buildResultItemDual(item))
+	}
+	return results
+}
+
+func (r *LocalPatentRepository) searchLexical(query string, limit int) []model.TaskResultItem {
+	tokens := splitQuery(query)
+	if len(tokens) == 0 {
+		return []model.TaskResultItem{}
+	}
+
+	ranked := make([]scoredPatent, 0, len(r.records))
+	for _, rec := range r.records {
+		titleScore, titleMatched := containsAny(rec.Title, tokens)
+		absScore, absMatched := containsAny(rec.Abstract, tokens)
+		claimScore, claimMatched := containsAny(rec.Claim, tokens)
+
+		keywordHits := 0
+		keywordMatched := make([]string, 0)
+		for _, kw := range rec.Keywords {
+			kwN := normalize(kw)
+			for _, t := range tokens {
+				if strings.Contains(kwN, t) || strings.Contains(t, kwN) {
+					keywordHits++
+					keywordMatched = append(keywordMatched, t)
+				}
+			}
 		}
-		reason := fmt.Sprintf(
-			"命中关键词: %s；双路召回分 lexical=%d semantic=%.4f fusion=%.4f；法律状态: %s。",
-			matched,
-			item.lexicalScore,
-			item.semanticScore,
-			item.fusionScore,
-			item.record.LegalStatus,
-		)
-		results = append(results, model.TaskResultItem{
-			PatentID:  item.record.PatentID,
-			PatentURL: buildPatentURL(item.record.PatentID),
-			Title:     item.record.Title,
-			RiskLevel: calcRiskByFusion(item.fusionScore),
-			Reason:    reason,
+
+		lexical := titleScore*4 + absScore*2 + claimScore*3 + keywordHits*2
+		if lexical <= 0 {
+			continue
+		}
+		matched := append(titleMatched, absMatched...)
+		matched = append(matched, claimMatched...)
+		matched = append(matched, keywordMatched...)
+		ranked = append(ranked, scoredPatent{
+			record:       rec,
+			lexicalScore: lexical,
+			matched:      uniqSorted(matched),
 		})
 	}
-	return results, nil
+
+	sort.SliceStable(ranked, func(i, j int) bool {
+		return ranked[i].lexicalScore > ranked[j].lexicalScore
+	})
+
+	if len(ranked) > limit {
+		ranked = ranked[:limit]
+	}
+
+	results := make([]model.TaskResultItem, 0, len(ranked))
+	for _, item := range ranked {
+		results = append(results, buildResultItemLexical(item))
+	}
+	return results
+}
+
+func (r *LocalPatentRepository) Search(_ context.Context, query string, limit int) ([]model.TaskResultItem, error) {
+	if limit <= 0 {
+		limit = 5
+	}
+	if r.useDualForQuery(query) {
+		return r.searchDual(query, limit), nil
+	}
+	return r.searchLexical(query, limit), nil
 }
