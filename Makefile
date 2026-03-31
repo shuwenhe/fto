@@ -25,7 +25,7 @@ help:
 	@echo "  make compare-online-offline # Compare backend top-k order with local ranker"
 	@echo "  make generate-report-sample # Generate docs/report_sample_v1.json"
 	@echo "  make train-fto-model  # Train neurx ranker and export model artifact"
-	@echo "  make train-fto-recall-model # Train weighted dual-recall model artifact"
+	@echo "  make train-fto-recall-model # Train neurx dual-recall model artifact"
 	@echo "  make eval-retrieval-model # Eval retrieval with trained recall model"
 	@echo "  make import-patent PATENT_ID=CN202410001A # Import from Google Patents"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
