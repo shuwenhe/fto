@@ -92,6 +92,20 @@ export default function HomePage() {
 
   return (
     <main className="page">
+      <nav className="topNav">
+        <div className="brand">FTO 专利防侵权</div>
+        <div className="navLinks">
+          <a
+            className="navLink"
+            href="http://111.202.231.146:8080/fto/api/ops/ranking-model"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            排序模型
+          </a>
+        </div>
+      </nav>
+
       <section className="card">
         <h1>FTO 专利防侵权</h1>
         <textarea
