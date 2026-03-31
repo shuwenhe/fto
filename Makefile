@@ -1,4 +1,4 @@
-.PHONY: help run run-bg stop status curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help run run-bg stop status curl nginx-test nginx-reload backend-run backend-health git-auto-start git-auto-stop git-auto-status git-auto-log
 
 PORT ?= 5173
 
@@ -12,6 +12,8 @@ help:
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
 	@echo "  make git-auto-status # Show git auto daemon status"
 	@echo "  make git-auto-log    # Tail git auto daemon log"
+	@echo "  make backend-run     # Run FastAPI backend on :8010"
+	@echo "  make backend-health  # Check backend health via /fto/api/health"
 	@echo "  make curl         # Quick check local nginx route: /fto/"
 	@echo "  make nginx-test   # Test nginx config"
 	@echo "  make nginx-reload # Reload nginx"
@@ -60,6 +62,12 @@ git-auto-status:
 
 git-auto-log:
 	tail -n 100 -f .git/.auto-commit.log
+
+backend-run:
+	uvicorn backend.main:app --host 0.0.0.0 --port 8010 --reload
+
+backend-health:
+	curl -sS http://127.0.0.1/fto/api/health
 
 curl:
 	curl -sS -I http://127.0.0.1/fto/ | sed -n '1,20p'
