@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fto.local/schemas/report.schema.v1.json",
+  "title": "FTO Retrieval Report v1",
+  "type": "object",
+  "required": [
+    "report_version",
+    "generated_at",
+    "environment",
+    "baseline",
+    "evaluation",
+    "consistency_check",
+    "query_report"
+  ],
+  "properties": {
+    "report_version": { "type": "string", "const": "v1" },
+    "generated_at": { "type": "string" },
+    "environment": {
+      "type": "object",
+      "required": ["service", "base_url"],
+      "properties": {
+        "service": { "type": "string" },
+        "base_url": { "type": "string" },
+        "backend_version": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "baseline": {
+      "type": "object",
+      "required": ["name", "k", "data_snapshot"],
+      "properties": {
+        "name": { "type": "string" },
+        "k": { "type": "integer", "minimum": 1 },
+        "weights": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "number" },
+            "abstract": { "type": "number" },
+            "claim": { "type": "number" },
+            "keyword": { "type": "number" },
+            "fusion_lexical": { "type": "number" },
+            "fusion_semantic": { "type": "number" }
+          },
+          "additionalProperties": true
+        },
+        "recall_depth_rule": { "type": "string" },
+        "data_snapshot": {
+          "type": "object",
+          "required": ["patents_jsonl", "queries_jsonl", "qrels_jsonl"],
+          "properties": {
+            "patents_jsonl": { "type": "string" },
+            "patents_json": { "type": "string" },
+            "queries_jsonl": { "type": "string" },
+            "qrels_jsonl": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "evaluation": {
+      "type": "object",
+      "required": ["queries", "recall_at_k", "mrr_at_k", "ndcg_at_k"],
+      "properties": {
+        "queries": { "type": "integer", "minimum": 0 },
+        "recall_at_k": { "type": "number" },
+        "mrr_at_k": { "type": "number" },
+        "ndcg_at_k": { "type": "number" }
+      },
+      "additionalProperties": true
+    },
+    "consistency_check": {
+      "type": "object",
+      "required": ["sample", "seed", "passed", "failed"],
+      "properties": {
+        "sample": { "type": "integer", "minimum": 0 },
+        "seed": { "type": "integer" },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "command": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "query_report": {
+      "type": "object",
+      "required": ["query_id", "query", "task_id", "status", "topk"],
+      "properties": {
+        "query_id": { "type": "string" },
+        "query": { "type": "string" },
+        "task_id": { "type": "string" },
+        "status": { "type": "string" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" },
+        "topk": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["rank", "patent_id", "title", "risk_level", "reason"],
+            "properties": {
+              "rank": { "type": "integer", "minimum": 1 },
+              "patent_id": { "type": "string" },
+              "patent_url": { "type": "string" },
+              "title": { "type": "string" },
+              "risk_level": { "type": "string" },
+              "reason": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
