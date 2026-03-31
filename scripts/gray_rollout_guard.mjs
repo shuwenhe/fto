@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import fs from 'fs';
 import { readJsonl } from './lib/retrieval_ranker.mjs';
 import { runLoadTest } from './lib/load_test_runner.mjs';
 import path from 'path';
@@ -20,6 +21,8 @@ function parseArgs(argv) {
     maxP95Ms: 2000,
     rollbackMode: 'lexical',
     rollbackDualRatio: 0,
+    out: path.join(ROOT, 'docs', 'gray_rollout_report_latest.json'),
+    historyFile: path.join(ROOT, 'docs', 'gray_rollout_history.jsonl'),
   };
 
   for (let i = 2; i < argv.length; i++) {
@@ -35,6 +38,8 @@ function parseArgs(argv) {
     else if (a === '--max-p95-ms') args.maxP95Ms = Number(argv[++i] || '2000');
     else if (a === '--rollback-mode') args.rollbackMode = String(argv[++i] || 'lexical');
     else if (a === '--rollback-dual-ratio') args.rollbackDualRatio = Number(argv[++i] || '0');
+    else if (a === '--out') args.out = argv[++i] || args.out;
+    else if (a === '--history-file') args.historyFile = argv[++i] || args.historyFile;
   }
 
   args.ratios = args.ratios.map((x) => Math.max(0, Math.min(100, Math.round(x))));
@@ -48,6 +53,41 @@ function parseArgs(argv) {
   if (!Number.isFinite(args.rollbackDualRatio)) args.rollbackDualRatio = 0;
 
   return args;
+}
+
+function ensureParentDir(filePath) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+}
+
+function appendJsonl(filePath, obj) {
+  ensureParentDir(filePath);
+  fs.appendFileSync(filePath, `${JSON.stringify(obj)}\n`, 'utf-8');
+}
+
+function readJsonlSafe(filePath) {
+  if (!filePath || !fs.existsSync(filePath)) return [];
+  const lines = fs.readFileSync(filePath, 'utf-8').split('\n').map((x) => x.trim()).filter(Boolean);
+  const out = [];
+  for (const line of lines) {
+    try {
+      out.push(JSON.parse(line));
+    } catch (_) {
+      // Ignore malformed legacy lines.
+    }
+  }
+  return out;
+}
+
+function compareStep(current, previous) {
+  if (!previous || !previous.report) return null;
+  const prev = previous.report;
+  return {
+    against_ts: previous.ts || '',
+    delta_error_rate: Number((current.error_rate - (prev.error_rate || 0)).toFixed(6)),
+    delta_p95_ms: Number((current.latency_ms.p95 - (prev.latency_ms?.p95 || 0)).toFixed(2)),
+    delta_p99_ms: Number((current.latency_ms.p99 - (prev.latency_ms?.p99 || 0)).toFixed(2)),
+    delta_throughput_rps: Number((current.throughput_rps - (prev.throughput_rps || 0)).toFixed(3)),
+  };
 }
 
 async function setRankingConfig(baseUrl, mode, dualRatio) {
@@ -78,7 +118,11 @@ async function main() {
   const before = await getRankingConfig(args.baseUrl);
   console.log(`before mode=${before.mode} dual_ratio=${before.dual_ratio}`);
 
+  const history = readJsonlSafe(args.historyFile);
   const reports = [];
+  const runID = `rollout-${Date.now()}`;
+  const runStartedAt = new Date().toISOString();
+
   for (const ratio of args.ratios) {
     const cfg = await setRankingConfig(args.baseUrl, 'gray', ratio);
     console.log(`step set mode=${cfg.mode} dual_ratio=${cfg.dual_ratio}`);
@@ -92,8 +136,26 @@ async function main() {
       timeoutMs: args.timeoutMs,
     });
 
-    reports.push({ ratio, report });
+    const previousSameRatio = [...history].reverse().find((h) => Number(h.ratio) === Number(ratio));
+    const comparison = compareStep(report, previousSameRatio);
+
+    const step = {
+      run_id: runID,
+      ts: new Date().toISOString(),
+      ratio,
+      mode: 'gray',
+      report,
+      previous_comparison: comparison,
+    };
+
+    appendJsonl(args.historyFile, step);
+    history.push(step);
+    reports.push(step);
+
     console.log(`step ratio=${ratio} total=${report.total_requests} err=${report.error_rate} p95=${report.latency_ms.p95}`);
+    if (comparison) {
+      console.log(`step ratio=${ratio} vs_last delta_err=${comparison.delta_error_rate} delta_p95_ms=${comparison.delta_p95_ms} delta_rps=${comparison.delta_throughput_rps}`);
+    }
 
     const overError = report.error_rate > args.maxErrorRate;
     const overP95 = report.latency_ms.p95 > args.maxP95Ms;
@@ -101,14 +163,45 @@ async function main() {
       const rb = await setRankingConfig(args.baseUrl, args.rollbackMode, args.rollbackDualRatio);
       console.log(`rollback_triggered mode=${rb.mode} dual_ratio=${rb.dual_ratio}`);
       console.error(`rollback_reason error_rate=${report.error_rate} (>${args.maxErrorRate}) or p95=${report.latency_ms.p95} (>${args.maxP95Ms})`);
-      console.log(JSON.stringify({ before, reports, rollback: rb }, null, 2));
+
+      const failResult = {
+        run_id: runID,
+        started_at: runStartedAt,
+        ended_at: new Date().toISOString(),
+        base_url: args.baseUrl,
+        thresholds: { max_error_rate: args.maxErrorRate, max_p95_ms: args.maxP95Ms },
+        before,
+        reports,
+        rollback: rb,
+        status: 'failed_rollback',
+      };
+      ensureParentDir(args.out);
+      fs.writeFileSync(args.out, `${JSON.stringify(failResult, null, 2)}\n`, 'utf-8');
+      console.log(`report_written=${args.out}`);
+      console.log(JSON.stringify(failResult, null, 2));
       process.exit(1);
     }
   }
 
   const after = await getRankingConfig(args.baseUrl);
   console.log(`rollout_completed mode=${after.mode} dual_ratio=${after.dual_ratio}`);
-  console.log(JSON.stringify({ before, reports, after }, null, 2));
+
+  const okResult = {
+    run_id: runID,
+    started_at: runStartedAt,
+    ended_at: new Date().toISOString(),
+    base_url: args.baseUrl,
+    thresholds: { max_error_rate: args.maxErrorRate, max_p95_ms: args.maxP95Ms },
+    before,
+    reports,
+    after,
+    status: 'completed',
+  };
+
+  ensureParentDir(args.out);
+  fs.writeFileSync(args.out, `${JSON.stringify(okResult, null, 2)}\n`, 'utf-8');
+  console.log(`report_written=${args.out}`);
+  console.log(JSON.stringify(okResult, null, 2));
 }
 
 try {
