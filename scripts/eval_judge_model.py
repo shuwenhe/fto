@@ -10,7 +10,6 @@ from train_fto_judge_model_neurx import (
     DEFAULT_RERANKER_MODEL,
     build_judge_samples,
     build_dataset,
-    classification_metrics,
     load_recall_params,
     load_reranker_artifact,
     read_jsonl,
