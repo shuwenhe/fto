@@ -139,6 +139,14 @@ func uniqSorted(tokens []string) []string {
 	return out
 }
 
+func buildPatentURL(patentID string) string {
+	patentID = strings.TrimSpace(patentID)
+	if patentID == "" {
+		return ""
+	}
+	return fmt.Sprintf("https://patents.google.com/patent/%s", patentID)
+}
+
 func (r *LocalPatentRepository) Search(_ context.Context, query string, limit int) ([]model.TaskResultItem, error) {
 	if limit <= 0 {
 		limit = 5
@@ -190,6 +198,7 @@ func (r *LocalPatentRepository) Search(_ context.Context, query string, limit in
 		reason := fmt.Sprintf("命中关键词: %s；法律状态: %s。", strings.Join(item.matched, ", "), item.record.LegalStatus)
 		results = append(results, model.TaskResultItem{
 			PatentID:  item.record.PatentID,
+			PatentURL: buildPatentURL(item.record.PatentID),
 			Title:     item.record.Title,
 			RiskLevel: calcRisk(item.score),
 			Reason:    reason,
