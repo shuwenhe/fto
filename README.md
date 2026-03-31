@@ -177,6 +177,18 @@ cd /app/fto
 node scripts/load_test_tasks.mjs --base-url http://127.0.0.1/fto/api --concurrency 20 --duration-sec 120 --max-error-rate 0.01 --max-p95-ms 2000 --out docs/load_test_report_v1.json
 ```
 
+压测基线对比（当前 vs 上次）：
+
+```bash
+cd /app/fto
+make load-test-compare
+```
+
+该命令会写入：
+
+- 当前报告：`docs/load_test_report_v1.json`
+- 历史序列：`docs/load_test_history.jsonl`
+
 ## 灰度放量与自动回滚
 
 按比例逐步放量并做阈值检查，超阈值自动回滚：
@@ -189,6 +201,20 @@ make gray-rollout-guard
 默认放量比例：`1,10,30,50,100`。
 默认阈值：`error_rate <= 1%` 且 `p95 <= 2000ms`。
 若超阈值，自动回滚为 `lexical`。
+
+每档结果会自动落盘并做历史对比：
+
+- 本次汇总：`docs/gray_rollout_report_latest.json`
+- 分档历史：`docs/gray_rollout_history.jsonl`
+
+## 一键回滚（手工应急）
+
+```bash
+cd /app/fto
+make rollback-now
+```
+
+默认回滚到：`mode=lexical`、`dual_ratio=0`。
 
 ## CI 门禁
 

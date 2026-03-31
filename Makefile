@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics load-test gray-rollout-guard ci-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics load-test load-test-compare gray-rollout-guard rollback-now ci-gate data-source-check sync-patent-data eval-retrieval compare-online-offline generate-report-sample import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
@@ -11,7 +11,9 @@ help:
 	@echo "  make backend-health   # Check backend health via /fto/api/health"
 	@echo "  make backend-metrics  # Show /fto/api/metrics"
 	@echo "  make load-test        # Run load test and print P50/P95/P99"
+	@echo "  make load-test-compare # Run load test and compare against last baseline"
 	@echo "  make gray-rollout-guard # Progressive gray rollout with auto rollback checks"
+	@echo "  make rollback-now     # Emergency rollback ranking mode"
 	@echo "  make ci-gate          # Run eval + consistency + sample report gate"
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
@@ -66,8 +68,14 @@ backend-metrics:
 load-test:
 	node scripts/load_test_tasks.mjs --base-url http://127.0.0.1/fto/api --concurrency 10 --duration-sec 60 --out docs/load_test_report_v1.json
 
+load-test-compare:
+	node scripts/load_test_baseline_compare.mjs --base-url http://127.0.0.1/fto/api --concurrency 10 --duration-sec 60 --out docs/load_test_report_v1.json --history-file docs/load_test_history.jsonl
+
 gray-rollout-guard:
-	node scripts/gray_rollout_guard.mjs --base-url http://127.0.0.1/fto/api --ratios 1,10,30,50,100 --concurrency 5 --duration-sec 20 --max-error-rate 0.01 --max-p95-ms 2000 --rollback-mode lexical --rollback-dual-ratio 0
+	node scripts/gray_rollout_guard.mjs --base-url http://127.0.0.1/fto/api --ratios 1,10,30,50,100 --concurrency 5 --duration-sec 20 --max-error-rate 0.01 --max-p95-ms 2000 --rollback-mode lexical --rollback-dual-ratio 0 --out docs/gray_rollout_report_latest.json --history-file docs/gray_rollout_history.jsonl
+
+rollback-now:
+	node scripts/emergency_rollback.mjs --base-url http://127.0.0.1/fto/api --mode lexical --dual-ratio 0
 
 ci-gate:
 	node scripts/ci_gate.mjs --k 5 --sample 5 --seed 20260331 --query-id q1 --base-url http://127.0.0.1/fto/api --report-out docs/report_sample_v1.json
