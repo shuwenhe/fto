@@ -25,6 +25,7 @@ func getEnv(key string, fallback string) string {
 func main() {
 	redisAddr := getEnv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPassword := getEnv("REDIS_PASSWORD", "")
+	patentDataPath := getEnv("PATENT_DATA_PATH", "/app/fto/data_sources/patents.jsonl")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
@@ -36,7 +37,12 @@ func main() {
 		log.Fatalf("redis not available: %v", err)
 	}
 
-	taskService := service.NewTaskService(repo)
+	patentRepo, err := repository.NewLocalPatentRepository(patentDataPath)
+	if err != nil {
+		log.Fatalf("load patent data source failed: %v", err)
+	}
+
+	taskService := service.NewTaskService(repo, patentRepo, 5)
 
 	r := gin.Default()
 	router.RegisterRoutes(r, taskService)
