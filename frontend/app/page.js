@@ -101,7 +101,10 @@ export default function HomePage() {
   return (
     <main className="page">
       <nav className="topNav">
-        <div className="brand">FTO 专利防侵权</div>
+        <div className="brand" aria-label="FTO 专利防侵权">
+          <span className="brandLatin">FTO</span>
+          <span className="brandCn">专利防侵权</span>
+        </div>
         <div className="navLinks">
           {navItems.map((item) => (
             <a
