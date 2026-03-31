@@ -1,0 +1,11 @@
+{"query_id":"q1","patent_id":"CN202410001A","relevance":3}
+{"query_id":"q1","patent_id":"US20240123456A1","relevance":2}
+{"query_id":"q1","patent_id":"CN202355566A","relevance":1}
+{"query_id":"q2","patent_id":"CN202311998B","relevance":3}
+{"query_id":"q2","patent_id":"CN202209876U","relevance":1}
+{"query_id":"q3","patent_id":"JP2023176543A","relevance":3}
+{"query_id":"q3","patent_id":"EP3899001A1","relevance":1}
+{"query_id":"q4","patent_id":"CN202209876U","relevance":3}
+{"query_id":"q4","patent_id":"CN202311998B","relevance":1}
+{"query_id":"q5","patent_id":"CN202355566A","relevance":3}
+{"query_id":"q5","patent_id":"CN202410001A","relevance":1}
