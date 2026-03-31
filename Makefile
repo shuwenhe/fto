@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health data-source-check curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log
 
 help:
 	@echo "Available targets:"
@@ -9,6 +9,7 @@ help:
 	@echo "  make backend-deps     # Download Go dependencies"
 	@echo "  make backend-run      # Run Gin backend on :8010"
 	@echo "  make backend-health   # Check backend health via /fto/api/health"
+	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
 	@echo "  make git-auto-status # Show git auto daemon status"
@@ -49,6 +50,9 @@ backend-run:
 
 backend-health:
 	curl -sS http://127.0.0.1/fto/api/health
+
+data-source-check:
+	@test -f /app/fto/data_sources/patents.jsonl && echo "[ok] /app/fto/data_sources/patents.jsonl"
 
 curl:
 	curl -sS -I http://127.0.0.1/fto/ | sed -n '1,20p'
