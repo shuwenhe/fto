@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -83,6 +84,7 @@ func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Cont
 	if strings.TrimSpace(query) == "" {
 		return nil, nil
 	}
+	start := time.Now()
 	size := limit * r.candidateMultiplier
 	if size < 12 {
 		size = 12
@@ -112,11 +114,13 @@ func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Cont
 
 	resp, err := r.client.Do(req)
 	if err != nil {
+		log.Printf("[es] request_failed index=%s query=%q limit=%d size=%d elapsed_ms=%d err=%v", r.index, query, limit, size, time.Since(start).Milliseconds(), err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
 		data, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		log.Printf("[es] request_error index=%s query=%q limit=%d size=%d status=%d elapsed_ms=%d body=%q", r.index, query, limit, size, resp.StatusCode, time.Since(start).Milliseconds(), strings.TrimSpace(string(data)))
 		return nil, fmt.Errorf("elasticsearch search failed: status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(data)))
 	}
 
@@ -140,5 +144,6 @@ func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Cont
 		}
 		out = append(out, hit.Source.PatentID)
 	}
+	log.Printf("[es] request_ok index=%s query=%q limit=%d size=%d status=%d elapsed_ms=%d candidates=%d", r.index, query, limit, size, resp.StatusCode, time.Since(start).Milliseconds(), len(out))
 	return out, nil
 }
