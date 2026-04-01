@@ -74,6 +74,7 @@ func main() {
 	deepRerankTopN := getEnvInt("RANKING_DEEP_TOP_N", 8)
 	deepRerankMixAlpha := getEnvFloat("RANKING_DEEP_MIX_ALPHA", 0.35)
 	queryRewriteEnabled := getEnvBool("QUERY_REWRITE_ENABLED", false)
+	queryRewriteRulesPath := getEnv("QUERY_REWRITE_RULES_PATH", "/app/fto/backend/config/query_rewrite_rules.json")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
@@ -121,7 +122,12 @@ func main() {
 
 	var queryRewriter service.QueryRewriter
 	if queryRewriteEnabled {
-		queryRewriter = service.NewRuleBasedQueryRewriter()
+		rewriter, err := service.NewRuleBasedQueryRewriterFromFile(queryRewriteRulesPath)
+		if err != nil {
+			log.Printf("query rewrite rules load failed, rewrite disabled: path=%s err=%v", queryRewriteRulesPath, err)
+		} else {
+			queryRewriter = rewriter
+		}
 	}
 
 	taskService := service.NewTaskService(repo, patentRepo, queryRewriter, 5)
@@ -134,7 +140,7 @@ func main() {
 	r.Use(observability.AccessLogMiddleware(metrics))
 	router.RegisterRoutes(r, taskService, metrics, rankingCtrl, queryRewriter)
 
-	log.Printf("backend config: redis_addr=%s patent_data_path=%s elasticsearch_enabled=%t elasticsearch_url=%s elasticsearch_index=%s elasticsearch_candidate_multiplier=%d ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t encoder_model_path=%s encoder_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f query_rewrite_enabled=%t", redisAddr, patentDataPath, elasticsearchEnabled, elasticsearchURL, elasticsearchIndex, elasticsearchCandidateMultiplier, rankingMode, dualRatio, rankingModelPath, ranker != nil, encoderModelPath, encoder != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha, queryRewriteEnabled)
+	log.Printf("backend config: redis_addr=%s patent_data_path=%s elasticsearch_enabled=%t elasticsearch_url=%s elasticsearch_index=%s elasticsearch_candidate_multiplier=%d ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t encoder_model_path=%s encoder_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f query_rewrite_enabled=%t query_rewrite_rules_path=%s", redisAddr, patentDataPath, elasticsearchEnabled, elasticsearchURL, elasticsearchIndex, elasticsearchCandidateMultiplier, rankingMode, dualRatio, rankingModelPath, ranker != nil, encoderModelPath, encoder != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha, queryRewriteEnabled, queryRewriteRulesPath)
 
 	if err := r.Run(":8010"); err != nil {
 		log.Fatalf("run server failed: %v", err)
