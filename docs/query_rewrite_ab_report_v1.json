@@ -1,0 +1,183 @@
+{
+  "generated_at": "2026-04-01T07:59:49.550Z",
+  "summary": {
+    "k": 5,
+    "queries": 5,
+    "rewrite_rules": "backend/config/query_rewrite_rules.json",
+    "rewrite_applied_queries": 2,
+    "rewrite_applied_ratio": 0.4,
+    "base": {
+      "recall_at_k": 0.8333333333333333,
+      "mrr_at_k": 1,
+      "ndcg_at_k": 0.9459487321811977
+    },
+    "rewrite": {
+      "recall_at_k": 0.8333333333333333,
+      "mrr_at_k": 1,
+      "ndcg_at_k": 0.9407002709329643
+    },
+    "delta": {
+      "recall_at_k": 0,
+      "mrr_at_k": 0,
+      "ndcg_at_k": -0.005248461248233416
+    }
+  },
+  "rows": [
+    {
+      "query_id": "q1",
+      "query": "无线充电 温控 线圈",
+      "rewritten_query": "无线充电 温控 线圈 电能传输",
+      "rewrite_applied": true,
+      "base": {
+        "recall": 0.6666666666666666,
+        "mrr": 1,
+        "ndcg": 0.8124242481930318
+      },
+      "rewrite": {
+        "recall": 0.6666666666666666,
+        "mrr": 1,
+        "ndcg": 0.8124242481930318
+      },
+      "delta": {
+        "recall": 0,
+        "mrr": 0,
+        "ndcg": 0
+      },
+      "topk_base": [
+        "CN202410001A",
+        "CN202355566A",
+        "JP2023176543A"
+      ],
+      "topk_rewrite": [
+        "CN202410001A",
+        "CN202355566A",
+        "JP2023176543A"
+      ]
+    },
+    {
+      "query_id": "q2",
+      "query": "电池 散热 保护",
+      "rewritten_query": "电池 散热 保护 热管理 温控 储能 电芯",
+      "rewrite_applied": true,
+      "base": {
+        "recall": 1,
+        "mrr": 1,
+        "ndcg": 1
+      },
+      "rewrite": {
+        "recall": 1,
+        "mrr": 1,
+        "ndcg": 0.9737576937588317
+      },
+      "delta": {
+        "recall": 0,
+        "mrr": 0,
+        "ndcg": -0.0262423062411683
+      },
+      "topk_base": [
+        "CN202311998B",
+        "CN202209876U",
+        "JP2023176543A",
+        "CN202355566A"
+      ],
+      "topk_rewrite": [
+        "CN202311998B",
+        "CN202410001A",
+        "JP2023176543A",
+        "CN202209876U",
+        "CN202355566A"
+      ]
+    },
+    {
+      "query_id": "q3",
+      "query": "热管理 温度传感 充电底座",
+      "rewritten_query": "热管理 温度传感 充电底座",
+      "rewrite_applied": false,
+      "base": {
+        "recall": 0.5,
+        "mrr": 1,
+        "ndcg": 0.9173194127129571
+      },
+      "rewrite": {
+        "recall": 0.5,
+        "mrr": 1,
+        "ndcg": 0.9173194127129571
+      },
+      "delta": {
+        "recall": 0,
+        "mrr": 0,
+        "ndcg": 0
+      },
+      "topk_base": [
+        "JP2023176543A",
+        "CN202410001A"
+      ],
+      "topk_rewrite": [
+        "JP2023176543A",
+        "CN202410001A"
+      ]
+    },
+    {
+      "query_id": "q4",
+      "query": "导热壳体 便携设备",
+      "rewritten_query": "导热壳体 便携设备",
+      "rewrite_applied": false,
+      "base": {
+        "recall": 1,
+        "mrr": 1,
+        "ndcg": 1
+      },
+      "rewrite": {
+        "recall": 1,
+        "mrr": 1,
+        "ndcg": 1
+      },
+      "delta": {
+        "recall": 0,
+        "mrr": 0,
+        "ndcg": 0
+      },
+      "topk_base": [
+        "CN202209876U",
+        "CN202311998B",
+        "CN202410001A",
+        "JP2023176543A"
+      ],
+      "topk_rewrite": [
+        "CN202209876U",
+        "CN202311998B",
+        "CN202410001A",
+        "JP2023176543A"
+      ]
+    },
+    {
+      "query_id": "q5",
+      "query": "电磁线圈 屏蔽 热扩散",
+      "rewritten_query": "电磁线圈 屏蔽 热扩散",
+      "rewrite_applied": false,
+      "base": {
+        "recall": 1,
+        "mrr": 1,
+        "ndcg": 1
+      },
+      "rewrite": {
+        "recall": 1,
+        "mrr": 1,
+        "ndcg": 1
+      },
+      "delta": {
+        "recall": 0,
+        "mrr": 0,
+        "ndcg": 0
+      },
+      "topk_base": [
+        "CN202355566A",
+        "CN202410001A"
+      ],
+      "topk_rewrite": [
+        "CN202355566A",
+        "CN202410001A"
+      ]
+    }
+  ]
+}
