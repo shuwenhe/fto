@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus search-stack-up search-stack-down search-stack-logs eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -24,6 +24,9 @@ help:
 	@echo "  make index-patents-es # Create/update Elasticsearch patent index"
 	@echo "  make index-patents-es-from-parquet # Build Elasticsearch index from Parquet dataset"
 	@echo "  make index-patent-embeddings-milvus # Generate embeddings from Parquet and upsert to Milvus"
+	@echo "  make search-stack-up # Start local Elasticsearch + Milvus search stack"
+	@echo "  make search-stack-down # Stop local Elasticsearch + Milvus search stack"
+	@echo "  make search-stack-logs # Tail local Elasticsearch + Milvus search stack logs"
 	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
 	@echo "  make eval-query-rewrite-ab # Compare base vs rewrite query retrieval metrics"
 	@echo "  make analyze-query-rewrite-rules # Analyze per-term contribution and output pruned rules"
@@ -167,6 +170,15 @@ index-patents-es-from-parquet:
 
 index-patent-embeddings-milvus:
 	python3 scripts/index_patent_embeddings_milvus.py
+
+search-stack-up:
+	docker compose -f deploy/docker-compose.search.yml up -d
+
+search-stack-down:
+	docker compose -f deploy/docker-compose.search.yml down
+
+search-stack-logs:
+	docker compose -f deploy/docker-compose.search.yml logs -f --tail=100
 
 eval-retrieval:
 	node scripts/eval_retrieval.mjs --k 5 --verbose

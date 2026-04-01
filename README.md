@@ -36,6 +36,47 @@ ELASTICSEARCH_CANDIDATE_MULTIPLIER=6
 
 含义：Elasticsearch 先召回 `top_k * multiplier` 的候选专利，再交给本地模型链路重排。
 
+## Elasticsearch + Milvus 双路召回
+
+本地联调可直接启动搜索栈：
+
+```bash
+cd /app/fto
+make search-stack-up
+```
+
+默认暴露：
+
+- Elasticsearch: `http://127.0.0.1:9200`
+- Milvus REST/gRPC: `http://127.0.0.1:19530`
+- Milvus health: `http://127.0.0.1:9091/healthz`
+
+先从 JSONL 导出 Parquet，再分别构建 ES 与 Milvus 索引：
+
+```bash
+cd /app/fto
+make export-patents-parquet
+make index-patents-es-from-parquet
+python3 scripts/index_patent_embeddings_milvus.py --embedder hash
+```
+
+启动后端时同时启用两路召回：
+
+```bash
+cd /app/fto/backend
+ELASTICSEARCH_ENABLED=1 \
+ELASTICSEARCH_URL=http://127.0.0.1:9200 \
+ELASTICSEARCH_INDEX=fto_patents \
+MILVUS_ENABLED=1 \
+MILVUS_URL=http://127.0.0.1:19530 \
+MILVUS_COLLECTION=fto_patent_embeddings \
+MILVUS_ANNS_FIELD=embedding \
+MILVUS_HASH_DIM=256 \
+go run main.go
+```
+
+当前后端的 Milvus 查询向量默认使用与 `scripts/index_patent_embeddings_milvus.py --embedder hash` 一致的 hash embedding 路径，适合本地联调。生产环境建议把离线建库和在线查询切换到同一套真实 embedding 模型。
+
 ## 最小联调启动
 
 1. 安装前端依赖
