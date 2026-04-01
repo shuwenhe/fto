@@ -15,11 +15,11 @@ import (
 )
 
 type ElasticsearchPatentRepository struct {
-	local              *LocalPatentRepository
-	baseURL            string
-	index              string
+	local               *LocalPatentRepository
+	baseURL             string
+	index               string
 	candidateMultiplier int
-	client             *http.Client
+	client              *http.Client
 }
 
 func NewElasticsearchPatentRepository(local *LocalPatentRepository, baseURL string, index string, candidateMultiplier int) *ElasticsearchPatentRepository {
@@ -91,7 +91,7 @@ func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Cont
 	}
 
 	body := map[string]interface{}{
-		"size": size,
+		"size":    size,
 		"_source": []string{"patent_id"},
 		"query": map[string]interface{}{
 			"multi_match": map[string]interface{}{

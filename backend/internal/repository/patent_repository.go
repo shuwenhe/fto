@@ -127,17 +127,17 @@ type neurxEncoder struct {
 }
 
 type LocalPatentRepository struct {
-	mu           sync.RWMutex
-	records      []model.PatentRecord
-	semanticVec  []map[string]float64
+	mu              sync.RWMutex
+	records         []model.PatentRecord
+	semanticVec     []map[string]float64
 	recordIndexByID map[string]int
-	rankingMode  string
-	dualRatio    int
-	ranker       *neurxRanker
-	encoder      *neurxEncoder
-	deepEnabled  bool
-	deepTopN     int
-	deepMixAlpha float64
+	rankingMode     string
+	dualRatio       int
+	ranker          *neurxRanker
+	encoder         *neurxEncoder
+	deepEnabled     bool
+	deepTopN        int
+	deepMixAlpha    float64
 }
 
 func NewLocalPatentRepository(dataPath string) (*LocalPatentRepository, error) {
