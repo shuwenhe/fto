@@ -12,6 +12,9 @@ fi
 install -m 0644 "$REPO_ROOT/deploy/systemd/fto-backend.service" "$SYSTEMD_DIR/fto-backend.service"
 install -m 0644 "$REPO_ROOT/deploy/systemd/fto-frontend.service" "$SYSTEMD_DIR/fto-frontend.service"
 install -m 0644 "$REPO_ROOT/deploy/systemd/fto-frontend-watch.service" "$SYSTEMD_DIR/fto-frontend-watch.service"
+install -m 0644 "$REPO_ROOT/deploy/systemd/fto-query-rewrite-prune.service" "$SYSTEMD_DIR/fto-query-rewrite-prune.service"
+install -m 0644 "$REPO_ROOT/deploy/systemd/fto-query-rewrite-prune.timer" "$SYSTEMD_DIR/fto-query-rewrite-prune.timer"
+install -m 0644 "$REPO_ROOT/deploy/systemd/fto-query-rewrite-prune.path" "$SYSTEMD_DIR/fto-query-rewrite-prune.path"
 
 cat >"$SYSTEMD_DIR/fto-auto-commit.service" <<EOF
 [Unit]
@@ -51,10 +54,25 @@ EOF
   chmod 600 /etc/default/fto-auto-commit
 fi
 
+if [[ ! -f /etc/default/fto-query-rewrite-prune ]]; then
+  cat >/etc/default/fto-query-rewrite-prune <<'EOF'
+# Query rewrite auto prune environment variables
+REWRITE_K=5
+REWRITE_MIN_NDCG_CONTRIBUTION=0
+REWRITE_MIN_HIT_QUERIES=2
+REWRITE_AUTO_APPLY=1
+REWRITE_RESTART_BACKEND_ON_APPLY=1
+EOF
+  chmod 600 /etc/default/fto-query-rewrite-prune
+fi
+
 systemctl daemon-reload
 systemctl enable fto-backend.service fto-frontend.service fto-frontend-watch.service fto-auto-commit.service
+systemctl enable fto-query-rewrite-prune.timer fto-query-rewrite-prune.path
 
-echo "[ok] installed services: fto-backend, fto-frontend, fto-frontend-watch, fto-auto-commit"
+echo "[ok] installed services: fto-backend, fto-frontend, fto-frontend-watch, fto-auto-commit, fto-query-rewrite-prune"
 echo "[hint] edit /etc/default/fto-backend to change REDIS_PASSWORD"
 echo "[hint] edit /etc/default/fto-auto-commit to change auto push interval or remote"
+echo "[hint] edit /etc/default/fto-query-rewrite-prune to tune prune threshold"
 echo "[hint] start now: systemctl restart fto-backend fto-frontend fto-frontend-watch fto-auto-commit"
+echo "[hint] run prune now: systemctl start fto-query-rewrite-prune.service"
