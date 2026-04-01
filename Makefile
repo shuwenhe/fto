@@ -163,7 +163,7 @@ eval-query-rewrite-ab:
 	node scripts/eval_query_rewrite_ab.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --rules backend/config/query_rewrite_rules.json --out-json docs/query_rewrite_ab_report_v1.json --out-md docs/query_rewrite_ab_report_v1.md --verbose
 
 analyze-query-rewrite-rules:
-	node scripts/analyze_query_rewrite_rule_contrib.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --rules backend/config/query_rewrite_rules.json --out-json docs/query_rewrite_rule_contrib_v1.json --out-md docs/query_rewrite_rule_contrib_v1.md --min-ndcg-contribution 0 --write-pruned-rules backend/config/query_rewrite_rules.pruned.json --verbose
+	node scripts/analyze_query_rewrite_rule_contrib.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --rules backend/config/query_rewrite_rules.json --out-json docs/query_rewrite_rule_contrib_v1.json --out-md docs/query_rewrite_rule_contrib_v1.md --min-ndcg-contribution 0 --min-hit-queries 2 --write-pruned-rules backend/config/query_rewrite_rules.pruned.json --verbose
 
 auto-prune-query-rewrite-rules:
 	bash scripts/query_rewrite_auto_prune.sh
