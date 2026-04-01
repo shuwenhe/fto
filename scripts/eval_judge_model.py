@@ -3,7 +3,16 @@
 import argparse
 import json
 import math
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+JUDGE_DIR = ROOT / "judge"
+RERANKER_DIR = ROOT / "reranker"
+if str(JUDGE_DIR) not in sys.path:
+    sys.path.insert(0, str(JUDGE_DIR))
+if str(RERANKER_DIR) not in sys.path:
+    sys.path.insert(0, str(RERANKER_DIR))
 
 from train_fto_judge_model_neurx import (
     DEFAULT_RECALL_MODEL,
@@ -16,7 +25,6 @@ from train_fto_judge_model_neurx import (
 )
 from train_fto_model_neurx import DEFAULT_PATENTS, DEFAULT_QRELS, DEFAULT_QUERIES
 
-ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MODEL = ROOT / "model_artifacts" / "fto_judge_neurx_v1.json"
 RISK_LABELS = ["low", "medium", "high"]
 

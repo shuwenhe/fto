@@ -160,28 +160,28 @@ generate-report-sample:
 	node scripts/generate_report_sample.mjs --k 5 --query-id q1 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api --out docs/report_sample_v1.json
 
 train-fto-model:
-	python scripts/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
+	python reranker/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
 
 train-fto-reranker-model:
-	python scripts/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
+	python reranker/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
 
 train-fto-recall-model:
-	python scripts/train_fto_recall_model.py --out model_artifacts/fto_recall_dual_v1.json
+	python recall/train_fto_recall_model.py --out model_artifacts/fto_recall_dual_v1.json
 
 train-fto-judge-model:
-	python scripts/train_fto_judge_model_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --reranker-model model_artifacts/fto_reranker_neurx_v1.json --out model_artifacts/fto_judge_neurx_v1.json
+	python judge/train_fto_judge_model_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --reranker-model model_artifacts/fto_reranker_neurx_v1.json --out model_artifacts/fto_judge_neurx_v1.json
 
 train-fto-encoder-model:
 	python encoder/train_fto_encoder_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --out model_artifacts/fto_encoder_neurx_v1.json
 
 train-eval-fto-recall:
-	bash scripts/run_fto_recall_pipeline.sh
+	bash recall/run_fto_recall_pipeline.sh
 
 train-eval-fto-reranker:
-	bash scripts/run_fto_reranker_pipeline.sh
+	bash reranker/run_fto_reranker_pipeline.sh
 
 train-eval-fto-judge:
-	bash scripts/run_fto_judge_pipeline.sh
+	bash judge/run_fto_judge_pipeline.sh
 
 train-eval-fto-encoder:
 	bash encoder/run_fto_encoder_pipeline.sh
