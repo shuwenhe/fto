@@ -2,9 +2,11 @@ package router
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"fto-backend/internal/model"
 	"fto-backend/internal/observability"
@@ -143,6 +145,133 @@ func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *obs
 		resp.RewriteApplied = rewriteApplied
 		observability.LogTaskEvent(c, "encoder_explain_queried", map[string]interface{}{"query": originalQuery, "rewritten_query": searchQuery, "rewrite_applied": rewriteApplied, "limit": req.Limit, "results": len(resp.Results), "model_loaded": resp.ModelLoaded})
 		c.JSON(http.StatusOK, resp)
+	})
+
+	r.POST("/ops/fto-report", func(c *gin.Context) {
+		provider, ok := rankingCtrl.(repository.RankingExplainProvider)
+		if !ok || provider == nil {
+			c.JSON(http.StatusNotImplemented, gin.H{"error": "ranking explain not available"})
+			return
+		}
+
+		var req model.FTOReportRequest
+		if err := c.ShouldBindJSON(&req); err != nil || strings.TrimSpace(req.Query) == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid query"})
+			return
+		}
+		if req.Limit <= 0 {
+			req.Limit = 8
+		}
+		if req.TopN <= 0 {
+			req.TopN = 5
+		}
+
+		originalQuery := strings.TrimSpace(req.Query)
+		searchQuery := originalQuery
+		rewriteApplied := false
+		if queryRewriter != nil {
+			if rewritten, applied := queryRewriter.Rewrite(originalQuery); applied {
+				searchQuery = rewritten
+				rewriteApplied = true
+			}
+		}
+
+		rankingResp, err := provider.ExplainQuery(c.Request.Context(), searchQuery, req.Limit)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		encoderScoreByPatent := map[string]float64{}
+		if req.IncludeEncoder {
+			if encProvider, ok := rankingCtrl.(repository.EncoderExplainProvider); ok && encProvider != nil {
+				if encResp, err := encProvider.ExplainEncoder(c.Request.Context(), searchQuery, req.Limit); err == nil {
+					for _, item := range encResp.Results {
+						encoderScoreByPatent[item.PatentID] = item.EncoderScore
+					}
+				}
+			}
+		}
+
+		evidenceLimit := req.TopN
+		if evidenceLimit > len(rankingResp.Results) {
+			evidenceLimit = len(rankingResp.Results)
+		}
+
+		riskDistribution := map[string]int{"low": 0, "medium": 0, "high": 0}
+		for _, item := range rankingResp.Results {
+			level := strings.ToLower(strings.TrimSpace(item.RiskLevel))
+			if level == "low" || level == "medium" || level == "high" {
+				riskDistribution[level]++
+			}
+		}
+
+		evidence := make([]model.FTOReportEvidenceItem, 0, evidenceLimit)
+		topRisk := "low"
+		for i := 0; i < evidenceLimit; i++ {
+			item := rankingResp.Results[i]
+			entry := model.FTOReportEvidenceItem{
+				Rank:       item.Rank,
+				PatentID:   item.PatentID,
+				PatentURL:  item.PatentURL,
+				Title:      item.Title,
+				RiskLevel:  item.RiskLevel,
+				FinalScore: item.FinalScore,
+				ModelScore: item.ModelScore,
+				DeepScore:  item.DeepScore,
+				Matched:    append([]string(nil), item.Matched...),
+				Reason:     item.Reason,
+				SourceType: "patent",
+				SourceID:   item.PatentID,
+				SourceURL:  item.PatentURL,
+			}
+			if score, ok := encoderScoreByPatent[item.PatentID]; ok {
+				s := score
+				entry.EncoderScore = &s
+			}
+			evidence = append(evidence, entry)
+
+			level := strings.ToLower(strings.TrimSpace(item.RiskLevel))
+			if level == "high" {
+				topRisk = "high"
+			} else if level == "medium" && topRisk != "high" {
+				topRisk = "medium"
+			}
+		}
+
+		findings := []string{}
+		if len(evidence) > 0 {
+			first := evidence[0]
+			findings = append(findings, fmt.Sprintf("Top1 候选专利为 %s（%s），风险等级 %s，综合分 %.4f。", first.PatentID, first.Title, first.RiskLevel, first.FinalScore))
+		}
+		findings = append(findings, fmt.Sprintf("候选集风险分布：high=%d，medium=%d，low=%d。", riskDistribution["high"], riskDistribution["medium"], riskDistribution["low"]))
+		if rewriteApplied {
+			findings = append(findings, fmt.Sprintf("查询已改写："+"%s -> %s", originalQuery, searchQuery))
+		}
+
+		recommendations := []string{
+			"优先对 high 风险专利进行权利要求逐条比对，输出可规避的结构差异清单。",
+			"对 medium 风险候选开展技术特征映射，评估侵权边界和可替代方案。",
+			"将本次证据链接纳入评审记录，形成可追溯审计链路。",
+		}
+
+		report := model.FTOReportResponse{
+			ReportID:       fmt.Sprintf("fto-report-%d", time.Now().UnixNano()),
+			GeneratedAt:    time.Now().UTC().Format(time.RFC3339),
+			Query:          searchQuery,
+			OriginalQuery:  originalQuery,
+			RewrittenQuery: searchQuery,
+			RewriteApplied: rewriteApplied,
+			CandidateCount: rankingResp.CandidateCount,
+			RiskDistribution: riskDistribution,
+			ExecutiveSummary: fmt.Sprintf("本次 FTO 防侵权分析在候选集中识别到 %d 条 high 风险、%d 条 medium 风险专利，整体最高风险等级为 %s。", riskDistribution["high"], riskDistribution["medium"], topRisk),
+			CoreFindings: findings,
+			Recommendations: recommendations,
+			Evidence: evidence,
+		}
+
+		observability.LogTaskEvent(c, "fto_report_generated", map[string]interface{}{"query": originalQuery, "rewritten_query": searchQuery, "rewrite_applied": rewriteApplied, "candidate_count": report.CandidateCount, "evidence_count": len(report.Evidence)})
+		c.JSON(http.StatusOK, report)
 	})
 
 	r.POST("/tasks", func(c *gin.Context) {
