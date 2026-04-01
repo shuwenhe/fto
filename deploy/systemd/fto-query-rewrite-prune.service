@@ -1,0 +1,11 @@
+[Unit]
+Description=FTO Query Rewrite Rule Analyze And Auto Prune
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/app/fto
+EnvironmentFile=-/etc/default/fto-query-rewrite-prune
+ExecStart=/usr/bin/bash /app/fto/scripts/query_rewrite_auto_prune.sh
+User=root
+Group=root
