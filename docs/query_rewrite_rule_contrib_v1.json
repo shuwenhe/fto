@@ -1,105 +1,217 @@
 {
-  "generated_at": "2026-04-01T08:08:59.112Z",
+  "generated_at": "2026-04-01T19:31:10.242Z",
   "k": 5,
   "min_ndcg_contribution": 0,
   "min_hit_queries": 2,
   "baseline_no_rewrite": {
-    "queries": 5,
+    "queries": 12,
     "rewrite_applied_queries": 0,
     "rewrite_applied_ratio": 0,
-    "recall_at_k": 0.8333333333333333,
-    "mrr_at_k": 1,
-    "ndcg_at_k": 0.9459487321811977,
+    "recall_at_k": 0.625,
+    "mrr_at_k": 0.8611111111111112,
+    "ndcg_at_k": 0.6802949195049343,
     "rows": [
       {
         "query_id": "q1",
-        "recall": 0.6666666666666666,
-        "mrr": 1,
-        "ndcg": 0.8124242481930318,
+        "recall": 1,
+        "mrr": 0.5,
+        "ndcg": 0.7297792642692668,
         "rewrite_applied": false,
-        "rewritten_query": "无线充电 温控 线圈"
+        "rewritten_query": "active electromagnetic shielding high power dynamic wireless charging"
       },
       {
         "query_id": "q2",
-        "recall": 1,
+        "recall": 0.5,
         "mrr": 1,
-        "ndcg": 1,
+        "ndcg": 0.7853307011184337,
         "rewrite_applied": false,
-        "rewritten_query": "电池 散热 保护"
+        "rewritten_query": "on board vehicle wireless charging system shared components"
       },
       {
         "query_id": "q3",
-        "recall": 0.5,
+        "recall": 0.75,
         "mrr": 1,
-        "ndcg": 0.9173194127129571,
+        "ndcg": 0.6891651842867805,
         "rewrite_applied": false,
-        "rewritten_query": "热管理 温度传感 充电底座"
+        "rewritten_query": "wireless charging leakage flux shielding safety shield"
       },
       {
         "query_id": "q4",
-        "recall": 1,
-        "mrr": 1,
-        "ndcg": 1,
+        "recall": 0.75,
+        "mrr": 0.5,
+        "ndcg": 0.4704790147181432,
         "rewrite_applied": false,
-        "rewritten_query": "导热壳体 便携设备"
+        "rewritten_query": "multiple coil arrays wireless power transfer power feeding coil unit"
       },
       {
         "query_id": "q5",
-        "recall": 1,
+        "recall": 0.75,
         "mrr": 1,
-        "ndcg": 1,
+        "ndcg": 0.904703709344452,
         "rewrite_applied": false,
-        "rewritten_query": "电磁线圈 屏蔽 热扩散"
+        "rewritten_query": "battery pack thermal management heat pipe cooling"
+      },
+      {
+        "query_id": "q6",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.9521511920423338,
+        "rewrite_applied": false,
+        "rewritten_query": "electrochemical energy storage cooling heating temperature control"
+      },
+      {
+        "query_id": "q7",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.8691539868849435,
+        "rewrite_applied": false,
+        "rewritten_query": "foldable multifunctional wireless charging device"
+      },
+      {
+        "query_id": "q8",
+        "recall": 0.5,
+        "mrr": 1,
+        "ndcg": 0.855349530090474,
+        "rewrite_applied": false,
+        "rewritten_query": "foreign object detection antenna alignment vehicle guidance wireless charging"
+      },
+      {
+        "query_id": "q9",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.8045979074562035,
+        "rewrite_applied": false,
+        "rewritten_query": "smart bracelet mobile device intelligent inductive charger"
+      },
+      {
+        "query_id": "q10",
+        "recall": 0.25,
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.1526955992589897,
+        "rewrite_applied": false,
+        "rewritten_query": "charging dock thermal management temperature detection heat dissipation"
+      },
+      {
+        "query_id": "q11",
+        "recall": 0.5,
+        "mrr": 1,
+        "ndcg": 0.45747141776516514,
+        "rewrite_applied": false,
+        "rewritten_query": "flux coupled magnetic conductor coil structure wireless power transmission"
+      },
+      {
+        "query_id": "q12",
+        "recall": 0.25,
+        "mrr": 1,
+        "ndcg": 0.492661526824024,
+        "rewrite_applied": false,
+        "rewritten_query": "electric vehicle charging pad protective shield wireless charging"
       }
     ]
   },
   "full_rules": {
-    "queries": 5,
-    "rewrite_applied_queries": 2,
-    "rewrite_applied_ratio": 0.4,
-    "recall_at_k": 0.8333333333333333,
-    "mrr_at_k": 1,
-    "ndcg_at_k": 0.9459487321811977,
+    "queries": 12,
+    "rewrite_applied_queries": 0,
+    "rewrite_applied_ratio": 0,
+    "recall_at_k": 0.625,
+    "mrr_at_k": 0.8611111111111112,
+    "ndcg_at_k": 0.6802949195049343,
     "rows": [
       {
         "query_id": "q1",
-        "recall": 0.6666666666666666,
-        "mrr": 1,
-        "ndcg": 0.8124242481930318,
-        "rewrite_applied": true,
-        "rewritten_query": "无线充电 温控 线圈 电能传输"
+        "recall": 1,
+        "mrr": 0.5,
+        "ndcg": 0.7297792642692668,
+        "rewrite_applied": false,
+        "rewritten_query": "active electromagnetic shielding high power dynamic wireless charging"
       },
       {
         "query_id": "q2",
-        "recall": 1,
+        "recall": 0.5,
         "mrr": 1,
-        "ndcg": 1,
-        "rewrite_applied": true,
-        "rewritten_query": "电池 散热 保护 储能 电芯"
+        "ndcg": 0.7853307011184337,
+        "rewrite_applied": false,
+        "rewritten_query": "on board vehicle wireless charging system shared components"
       },
       {
         "query_id": "q3",
-        "recall": 0.5,
+        "recall": 0.75,
         "mrr": 1,
-        "ndcg": 0.9173194127129571,
+        "ndcg": 0.6891651842867805,
         "rewrite_applied": false,
-        "rewritten_query": "热管理 温度传感 充电底座"
+        "rewritten_query": "wireless charging leakage flux shielding safety shield"
       },
       {
         "query_id": "q4",
-        "recall": 1,
-        "mrr": 1,
-        "ndcg": 1,
+        "recall": 0.75,
+        "mrr": 0.5,
+        "ndcg": 0.4704790147181432,
         "rewrite_applied": false,
-        "rewritten_query": "导热壳体 便携设备"
+        "rewritten_query": "multiple coil arrays wireless power transfer power feeding coil unit"
       },
       {
         "query_id": "q5",
-        "recall": 1,
+        "recall": 0.75,
         "mrr": 1,
-        "ndcg": 1,
+        "ndcg": 0.904703709344452,
         "rewrite_applied": false,
-        "rewritten_query": "电磁线圈 屏蔽 热扩散"
+        "rewritten_query": "battery pack thermal management heat pipe cooling"
+      },
+      {
+        "query_id": "q6",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.9521511920423338,
+        "rewrite_applied": false,
+        "rewritten_query": "electrochemical energy storage cooling heating temperature control"
+      },
+      {
+        "query_id": "q7",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.8691539868849435,
+        "rewrite_applied": false,
+        "rewritten_query": "foldable multifunctional wireless charging device"
+      },
+      {
+        "query_id": "q8",
+        "recall": 0.5,
+        "mrr": 1,
+        "ndcg": 0.855349530090474,
+        "rewrite_applied": false,
+        "rewritten_query": "foreign object detection antenna alignment vehicle guidance wireless charging"
+      },
+      {
+        "query_id": "q9",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.8045979074562035,
+        "rewrite_applied": false,
+        "rewritten_query": "smart bracelet mobile device intelligent inductive charger"
+      },
+      {
+        "query_id": "q10",
+        "recall": 0.25,
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.1526955992589897,
+        "rewrite_applied": false,
+        "rewritten_query": "charging dock thermal management temperature detection heat dissipation"
+      },
+      {
+        "query_id": "q11",
+        "recall": 0.5,
+        "mrr": 1,
+        "ndcg": 0.45747141776516514,
+        "rewrite_applied": false,
+        "rewritten_query": "flux coupled magnetic conductor coil structure wireless power transmission"
+      },
+      {
+        "query_id": "q12",
+        "recall": 0.25,
+        "mrr": 1,
+        "ndcg": 0.492661526824024,
+        "rewrite_applied": false,
+        "rewritten_query": "electric vehicle charging pad protective shield wireless charging"
       }
     ]
   },
@@ -107,24 +219,24 @@
     {
       "match": "无线充电",
       "term": "充电",
-      "hit_queries": 1,
+      "hit_queries": 0,
       "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "无线充电",
       "term": "电能传输",
-      "hit_queries": 1,
-      "term_applied_queries": 1,
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "快充",
@@ -134,8 +246,8 @@
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "快充",
@@ -145,30 +257,30 @@
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "电池",
       "term": "储能",
-      "hit_queries": 1,
-      "term_applied_queries": 1,
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "电池",
       "term": "电芯",
-      "hit_queries": 1,
-      "term_applied_queries": 1,
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "逆变器",
@@ -178,8 +290,8 @@
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "逆变器",
@@ -189,8 +301,8 @@
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "变流器",
@@ -200,8 +312,8 @@
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     },
     {
       "match": "变流器",
@@ -211,59 +323,115 @@
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9459487321811977,
-      "removed_ndcg_at_k": 0.9459487321811977
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
     }
   ],
   "harmful_terms": [],
   "protected_by_min_samples": [],
   "pruned_rules_eval": {
-    "queries": 5,
-    "rewrite_applied_queries": 2,
-    "rewrite_applied_ratio": 0.4,
-    "recall_at_k": 0.8333333333333333,
-    "mrr_at_k": 1,
-    "ndcg_at_k": 0.9459487321811977,
+    "queries": 12,
+    "rewrite_applied_queries": 0,
+    "rewrite_applied_ratio": 0,
+    "recall_at_k": 0.625,
+    "mrr_at_k": 0.8611111111111112,
+    "ndcg_at_k": 0.6802949195049343,
     "rows": [
       {
         "query_id": "q1",
-        "recall": 0.6666666666666666,
-        "mrr": 1,
-        "ndcg": 0.8124242481930318,
-        "rewrite_applied": true,
-        "rewritten_query": "无线充电 温控 线圈 电能传输"
+        "recall": 1,
+        "mrr": 0.5,
+        "ndcg": 0.7297792642692668,
+        "rewrite_applied": false,
+        "rewritten_query": "active electromagnetic shielding high power dynamic wireless charging"
       },
       {
         "query_id": "q2",
-        "recall": 1,
+        "recall": 0.5,
         "mrr": 1,
-        "ndcg": 1,
-        "rewrite_applied": true,
-        "rewritten_query": "电池 散热 保护 储能 电芯"
+        "ndcg": 0.7853307011184337,
+        "rewrite_applied": false,
+        "rewritten_query": "on board vehicle wireless charging system shared components"
       },
       {
         "query_id": "q3",
-        "recall": 0.5,
+        "recall": 0.75,
         "mrr": 1,
-        "ndcg": 0.9173194127129571,
+        "ndcg": 0.6891651842867805,
         "rewrite_applied": false,
-        "rewritten_query": "热管理 温度传感 充电底座"
+        "rewritten_query": "wireless charging leakage flux shielding safety shield"
       },
       {
         "query_id": "q4",
-        "recall": 1,
-        "mrr": 1,
-        "ndcg": 1,
+        "recall": 0.75,
+        "mrr": 0.5,
+        "ndcg": 0.4704790147181432,
         "rewrite_applied": false,
-        "rewritten_query": "导热壳体 便携设备"
+        "rewritten_query": "multiple coil arrays wireless power transfer power feeding coil unit"
       },
       {
         "query_id": "q5",
-        "recall": 1,
+        "recall": 0.75,
         "mrr": 1,
-        "ndcg": 1,
+        "ndcg": 0.904703709344452,
         "rewrite_applied": false,
-        "rewritten_query": "电磁线圈 屏蔽 热扩散"
+        "rewritten_query": "battery pack thermal management heat pipe cooling"
+      },
+      {
+        "query_id": "q6",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.9521511920423338,
+        "rewrite_applied": false,
+        "rewritten_query": "electrochemical energy storage cooling heating temperature control"
+      },
+      {
+        "query_id": "q7",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.8691539868849435,
+        "rewrite_applied": false,
+        "rewritten_query": "foldable multifunctional wireless charging device"
+      },
+      {
+        "query_id": "q8",
+        "recall": 0.5,
+        "mrr": 1,
+        "ndcg": 0.855349530090474,
+        "rewrite_applied": false,
+        "rewritten_query": "foreign object detection antenna alignment vehicle guidance wireless charging"
+      },
+      {
+        "query_id": "q9",
+        "recall": 0.75,
+        "mrr": 1,
+        "ndcg": 0.8045979074562035,
+        "rewrite_applied": false,
+        "rewritten_query": "smart bracelet mobile device intelligent inductive charger"
+      },
+      {
+        "query_id": "q10",
+        "recall": 0.25,
+        "mrr": 0.3333333333333333,
+        "ndcg": 0.1526955992589897,
+        "rewrite_applied": false,
+        "rewritten_query": "charging dock thermal management temperature detection heat dissipation"
+      },
+      {
+        "query_id": "q11",
+        "recall": 0.5,
+        "mrr": 1,
+        "ndcg": 0.45747141776516514,
+        "rewrite_applied": false,
+        "rewritten_query": "flux coupled magnetic conductor coil structure wireless power transmission"
+      },
+      {
+        "query_id": "q12",
+        "recall": 0.25,
+        "mrr": 1,
+        "ndcg": 0.492661526824024,
+        "rewrite_applied": false,
+        "rewritten_query": "electric vehicle charging pad protective shield wireless charging"
       }
     ]
   },
