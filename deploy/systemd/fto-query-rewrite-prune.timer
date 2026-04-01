@@ -1,0 +1,11 @@
+[Unit]
+Description=Run FTO Query Rewrite Auto Prune Daily
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+RandomizedDelaySec=20m
+Persistent=true
+Unit=fto-query-rewrite-prune.service
+
+[Install]
+WantedBy=timers.target
