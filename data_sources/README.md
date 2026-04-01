@@ -11,6 +11,48 @@ This directory stores patent source datasets for FTO retrieval.
 
 For large datasets, keep `patents.jsonl` only as import/exchange format. Generate Parquet as the durable source for Elasticsearch and Milvus indexing.
 
+## Incremental Daily Pipeline
+
+Recommended daily flow:
+
+1. New patents land as JSONL patch file.
+2. Legal status changes land as JSONL patch file.
+3. Merge both into `patents.jsonl`.
+4. Detect changed `patent_id`s via record fingerprint.
+5. Export only changed records as delta Parquet.
+6. Upsert delta into Elasticsearch immediately.
+7. Queue embedding updates and backfill Milvus asynchronously.
+
+Run incremental sync:
+
+```bash
+cd /app/fto
+make patent-incremental-sync UPDATES_JSONL=/path/to/new_patents.jsonl
+```
+
+With legal status patch:
+
+```bash
+cd /app/fto
+make patent-incremental-sync \
+  UPDATES_JSONL=/path/to/new_patents.jsonl \
+  LEGAL_STATUS_JSONL=/path/to/legal_status_updates.jsonl
+```
+
+Artifacts written by the pipeline:
+
+- `data_lake/manifests/patent_pipeline_state.json`
+- `data_lake/manifests/batches/patent_batch_<ts>.json`
+- `data_lake/manifests/batches/changed_patent_ids_<ts>.txt`
+- `data_lake/patent_delta/batch_ts=<ts>/`
+
+Process queued embedding backfill later:
+
+```bash
+cd /app/fto
+make patent-process-pending-embeddings
+```
+
 ## Keep JSON and JSONL In Sync
 
 ```bash

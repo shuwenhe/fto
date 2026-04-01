@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import shutil
-import sys
 from pathlib import Path
+
+from patent_pipeline_common import load_jsonl
 
 
 def require_pyarrow():
@@ -59,34 +59,26 @@ def detect_pub_year(patent_id: str) -> int:
 
 
 def iter_jsonl_records(path: Path):
-    with path.open("r", encoding="utf-8") as fh:
-        for line_no, raw in enumerate(fh, start=1):
-            text = raw.strip()
-            if not text:
-                continue
-            try:
-                row = json.loads(text)
-            except json.JSONDecodeError as exc:
-                raise SystemExit(f"[error] invalid jsonl line={line_no}: {exc}") from exc
-            patent_id = str(row.get("patent_id", "")).strip()
-            title = str(row.get("title", "")).strip()
-            if not patent_id or not title:
-                continue
-            keywords = row.get("keywords") or []
-            if not isinstance(keywords, list):
-                keywords = []
-            legal_status = str(row.get("legal_status", "")).strip()
-            yield {
-                "patent_id": patent_id,
-                "title": title,
-                "abstract": str(row.get("abstract", "") or ""),
-                "claim": str(row.get("claim", "") or ""),
-                "keywords": [str(item) for item in keywords if str(item).strip()],
-                "legal_status": legal_status,
-                "country": detect_country(patent_id),
-                "pub_year": detect_pub_year(patent_id),
-                "legal_status_group": normalize_legal_status(legal_status),
-            }
+    for row in load_jsonl(path):
+        patent_id = str(row.get("patent_id", "")).strip()
+        title = str(row.get("title", "")).strip()
+        if not patent_id or not title:
+            continue
+        keywords = row.get("keywords") or []
+        if not isinstance(keywords, list):
+            keywords = []
+        legal_status = str(row.get("legal_status", "")).strip()
+        yield {
+            "patent_id": patent_id,
+            "title": title,
+            "abstract": str(row.get("abstract", "") or ""),
+            "claim": str(row.get("claim", "") or ""),
+            "keywords": [str(item) for item in keywords if str(item).strip()],
+            "legal_status": legal_status,
+            "country": detect_country(patent_id),
+            "pub_year": detect_pub_year(patent_id),
+            "legal_status_group": normalize_legal_status(legal_status),
+        }
 
 
 def parse_args() -> argparse.Namespace:
@@ -102,6 +94,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--row-group-size", type=int, default=2048)
     parser.add_argument("--compression", default="snappy")
     parser.add_argument("--overwrite", action="store_true")
+    parser.add_argument("--ids-file", default="", help="Optional file containing patent IDs to export")
     return parser.parse_args()
 
 
@@ -125,6 +118,16 @@ def main() -> None:
     output_path.mkdir(parents=True, exist_ok=True)
 
     rows = list(iter_jsonl_records(input_path))
+    if args.ids_file:
+        ids_path = Path(args.ids_file)
+        if not ids_path.exists():
+            raise SystemExit(f"[error] ids file not found: {ids_path}")
+        selected_ids = {
+            line.strip()
+            for line in ids_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        }
+        rows = [row for row in rows if row["patent_id"] in selected_ids]
     if not rows:
         raise SystemExit("[error] no patent records loaded from input JSONL")
 

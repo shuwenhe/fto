@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -81,6 +80,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--index", default="fto_patents")
     parser.add_argument("--batch-size", type=int, default=500)
     parser.add_argument("--recreate", action="store_true")
+    parser.add_argument("--ids-file", default="", help="Optional file containing patent IDs to index")
     return parser.parse_args()
 
 
@@ -96,6 +96,16 @@ def main() -> None:
     ensure_index(args.url, args.index)
 
     dataset = ds.dataset(str(input_path), format="parquet", partitioning="hive")
+    selected_ids = None
+    if args.ids_file:
+        ids_path = Path(args.ids_file)
+        if not ids_path.exists():
+            raise SystemExit(f"[error] ids file not found: {ids_path}")
+        selected_ids = {
+            line.strip()
+            for line in ids_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        }
     batch_docs: list[str] = []
     total = 0
     for batch in dataset.to_batches(batch_size=args.batch_size):
@@ -103,6 +113,8 @@ def main() -> None:
         for row in rows:
             patent_id = str(row.get("patent_id", "")).strip()
             if not patent_id:
+                continue
+            if selected_ids is not None and patent_id not in selected_ids:
                 continue
             batch_docs.append(json.dumps({"index": {"_index": args.index, "_id": patent_id}}))
             batch_docs.append(json.dumps(row, ensure_ascii=False))

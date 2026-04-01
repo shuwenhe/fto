@@ -124,6 +124,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--hash-dim", type=int, default=256)
     parser.add_argument("--metric-type", default="COSINE")
+    parser.add_argument("--ids-file", default="", help="Optional file containing patent IDs to embed")
     return parser.parse_args()
 
 
@@ -141,6 +142,16 @@ def main() -> None:
     collection = ensure_collection(args.collection, dim, args.metric_type)
 
     dataset = ds.dataset(str(input_path), format="parquet", partitioning="hive")
+    selected_ids = None
+    if args.ids_file:
+        ids_path = Path(args.ids_file)
+        if not ids_path.exists():
+            raise SystemExit(f"[error] ids file not found: {ids_path}")
+        selected_ids = {
+            line.strip()
+            for line in ids_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        }
     patent_ids: list[str] = []
     countries: list[str] = []
     pub_years: list[int] = []
@@ -161,6 +172,8 @@ def main() -> None:
         for row in batch.to_pylist():
             patent_id = str(row.get("patent_id", "")).strip()
             if not patent_id:
+                continue
+            if selected_ids is not None and patent_id not in selected_ids:
                 continue
             text = " ".join(
                 str(row.get(key, "") or "") for key in ("title", "abstract", "claim")

@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus search-stack-up search-stack-down search-stack-logs eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet patent-incremental-sync patent-process-pending-embeddings index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus search-stack-up search-stack-down search-stack-logs eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -21,6 +21,8 @@ help:
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
 	@echo "  make export-patents-parquet # Convert patents.jsonl into partitioned Parquet dataset"
+	@echo "  make patent-incremental-sync UPDATES_JSONL=... [LEGAL_STATUS_JSONL=...] # Daily patent delta sync"
+	@echo "  make patent-process-pending-embeddings # Async backfill queued embedding batches into Milvus"
 	@echo "  make index-patents-es # Create/update Elasticsearch patent index"
 	@echo "  make index-patents-es-from-parquet # Build Elasticsearch index from Parquet dataset"
 	@echo "  make index-patent-embeddings-milvus # Generate embeddings from Parquet and upsert to Milvus"
@@ -161,6 +163,18 @@ sync-patent-data:
 
 export-patents-parquet:
 	python3 scripts/export_patents_parquet.py --overwrite
+
+patent-incremental-sync:
+	@test -n "$(UPDATES_JSONL)$(LEGAL_STATUS_JSONL)" || (echo "Usage: make patent-incremental-sync UPDATES_JSONL=/path/to/new_patents.jsonl [LEGAL_STATUS_JSONL=/path/to/legal_status_updates.jsonl]" && exit 1)
+	python3 scripts/run_patent_incremental_pipeline.py \
+		$(if $(UPDATES_JSONL),--updates-jsonl $(UPDATES_JSONL),) \
+		$(if $(LEGAL_STATUS_JSONL),--legal-status-jsonl $(LEGAL_STATUS_JSONL),) \
+		--export-delta-parquet \
+		--run-es-upsert \
+		--queue-embedding
+
+patent-process-pending-embeddings:
+	python3 scripts/process_pending_embedding_updates.py
 
 index-patents-es:
 	node scripts/index_patents_elasticsearch.mjs
