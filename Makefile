@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data index-patents-es eval-retrieval eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data index-patents-es eval-retrieval eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -34,6 +34,7 @@ help:
 	@echo "  make train-eval-fto-reranker # One-command reproducible env+train+eval+logs"
 	@echo "  make train-eval-fto-judge # One-command reproducible env+train+eval+logs"
 	@echo "  make train-eval-fto-encoder # One-command Ascend 310P3 encoder training"
+	@echo "  make tune-fto-4-models-grid-8x310p3 # Joint 4-model grid tuning on 8x Ascend 310P3"
 	@echo "  make eval-retrieval-model # Eval retrieval with trained recall model"
 	@echo "  make eval-reranker-model # Eval reranker on recall candidates"
 	@echo "  make eval-judge-model # Eval judge classifier with trained artifact"
@@ -189,6 +190,9 @@ train-eval-fto-judge:
 
 train-eval-fto-encoder:
 	bash model/encoder/run_fto_encoder_pipeline.sh
+
+tune-fto-4-models-grid-8x310p3:
+	bash model/run_fto_joint_tuning_8x310p3.sh
 
 eval-retrieval-model:
 	node scripts/eval_retrieval.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --verbose
