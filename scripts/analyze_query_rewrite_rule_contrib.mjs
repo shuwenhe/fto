@@ -258,7 +258,7 @@ function main() {
         ndcg_delta: prunedEval.ndcg_at_k - full.ndcg_at_k,
       },
     },
-    pruned_rules,
+    pruned_rules: prunedRules,
   };
 
   fs.mkdirSync(path.dirname(args.outJson), { recursive: true });
