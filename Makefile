@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data index-patents-es eval-retrieval eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -20,6 +20,7 @@ help:
 	@echo "  make ops-gate         # Run ci-gate + trend-report (dual gate)"
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
+	@echo "  make index-patents-es # Create/update Elasticsearch patent index"
 	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
 	@echo "  make eval-ab-reranker # Compare linear vs linear+deep(top-N) offline"
 	@echo "  make compare-online-offline # Compare backend top-k order with local ranker"
@@ -146,6 +147,9 @@ data-source-check:
 
 sync-patent-data:
 	node scripts/sync_patent_data.mjs
+
+index-patents-es:
+	node scripts/index_patents_elasticsearch.mjs
 
 eval-retrieval:
 	node scripts/eval_retrieval.mjs --k 5 --verbose

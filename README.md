@@ -10,6 +10,32 @@
 - `model/judge/` 风险判断模型训练与 Ascend 流水线
 - `scripts/` 自动提交/推送脚本
 
+## Elasticsearch 召回接入
+
+后端已支持将 Elasticsearch 作为候选召回层使用，后续仍复用本地语义、`neurx` reranker、encoder 和 judge 做排序与判定。
+
+1. 导入专利到 Elasticsearch
+
+```bash
+cd /app/fto
+make index-patents-es
+```
+
+2. 启动后端时启用 Elasticsearch
+
+```bash
+cd /app/fto/backend
+ELASTICSEARCH_ENABLED=1 ELASTICSEARCH_URL=http://127.0.0.1:9200 ELASTICSEARCH_INDEX=fto_patents go run main.go
+```
+
+可选参数：
+
+```bash
+ELASTICSEARCH_CANDIDATE_MULTIPLIER=6
+```
+
+含义：Elasticsearch 先召回 `top_k * multiplier` 的候选专利，再交给本地模型链路重排。
+
 ## 最小联调启动
 
 1. 安装前端依赖

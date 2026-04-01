@@ -62,6 +62,10 @@ func main() {
 	redisAddr := getEnv("REDIS_ADDR", "127.0.0.1:6379")
 	redisPassword := getEnv("REDIS_PASSWORD", "")
 	patentDataPath := getEnv("PATENT_DATA_PATH", "/app/fto/data_sources/patents.jsonl")
+	elasticsearchEnabled := getEnvBool("ELASTICSEARCH_ENABLED", false)
+	elasticsearchURL := getEnv("ELASTICSEARCH_URL", "http://127.0.0.1:9200")
+	elasticsearchIndex := getEnv("ELASTICSEARCH_INDEX", "fto_patents")
+	elasticsearchCandidateMultiplier := getEnvInt("ELASTICSEARCH_CANDIDATE_MULTIPLIER", 6)
 	rankingMode := getEnv("RANKING_MODE", "dual")
 	dualRatio := getEnvInt("RANKING_DUAL_RATIO", 50)
 	rankingModelPath := getEnv("RANKING_MODEL_PATH", "/app/fto/model_artifacts/fto_ranker_neurx_v1.json")
@@ -95,11 +99,24 @@ func main() {
 		log.Printf("encoder model not found, encoder explain disabled: %s", encoderModelPath)
 	}
 
-	patentRepo, err := repository.NewLocalPatentRepositoryWithModel(patentDataPath, rankingMode, dualRatio, ranker, encoder)
+	localPatentRepo, err := repository.NewLocalPatentRepositoryWithModel(patentDataPath, rankingMode, dualRatio, ranker, encoder)
 	if err != nil {
 		log.Fatalf("load patent data source failed: %v", err)
 	}
-	patentRepo.ConfigureDeepReranker(deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha)
+	localPatentRepo.ConfigureDeepReranker(deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha)
+
+	var patentRepo repository.PatentDataRepository = localPatentRepo
+	var rankingCtrl repository.RankingConfigController = localPatentRepo
+	if elasticsearchEnabled {
+		esRepo := repository.NewElasticsearchPatentRepository(
+			localPatentRepo,
+			elasticsearchURL,
+			elasticsearchIndex,
+			elasticsearchCandidateMultiplier,
+		)
+		patentRepo = esRepo
+		rankingCtrl = esRepo
+	}
 
 	taskService := service.NewTaskService(repo, patentRepo, 5)
 
@@ -109,9 +126,9 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(observability.RequestIDMiddleware())
 	r.Use(observability.AccessLogMiddleware(metrics))
-	router.RegisterRoutes(r, taskService, metrics, patentRepo)
+	router.RegisterRoutes(r, taskService, metrics, rankingCtrl)
 
-	log.Printf("backend config: redis_addr=%s patent_data_path=%s ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t encoder_model_path=%s encoder_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f", redisAddr, patentDataPath, rankingMode, dualRatio, rankingModelPath, ranker != nil, encoderModelPath, encoder != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha)
+	log.Printf("backend config: redis_addr=%s patent_data_path=%s elasticsearch_enabled=%t elasticsearch_url=%s elasticsearch_index=%s elasticsearch_candidate_multiplier=%d ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t encoder_model_path=%s encoder_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f", redisAddr, patentDataPath, elasticsearchEnabled, elasticsearchURL, elasticsearchIndex, elasticsearchCandidateMultiplier, rankingMode, dualRatio, rankingModelPath, ranker != nil, encoderModelPath, encoder != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha)
 
 	if err := r.Run(":8010"); err != nil {
 		log.Fatalf("run server failed: %v", err)
