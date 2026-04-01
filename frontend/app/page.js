@@ -184,6 +184,9 @@ export default function HomePage() {
         modelLoaded: Boolean(data.model_loaded),
         candidateCount: data.candidate_count || 0,
         featureNames: data.feature_names || [],
+        originalQuery: data.original_query || data.query || '-',
+        rewrittenQuery: data.rewritten_query || data.query || '-',
+        rewriteApplied: Boolean(data.rewrite_applied),
       });
       setRecallRows(explainRows);
       setRerankerRows(explainRows);
@@ -218,6 +221,9 @@ export default function HomePage() {
         modelVersion: data.model_version || 0,
         embeddingDim: data.embedding_dim || 0,
         candidateCount: data.candidate_count || 0,
+        originalQuery: data.original_query || data.query || '-',
+        rewrittenQuery: data.rewritten_query || data.query || '-',
+        rewriteApplied: Boolean(data.rewrite_applied),
       });
       setEncoderRows(data.results || []);
       setEncoderStatus('succeeded');
@@ -344,6 +350,9 @@ export default function HomePage() {
           <span className="tag">候选数：{rankingMeta?.candidateCount ?? '-'}</span>
           <span className="tag">模式：{rankingMeta?.mode ?? '-'}</span>
           <span className="tag">Reranker Loaded：{rankingMeta?.modelLoaded ? 'yes' : 'no'}</span>
+          <span className="tag">原始查询：{rankingMeta?.originalQuery ?? '-'}</span>
+          <span className="tag">改写查询：{rankingMeta?.rewrittenQuery ?? '-'}</span>
+          <span className="tag">改写：{rankingMeta?.rewriteApplied ? 'applied' : 'no'}</span>
         </div>
         <table>
           <thead>
@@ -441,6 +450,9 @@ export default function HomePage() {
           <span className="tag">Encoder：{encoderMeta?.modelType ?? '-'}</span>
           <span className="tag">版本：{encoderMeta?.modelVersion ?? '-'}</span>
           <span className="tag">Embedding Dim：{encoderMeta?.embeddingDim ?? '-'}</span>
+          <span className="tag">原始查询：{encoderMeta?.originalQuery ?? '-'}</span>
+          <span className="tag">改写查询：{encoderMeta?.rewrittenQuery ?? '-'}</span>
+          <span className="tag">改写：{encoderMeta?.rewriteApplied ? 'applied' : 'no'}</span>
         </div>
 
         <table>
