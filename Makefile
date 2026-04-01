@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data index-patents-es eval-retrieval eval-query-rewrite-ab eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data index-patents-es eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -23,6 +23,7 @@ help:
 	@echo "  make index-patents-es # Create/update Elasticsearch patent index"
 	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
 	@echo "  make eval-query-rewrite-ab # Compare base vs rewrite query retrieval metrics"
+	@echo "  make analyze-query-rewrite-rules # Analyze per-term contribution and output pruned rules"
 	@echo "  make eval-ab-reranker # Compare linear vs linear+deep(top-N) offline"
 	@echo "  make compare-online-offline # Compare backend top-k order with local ranker"
 	@echo "  make generate-report-sample # Generate docs/report_sample_v1.json"
@@ -158,6 +159,9 @@ eval-retrieval:
 
 eval-query-rewrite-ab:
 	node scripts/eval_query_rewrite_ab.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --rules backend/config/query_rewrite_rules.json --out-json docs/query_rewrite_ab_report_v1.json --out-md docs/query_rewrite_ab_report_v1.md --verbose
+
+analyze-query-rewrite-rules:
+	node scripts/analyze_query_rewrite_rule_contrib.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --rules backend/config/query_rewrite_rules.json --out-json docs/query_rewrite_rule_contrib_v1.json --out-md docs/query_rewrite_rule_contrib_v1.md --min-ndcg-contribution 0 --write-pruned-rules backend/config/query_rewrite_rules.pruned.json --verbose
 
 eval-ab-reranker:
 	node scripts/eval_ab_reranker.mjs --k 5 --deep-top-n 8 --deep-mix-alpha 0.35 --verbose
