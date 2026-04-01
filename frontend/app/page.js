@@ -286,7 +286,7 @@ export default function HomePage() {
       </section>
 
       <section className="card">
-        <h2>Encoder 调试面板</h2>
+        <h2>Encoder</h2>
         <p>使用当前输入的查询，查看 top-k 候选专利的特征向量、embedding 和 encoder score。</p>
 
         <div className="row">
