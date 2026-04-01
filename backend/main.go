@@ -136,6 +136,21 @@ func main() {
 		)
 		patentRepo = hybridRepo
 		rankingCtrl = hybridRepo
+	} else if milvusEnabled {
+		hybridRepo := repository.NewHybridPatentRepository(
+			localPatentRepo,
+			nil,
+			repository.NewMilvusPatentRepository(
+				milvusURL,
+				milvusToken,
+				milvusCollection,
+				milvusAnnsField,
+				milvusCandidateMultiplier,
+				milvusHashDim,
+			),
+		)
+		patentRepo = hybridRepo
+		rankingCtrl = hybridRepo
 	} else if elasticsearchEnabled {
 		esRepo := repository.NewElasticsearchPatentRepository(
 			localPatentRepo,
