@@ -105,6 +105,7 @@ func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Cont
 	if err != nil {
 		return nil, err
 	}
+	payloadText := string(payload)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/%s/_search", r.baseURL, r.index), bytes.NewReader(payload))
 	if err != nil {
@@ -114,13 +115,13 @@ func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Cont
 
 	resp, err := r.client.Do(req)
 	if err != nil {
-		log.Printf("[es] request_failed index=%s query=%q limit=%d size=%d elapsed_ms=%d err=%v", r.index, query, limit, size, time.Since(start).Milliseconds(), err)
+		log.Printf("[es] request_failed index=%s query=%q limit=%d size=%d elapsed_ms=%d payload=%s err=%v", r.index, query, limit, size, time.Since(start).Milliseconds(), payloadText, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= 300 {
 		data, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		log.Printf("[es] request_error index=%s query=%q limit=%d size=%d status=%d elapsed_ms=%d body=%q", r.index, query, limit, size, resp.StatusCode, time.Since(start).Milliseconds(), strings.TrimSpace(string(data)))
+		log.Printf("[es] request_error index=%s query=%q limit=%d size=%d status=%d elapsed_ms=%d payload=%s body=%q", r.index, query, limit, size, resp.StatusCode, time.Since(start).Milliseconds(), payloadText, strings.TrimSpace(string(data)))
 		return nil, fmt.Errorf("elasticsearch search failed: status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(data)))
 	}
 
@@ -144,6 +145,6 @@ func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Cont
 		}
 		out = append(out, hit.Source.PatentID)
 	}
-	log.Printf("[es] request_ok index=%s query=%q limit=%d size=%d status=%d elapsed_ms=%d candidates=%d", r.index, query, limit, size, resp.StatusCode, time.Since(start).Milliseconds(), len(out))
+	log.Printf("[es] request_ok index=%s query=%q limit=%d size=%d status=%d elapsed_ms=%d candidates=%d payload=%s", r.index, query, limit, size, resp.StatusCode, time.Since(start).Milliseconds(), len(out), payloadText)
 	return out, nil
 }
