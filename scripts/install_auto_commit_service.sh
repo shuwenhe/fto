@@ -2,7 +2,9 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SYSTEMD_DIR="/etc/systemd/system"
+SYSTEMD_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+
+mkdir -p "$SYSTEMD_DIR"
 
 cat >"$SYSTEMD_DIR/fto-auto-commit.service" <<EOF
 [Unit]
@@ -13,30 +15,29 @@ Wants=network-online.target
 [Service]
 Type=simple
 WorkingDirectory=${REPO_ROOT}
-EnvironmentFile=-/etc/default/fto-auto-commit
+EnvironmentFile=-${HOME}/.config/fto-auto-commit.env
 ExecStart=/usr/bin/bash ${REPO_ROOT}/scripts/auto_commit_on_change.sh
 Restart=always
 RestartSec=5
-User=root
-Group=root
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 EOF
 
-if [[ ! -f /etc/default/fto-auto-commit ]]; then
-  cat >/etc/default/fto-auto-commit <<'EOF'
+if [[ ! -f "${HOME}/.config/fto-auto-commit.env" ]]; then
+  mkdir -p "${HOME}/.config"
+  cat >"${HOME}/.config/fto-auto-commit.env" <<'EOF'
 # Auto commit service environment variables
 AUTO_COMMIT_INTERVAL_SEC=5
 AUTO_COMMIT_PUSH=1
 AUTO_COMMIT_PUSH_REMOTE=origin
 EOF
-  chmod 600 /etc/default/fto-auto-commit
+  chmod 600 "${HOME}/.config/fto-auto-commit.env"
 fi
 
-systemctl daemon-reload
-systemctl enable fto-auto-commit.service
+systemctl --user daemon-reload
+systemctl --user enable fto-auto-commit.service
 
 echo "[ok] installed service: fto-auto-commit"
-echo "[hint] edit /etc/default/fto-auto-commit to change auto push interval or remote"
-echo "[hint] start now: systemctl restart fto-auto-commit"
+echo "[hint] edit ${HOME}/.config/fto-auto-commit.env to change auto push interval or remote"
+echo "[hint] start now: systemctl --user restart fto-auto-commit"
