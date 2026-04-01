@@ -16,6 +16,13 @@ export default function HomePage() {
   const [progress, setProgress] = useState(null);
   const [taskId, setTaskId] = useState('-');
   const [rows, setRows] = useState([]);
+  const [esMeta, setEsMeta] = useState({
+    loaded: false,
+    enabled: false,
+    index: '-',
+    candidateCount: null,
+    error: '',
+  });
   const [encoderStatus, setEncoderStatus] = useState('idle');
   const [encoderMeta, setEncoderMeta] = useState(null);
   const [encoderRows, setEncoderRows] = useState([]);
@@ -75,6 +82,46 @@ export default function HomePage() {
     }
   }
 
+  async function refreshEsMeta(queryText = '') {
+    try {
+      const modelRes = await fetch('/fto/api/ops/ranking-model', { cache: 'no-store' });
+      const modelData = await modelRes.json();
+      if (!modelRes.ok) {
+        setEsMeta((prev) => ({ ...prev, loaded: true, error: modelData.error || 'failed' }));
+        return;
+      }
+
+      const next = {
+        loaded: true,
+        enabled: Boolean(modelData.elasticsearch_enabled),
+        index: modelData.elasticsearch_index || '-',
+        candidateCount: null,
+        error: '',
+      };
+
+      if (queryText.trim()) {
+        const explainRes = await fetch('/fto/api/ops/ranking-explain', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: queryText.trim(), limit: 5 }),
+        });
+        const explainData = await explainRes.json();
+        if (explainRes.ok) {
+          next.candidateCount =
+            typeof explainData.candidate_count === 'number' ? explainData.candidate_count : null;
+        }
+      }
+
+      setEsMeta(next);
+    } catch {
+      setEsMeta((prev) => ({ ...prev, loaded: true, error: 'failed' }));
+    }
+  }
+
+  useEffect(() => {
+    refreshEsMeta('');
+  }, []);
+
   async function submitTask() {
     if (!query.trim()) {
       alert('请先输入技术方案描述');
@@ -83,6 +130,7 @@ export default function HomePage() {
     setStatus('submitting');
     setProgress(0);
     setRows([]);
+    refreshEsMeta(query);
 
     const res = await fetch('/fto/api/tasks', {
       method: 'POST',
@@ -175,11 +223,22 @@ export default function HomePage() {
         <div className="row">
           <button onClick={submitTask}>提交分析任务</button>
           <button onClick={testEncoder}>测试 Encoder</button>
+          <button onClick={() => refreshEsMeta(query)}>刷新 ES 状态</button>
           <span className="tag">
             状态：{status}
             {progress !== null ? ` ${progress}%` : ''}
           </span>
           <span className="tag">Encoder：{encoderStatus}</span>
+        </div>
+
+        <div className="row">
+          <span className="tag">
+            ES 召回：
+            {esMeta.loaded ? (esMeta.enabled ? 'enabled' : 'disabled') : 'loading'}
+          </span>
+          <span className="tag">ES 索引：{esMeta.index}</span>
+          <span className="tag">ES 候选数：{esMeta.candidateCount ?? '-'}</span>
+          {esMeta.error ? <span className="tag">ES 错误：{esMeta.error}</span> : null}
         </div>
 
         <div className="row">
