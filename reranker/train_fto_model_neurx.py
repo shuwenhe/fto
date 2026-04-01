@@ -3,8 +3,14 @@
 import argparse
 import json
 import math
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+RECALL_DIR = ROOT / "recall"
+if str(RECALL_DIR) not in sys.path:
+    sys.path.insert(0, str(RECALL_DIR))
 
 import neurx
 import neurx.nn as nn
@@ -12,8 +18,6 @@ import neurx.optim as optim
 
 from train_fto_recall_model import BASELINE_PARAMS, rank_patents
 
-
-ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_PATENTS = ROOT / "data_sources" / "patents.jsonl"
 DEFAULT_QUERIES = ROOT / "data_sources" / "queries.jsonl"
 DEFAULT_QRELS = ROOT / "data_sources" / "qrels.jsonl"

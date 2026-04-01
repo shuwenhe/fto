@@ -13,8 +13,11 @@ import neurx.optim as optim
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = ROOT / "scripts"
+RERANKER_DIR = ROOT / "reranker"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
+if str(RERANKER_DIR) not in sys.path:
+    sys.path.insert(0, str(RERANKER_DIR))
 
 from train_fto_model_neurx import (  # noqa: E402
     DEFAULT_PATENTS,

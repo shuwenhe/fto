@@ -4,8 +4,14 @@ import argparse
 import json
 import math
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+RERANKER_DIR = ROOT / "reranker"
+if str(RERANKER_DIR) not in sys.path:
+    sys.path.insert(0, str(RERANKER_DIR))
 
 import neurx
 import neurx.distributed as dist
@@ -22,7 +28,6 @@ from train_fto_model_neurx import (
     read_jsonl,
 )
 
-ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_RECALL_MODEL = ROOT / "model_artifacts" / "fto_recall_dual_v1.json"
 DEFAULT_RERANKER_MODEL = ROOT / "model_artifacts" / "fto_reranker_neurx_v1.json"
 DEFAULT_OUT = ROOT / "model_artifacts" / "fto_judge_neurx_v1.json"
