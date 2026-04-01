@@ -321,6 +321,15 @@ export default function HomePage() {
     return `[${preview.join(', ')}${suffix}]`;
   }
 
+  function formatIdList(values, max = 12) {
+    if (!Array.isArray(values) || values.length === 0) {
+      return '-';
+    }
+    const preview = values.slice(0, max);
+    const suffix = values.length > max ? ` ... (${values.length})` : '';
+    return `${preview.join(', ')}${suffix}`;
+  }
+
   function buildReportTextLines(report) {
     const lines = [];
     lines.push('FTO 专利防侵权分析报告');
@@ -666,6 +675,11 @@ export default function HomePage() {
           <span className="tag">Hybrid：{rankingMeta?.recallDebug?.hybrid_active ? 'effective' : 'off'}</span>
           <span className="tag">来源顺序：{Array.isArray(rankingMeta?.recallDebug?.sources) ? rankingMeta.recallDebug.sources.join(' + ') : '-'}</span>
           <span className="tag">Fallback：{rankingMeta?.recallDebug?.fallback ?? '-'}</span>
+        </div>
+        <div className="debugPanel">
+          <p><strong>ES top patent ids:</strong> <code className="vectorText">{formatIdList(rankingMeta?.recallDebug?.elasticsearch_ids)}</code></p>
+          <p><strong>Milvus top patent ids:</strong> <code className="vectorText">{formatIdList(rankingMeta?.recallDebug?.milvus_ids)}</code></p>
+          <p><strong>合并去重移除的 IDs:</strong> <code className="vectorText">{formatIdList(rankingMeta?.recallDebug?.deduped_ids)}</code></p>
         </div>
         <table>
           <thead>
