@@ -438,6 +438,42 @@ export default function HomePage() {
     return list;
   }
 
+  function computeRecallSummary(recallDebug) {
+    const esIds = Array.isArray(recallDebug?.elasticsearch_ids) ? recallDebug.elasticsearch_ids : [];
+    const milvusIds = Array.isArray(recallDebug?.milvus_ids) ? recallDebug.milvus_ids : [];
+    const dedupedIds = Array.isArray(recallDebug?.deduped_ids) ? recallDebug.deduped_ids : [];
+    const esSet = new Set(esIds);
+    const milvusSet = new Set(milvusIds);
+
+    let intersection = 0;
+    esSet.forEach((id) => {
+      if (milvusSet.has(id)) {
+        intersection += 1;
+      }
+    });
+
+    let esOnly = 0;
+    esSet.forEach((id) => {
+      if (!milvusSet.has(id)) {
+        esOnly += 1;
+      }
+    });
+
+    let milvusOnly = 0;
+    milvusSet.forEach((id) => {
+      if (!esSet.has(id)) {
+        milvusOnly += 1;
+      }
+    });
+
+    return {
+      intersection,
+      esOnly,
+      milvusOnly,
+      deduped: dedupedIds.length,
+    };
+  }
+
   async function copyDebugJson() {
     const payload = {
       query: rankingMeta?.originalQuery || query || '',
@@ -801,6 +837,17 @@ export default function HomePage() {
           <span className="tag">Fallback：{rankingMeta?.recallDebug?.fallback ?? '-'}</span>
           <button onClick={copyDebugJson}>copy debug json</button>
         </div>
+        {(() => {
+          const summary = computeRecallSummary(rankingMeta?.recallDebug);
+          return (
+            <div className="row">
+              <span className="tag">交集数：{summary.intersection}</span>
+              <span className="tag">ES 独有数：{summary.esOnly}</span>
+              <span className="tag">Milvus 独有数：{summary.milvusOnly}</span>
+              <span className="tag">去重数：{summary.deduped}</span>
+            </div>
+          );
+        })()}
         <div className="row">
           <span className="tag">筛选视图</span>
           <button onClick={() => setRecallFilter('all')} disabled={recallFilter === 'all'}>全部</button>
