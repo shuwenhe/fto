@@ -1,0 +1,9 @@
+[Unit]
+Description=Trigger FTO Query Rewrite Auto Prune On Rule Change
+
+[Path]
+PathModified=/app/fto/backend/config/query_rewrite_rules.json
+Unit=fto-query-rewrite-prune.service
+
+[Install]
+WantedBy=multi-user.target
