@@ -19,7 +19,7 @@ type rankingConfigRequest struct {
 	DualRatio int    `json:"dual_ratio"`
 }
 
-func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *observability.Metrics, rankingCtrl repository.RankingConfigController) {
+func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *observability.Metrics, rankingCtrl repository.RankingConfigController, queryRewriter service.QueryRewriter) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"ok": true, "service": "fto-backend-gin"})
 	})
@@ -89,12 +89,24 @@ func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *obs
 		if req.Limit <= 0 {
 			req.Limit = 5
 		}
-		resp, err := provider.ExplainQuery(c.Request.Context(), req.Query, req.Limit)
+		originalQuery := strings.TrimSpace(req.Query)
+		searchQuery := originalQuery
+		rewriteApplied := false
+		if queryRewriter != nil {
+			if rewritten, applied := queryRewriter.Rewrite(originalQuery); applied {
+				searchQuery = rewritten
+				rewriteApplied = true
+			}
+		}
+		resp, err := provider.ExplainQuery(c.Request.Context(), searchQuery, req.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		observability.LogTaskEvent(c, "ranking_explain_queried", map[string]interface{}{"query": req.Query, "limit": req.Limit, "results": len(resp.Results), "model_loaded": resp.ModelLoaded})
+		resp.OriginalQuery = originalQuery
+		resp.RewrittenQuery = searchQuery
+		resp.RewriteApplied = rewriteApplied
+		observability.LogTaskEvent(c, "ranking_explain_queried", map[string]interface{}{"query": originalQuery, "rewritten_query": searchQuery, "rewrite_applied": rewriteApplied, "limit": req.Limit, "results": len(resp.Results), "model_loaded": resp.ModelLoaded})
 		c.JSON(http.StatusOK, resp)
 	})
 
@@ -112,12 +124,24 @@ func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *obs
 		if req.Limit <= 0 {
 			req.Limit = 5
 		}
-		resp, err := provider.ExplainEncoder(c.Request.Context(), req.Query, req.Limit)
+		originalQuery := strings.TrimSpace(req.Query)
+		searchQuery := originalQuery
+		rewriteApplied := false
+		if queryRewriter != nil {
+			if rewritten, applied := queryRewriter.Rewrite(originalQuery); applied {
+				searchQuery = rewritten
+				rewriteApplied = true
+			}
+		}
+		resp, err := provider.ExplainEncoder(c.Request.Context(), searchQuery, req.Limit)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		observability.LogTaskEvent(c, "encoder_explain_queried", map[string]interface{}{"query": req.Query, "limit": req.Limit, "results": len(resp.Results), "model_loaded": resp.ModelLoaded})
+		resp.OriginalQuery = originalQuery
+		resp.RewrittenQuery = searchQuery
+		resp.RewriteApplied = rewriteApplied
+		observability.LogTaskEvent(c, "encoder_explain_queried", map[string]interface{}{"query": originalQuery, "rewritten_query": searchQuery, "rewrite_applied": rewriteApplied, "limit": req.Limit, "results": len(resp.Results), "model_loaded": resp.ModelLoaded})
 		c.JSON(http.StatusOK, resp)
 	})
 
@@ -138,7 +162,7 @@ func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *obs
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "create task failed"})
 			return
 		}
-		observability.LogTaskEvent(c, "task_created", map[string]interface{}{"task_id": task.TaskID, "query": req.Query})
+		observability.LogTaskEvent(c, "task_created", map[string]interface{}{"task_id": task.TaskID, "query": req.Query, "rewritten_query": task.RewrittenQuery})
 		c.JSON(http.StatusOK, gin.H{"task_id": task.TaskID, "status": task.Status})
 	})
 
