@@ -181,6 +181,64 @@ func LoadNeurxRanker(modelPath string) (*neurxRanker, error) {
 	}, nil
 }
 
+func LoadNeurxEncoder(modelPath string) (*neurxEncoder, error) {
+	if strings.TrimSpace(modelPath) == "" {
+		return nil, nil
+	}
+	data, err := os.ReadFile(modelPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var artifact neurxEncoderArtifact
+	if err := json.Unmarshal(data, &artifact); err != nil {
+		return nil, fmt.Errorf("invalid neurx encoder artifact: %w", err)
+	}
+	if len(artifact.FeatureNames) == 0 {
+		return nil, fmt.Errorf("invalid neurx encoder artifact: feature_names empty")
+	}
+	if len(artifact.FeatureMeans) != len(artifact.FeatureNames) || len(artifact.FeatureStds) != len(artifact.FeatureNames) {
+		return nil, fmt.Errorf("invalid neurx encoder artifact: feature dimensions mismatch")
+	}
+	if artifact.EmbeddingDim <= 0 {
+		return nil, fmt.Errorf("invalid neurx encoder artifact: embedding_dim must be > 0")
+	}
+	if len(artifact.Extractor.Weights) != artifact.EmbeddingDim || len(artifact.Extractor.Bias) != artifact.EmbeddingDim {
+		return nil, fmt.Errorf("invalid neurx encoder artifact: extractor dimensions mismatch")
+	}
+	for _, row := range artifact.Extractor.Weights {
+		if len(row) != len(artifact.FeatureNames) {
+			return nil, fmt.Errorf("invalid neurx encoder artifact: extractor weight width mismatch")
+		}
+	}
+	if len(artifact.Head.Weights) != artifact.EmbeddingDim {
+		return nil, fmt.Errorf("invalid neurx encoder artifact: head dimensions mismatch")
+	}
+
+	stds := make([]float64, len(artifact.FeatureStds))
+	copy(stds, artifact.FeatureStds)
+	for i, v := range stds {
+		if math.Abs(v) < 1e-9 {
+			stds[i] = 1.0
+		}
+	}
+
+	return &neurxEncoder{
+		modelType:      artifact.ModelType,
+		version:        artifact.Version,
+		featureNames:   append([]string(nil), artifact.FeatureNames...),
+		means:          append([]float64(nil), artifact.FeatureMeans...),
+		stds:           stds,
+		embeddingDim:   artifact.EmbeddingDim,
+		extractor:      artifact.Extractor.Weights,
+		extractorBias:  artifact.Extractor.Bias,
+		extractorAct:   strings.ToLower(strings.TrimSpace(artifact.Extractor.Activation)),
+		headWeights:    append([]float64(nil), artifact.Head.Weights...),
+		headBias:       artifact.Head.Bias,
+		headActivation: strings.ToLower(strings.TrimSpace(artifact.Head.Activation)),
+	}, nil
+}
+
 func clampPercent(v int) int {
 	if v < 0 {
 		return 0
