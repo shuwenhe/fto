@@ -109,6 +109,9 @@ type RecallDebugInfo struct {
 	HybridActive       bool     `json:"hybrid_active"`
 	Sources            []string `json:"sources,omitempty"`
 	Fallback           string   `json:"fallback,omitempty"`
+	ElasticsearchIDs   []string `json:"elasticsearch_ids,omitempty"`
+	MilvusIDs          []string `json:"milvus_ids,omitempty"`
+	DedupedIDs         []string `json:"deduped_ids,omitempty"`
 }
 
 type RankingExplainResponse struct {

@@ -75,6 +75,7 @@ func (r *ElasticsearchPatentRepository) ExplainQuery(ctx context.Context, query 
 			MergedCount:        len(patentIDs),
 			HybridActive:       false,
 			Sources:            []string{"elasticsearch"},
+			ElasticsearchIDs:   append([]string(nil), patentIDs...),
 		}
 	}
 	return resp, explainErr
@@ -102,6 +103,7 @@ func (r *ElasticsearchPatentRepository) ExplainEncoder(ctx context.Context, quer
 			MergedCount:        len(patentIDs),
 			HybridActive:       false,
 			Sources:            []string{"elasticsearch"},
+			ElasticsearchIDs:   append([]string(nil), patentIDs...),
 		}
 	}
 	return resp, explainErr

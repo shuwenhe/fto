@@ -144,8 +144,10 @@ func (r *HybridPatentRepository) fetchCandidatePatentIDsWithDebug(ctx context.Co
 		switch fetcher.(type) {
 		case *ElasticsearchPatentRepository:
 			debug.ElasticsearchCount = len(ids)
+			debug.ElasticsearchIDs = append([]string(nil), ids...)
 		case *MilvusPatentRepository:
 			debug.MilvusCount = len(ids)
+			debug.MilvusIDs = append([]string(nil), ids...)
 		}
 		if len(ids) > 0 {
 			resultSets = append(resultSets, ids)
@@ -154,17 +156,24 @@ func (r *HybridPatentRepository) fetchCandidatePatentIDsWithDebug(ctx context.Co
 	if len(resultSets) == 0 {
 		return nil, debug, firstErr
 	}
-	merged := interleaveUniquePatentIDs(resultSets...)
+	merged, deduped := interleaveUniquePatentIDsWithDeduped(resultSets...)
 	debug.MergedCount = len(merged)
+	debug.DedupedIDs = deduped
 	return merged, debug, nil
 }
 
 func interleaveUniquePatentIDs(groups ...[]string) []string {
+	out, _ := interleaveUniquePatentIDsWithDeduped(groups...)
+	return out
+}
+
+func interleaveUniquePatentIDsWithDeduped(groups ...[]string) ([]string, []string) {
 	total := 0
 	for _, group := range groups {
 		total += len(group)
 	}
 	out := make([]string, 0, total)
+	deduped := make([]string, 0)
 	seen := make(map[string]struct{}, total)
 	for step := 0; ; step++ {
 		advanced := false
@@ -178,6 +187,7 @@ func interleaveUniquePatentIDs(groups ...[]string) []string {
 				continue
 			}
 			if _, ok := seen[id]; ok {
+				deduped = append(deduped, id)
 				continue
 			}
 			seen[id] = struct{}{}
@@ -186,6 +196,26 @@ func interleaveUniquePatentIDs(groups ...[]string) []string {
 		if !advanced {
 			break
 		}
+	}
+	return out, uniqStrings(deduped)
+}
+
+func uniqStrings(values []string) []string {
+	if len(values) == 0 {
+		return nil
+	}
+	seen := make(map[string]struct{}, len(values))
+	out := make([]string, 0, len(values))
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		if _, ok := seen[value]; ok {
+			continue
+		}
+		seen[value] = struct{}{}
+		out = append(out, value)
 	}
 	return out
 }
