@@ -7,8 +7,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-RECALL_DIR = ROOT / "recall"
+ROOT = Path(__file__).resolve().parent.parent.parent
+RECALL_DIR = ROOT / "model" / "recall"
 if str(RECALL_DIR) not in sys.path:
     sys.path.insert(0, str(RECALL_DIR))
 

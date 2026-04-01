@@ -4,10 +4,10 @@
 
 - `frontend/` Next.js 前端（通过 `/fto` 访问）
 - `backend/` Gin 后端（通过 `/fto/api` 访问）
-- `recall/` 召回模型训练与 Ascend 流水线
-- `reranker/` 重排模型训练与 Ascend 流水线
-- `encoder/` 特征提取模型训练与 Ascend 流水线
-- `judge/` 风险判断模型训练与 Ascend 流水线
+- `model/recall/` 召回模型训练与 Ascend 流水线
+- `model/reranker/` 重排模型训练与 Ascend 流水线
+- `model/encoder/` 特征提取模型训练与 Ascend 流水线
+- `model/judge/` 风险判断模型训练与 Ascend 流水线
 - `scripts/` 自动提交/推送脚本
 
 ## 最小联调启动
@@ -183,7 +183,7 @@ make eval-retrieval-model
 
 ## 训练特征提取模型（encoder）
 
-新增 `encoder/` 目录，用于承载特征提取模型说明；训练侧新增了一个基于 `neurx` 的两层特征编码器，会把现有 reranker 手工特征压缩成低维 embedding，并在同一轮训练里学习相关性打分头。
+新增 `model/encoder/` 目录，用于承载特征提取模型说明；训练侧新增了一个基于 `neurx` 的两层特征编码器，会把现有 reranker 手工特征压缩成低维 embedding，并在同一轮训练里学习相关性打分头。
 
 Ascend 310P3 上训练：
 

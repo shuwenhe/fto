@@ -11,9 +11,9 @@ import neurx
 import neurx.nn as nn
 import neurx.optim as optim
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPTS_DIR = ROOT / "scripts"
-RERANKER_DIR = ROOT / "reranker"
+RERANKER_DIR = ROOT / "model" / "reranker"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 if str(RERANKER_DIR) not in sys.path:

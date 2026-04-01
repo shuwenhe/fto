@@ -160,31 +160,31 @@ generate-report-sample:
 	node scripts/generate_report_sample.mjs --k 5 --query-id q1 --sample 5 --seed 20260331 --base-url http://127.0.0.1/fto/api --out docs/report_sample_v1.json
 
 train-fto-model:
-	python reranker/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
+	python model/reranker/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
 
 train-fto-reranker-model:
-	python reranker/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
+	python model/reranker/train_fto_model_neurx.py --out model_artifacts/fto_reranker_neurx_v1.json
 
 train-fto-recall-model:
-	python recall/train_fto_recall_model.py --out model_artifacts/fto_recall_dual_v1.json
+	python model/recall/train_fto_recall_model.py --out model_artifacts/fto_recall_dual_v1.json
 
 train-fto-judge-model:
-	python judge/train_fto_judge_model_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --reranker-model model_artifacts/fto_reranker_neurx_v1.json --out model_artifacts/fto_judge_neurx_v1.json
+	python model/judge/train_fto_judge_model_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --reranker-model model_artifacts/fto_reranker_neurx_v1.json --out model_artifacts/fto_judge_neurx_v1.json
 
 train-fto-encoder-model:
-	python encoder/train_fto_encoder_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --out model_artifacts/fto_encoder_neurx_v1.json
+	python model/encoder/train_fto_encoder_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --out model_artifacts/fto_encoder_neurx_v1.json
 
 train-eval-fto-recall:
-	bash recall/run_fto_recall_pipeline.sh
+	bash model/recall/run_fto_recall_pipeline.sh
 
 train-eval-fto-reranker:
-	bash reranker/run_fto_reranker_pipeline.sh
+	bash model/reranker/run_fto_reranker_pipeline.sh
 
 train-eval-fto-judge:
-	bash judge/run_fto_judge_pipeline.sh
+	bash model/judge/run_fto_judge_pipeline.sh
 
 train-eval-fto-encoder:
-	bash encoder/run_fto_encoder_pipeline.sh
+	bash model/encoder/run_fto_encoder_pipeline.sh
 
 eval-retrieval-model:
 	node scripts/eval_retrieval.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --verbose

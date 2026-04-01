@@ -7,8 +7,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-JUDGE_DIR = ROOT / "judge"
-RERANKER_DIR = ROOT / "reranker"
+JUDGE_DIR = ROOT / "model" / "judge"
+RERANKER_DIR = ROOT / "model" / "reranker"
 if str(JUDGE_DIR) not in sys.path:
     sys.path.insert(0, str(JUDGE_DIR))
 if str(RERANKER_DIR) not in sys.path:

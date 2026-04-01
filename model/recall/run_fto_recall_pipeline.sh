@@ -73,7 +73,7 @@ print(f"[info] neurx_tensor_device={x.device}")
 PY
 
 echo "[info] training recall model with neurx"
-"${PYTHON_BIN}" "${ROOT_DIR}/recall/train_fto_recall_model.py" \
+"${PYTHON_BIN}" "${ROOT_DIR}/model/recall/train_fto_recall_model.py" \
   --out "${ROOT_DIR}/model_artifacts/fto_recall_dual_v1.json"
 
 echo "[info] evaluating retrieval model with trained artifact"

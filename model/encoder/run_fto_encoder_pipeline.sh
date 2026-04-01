@@ -71,7 +71,7 @@ print(f"[info] neurx_tensor_device={x.device}")
 PY
 
 echo "[info] training feature encoder with neurx"
-"${PYTHON_BIN}" "${ROOT_DIR}/encoder/train_fto_encoder_neurx.py" \
+"${PYTHON_BIN}" "${ROOT_DIR}/model/encoder/train_fto_encoder_neurx.py" \
   --recall-model "${ROOT_DIR}/model_artifacts/fto_recall_dual_v1.json" \
   --out "${ROOT_DIR}/model_artifacts/fto_encoder_neurx_v1.json"
 
