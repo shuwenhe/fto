@@ -24,6 +24,7 @@ function parseArgs(argv) {
     outJson: DEFAULT_OUT_JSON,
     outMd: DEFAULT_OUT_MD,
     minNdcgContribution: 0,
+    minHitQueries: 2,
     writePrunedRules: '',
     verbose: false,
   };
@@ -39,12 +40,14 @@ function parseArgs(argv) {
     else if (a === '--out-json') args.outJson = argv[++i] || DEFAULT_OUT_JSON;
     else if (a === '--out-md') args.outMd = argv[++i] || DEFAULT_OUT_MD;
     else if (a === '--min-ndcg-contribution') args.minNdcgContribution = Number(argv[++i] || '0');
+    else if (a === '--min-hit-queries') args.minHitQueries = Number(argv[++i] || '2');
     else if (a === '--write-pruned-rules') args.writePrunedRules = argv[++i] || '';
     else if (a === '--verbose') args.verbose = true;
   }
 
   if (!Number.isFinite(args.k) || args.k <= 0) args.k = 5;
   if (!Number.isFinite(args.minNdcgContribution)) args.minNdcgContribution = 0;
+  if (!Number.isFinite(args.minHitQueries) || args.minHitQueries < 0) args.minHitQueries = 2;
   return args;
 }
 
@@ -205,10 +208,17 @@ function main() {
 
   for (const v of variants) {
     const removed = evalWithRules({ patents, queries, relByQ, k: args.k, model, rules: v.rules });
+    const hitQueries = queries.filter((q) => String(q.query || '').includes(v.match)).length;
+    const termAppliedQueries = queries.filter((q) => {
+      const text = String(q.query || '');
+      return text.includes(v.match) && !text.includes(v.term);
+    }).length;
     // contribution = full - removed; negative means the term hurts quality.
     const contrib = {
       match: v.match,
       term: v.term,
+      hit_queries: hitQueries,
+      term_applied_queries: termAppliedQueries,
       contribution_recall_at_k: full.recall_at_k - removed.recall_at_k,
       contribution_mrr_at_k: full.mrr_at_k - removed.mrr_at_k,
       contribution_ndcg_at_k: full.ndcg_at_k - removed.ndcg_at_k,
@@ -220,7 +230,16 @@ function main() {
 
   termContrib.sort((a, b) => a.contribution_ndcg_at_k - b.contribution_ndcg_at_k);
 
-  const harmful = termContrib.filter((x) => x.contribution_ndcg_at_k < args.minNdcgContribution);
+  const harmful = termContrib.filter(
+    (x) =>
+      x.contribution_ndcg_at_k < args.minNdcgContribution &&
+      x.hit_queries >= args.minHitQueries
+  );
+  const protectedByMinSamples = termContrib.filter(
+    (x) =>
+      x.contribution_ndcg_at_k < args.minNdcgContribution &&
+      x.hit_queries < args.minHitQueries
+  );
   const harmfulKey = new Set(harmful.map((x) => `${x.match}@@${x.term}`));
 
   const prunedRules = rules
@@ -236,10 +255,12 @@ function main() {
     generated_at: new Date().toISOString(),
     k: args.k,
     min_ndcg_contribution: args.minNdcgContribution,
+    min_hit_queries: args.minHitQueries,
     baseline_no_rewrite: baseline,
     full_rules: full,
     term_contributions: termContrib,
     harmful_terms: harmful,
+    protected_by_min_samples: protectedByMinSamples,
     pruned_rules_eval: prunedEval,
     summary: {
       full_vs_baseline: {
@@ -271,6 +292,7 @@ function main() {
     `- K: ${args.k}`,
     `- Rules file: ${args.rules}`,
     `- Harmful threshold (ndcg contribution): < ${args.minNdcgContribution}`,
+    `- Min hit queries to allow pruning: ${args.minHitQueries}`,
     '',
     '## Overall',
     '',
@@ -282,12 +304,12 @@ function main() {
     '',
     '## Term Contribution (full - remove_term)',
     '',
-    '| Match | Term | dRecall | dMRR | dNDCG |',
-    '| --- | --- | ---: | ---: | ---: |',
+    '| Match | Term | Hit Queries | Applied Queries | dRecall | dMRR | dNDCG |',
+    '| --- | --- | ---: | ---: | ---: | ---: | ---: |',
   ];
 
   for (const row of termContrib) {
-    md.push(`| ${row.match} | ${row.term} | ${formatDelta(row.contribution_recall_at_k)} | ${formatDelta(row.contribution_mrr_at_k)} | ${formatDelta(row.contribution_ndcg_at_k)} |`);
+    md.push(`| ${row.match} | ${row.term} | ${row.hit_queries} | ${row.term_applied_queries} | ${formatDelta(row.contribution_recall_at_k)} | ${formatDelta(row.contribution_mrr_at_k)} | ${formatDelta(row.contribution_ndcg_at_k)} |`);
   }
 
   md.push('');
@@ -297,7 +319,17 @@ function main() {
     md.push('- none');
   } else {
     for (const row of harmful) {
-      md.push(`- ${row.match} -> ${row.term} (dNDCG=${formatDelta(row.contribution_ndcg_at_k)})`);
+      md.push(`- ${row.match} -> ${row.term} (hit=${row.hit_queries}, dNDCG=${formatDelta(row.contribution_ndcg_at_k)})`);
+    }
+  }
+  md.push('');
+  md.push('## Protected by Min Samples');
+  md.push('');
+  if (protectedByMinSamples.length === 0) {
+    md.push('- none');
+  } else {
+    for (const row of protectedByMinSamples) {
+      md.push(`- ${row.match} -> ${row.term} (hit=${row.hit_queries}, dNDCG=${formatDelta(row.contribution_ndcg_at_k)})`);
     }
   }
   md.push('');
@@ -314,6 +346,7 @@ function main() {
   console.log(`[ok] full_ndcg=${full.ndcg_at_k.toFixed(4)} delta=${formatDelta(full.ndcg_at_k - baseline.ndcg_at_k)}`);
   console.log(`[ok] pruned_ndcg=${prunedEval.ndcg_at_k.toFixed(4)} delta_vs_baseline=${formatDelta(prunedEval.ndcg_at_k - baseline.ndcg_at_k)} delta_vs_full=${formatDelta(prunedEval.ndcg_at_k - full.ndcg_at_k)}`);
   console.log(`[ok] harmful_terms=${harmful.length}`);
+  console.log(`[ok] protected_by_min_samples=${protectedByMinSamples.length}`);
   console.log(`[ok] out_json=${args.outJson}`);
   console.log(`[ok] out_md=${args.outMd}`);
 
