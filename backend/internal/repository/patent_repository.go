@@ -130,6 +130,7 @@ type LocalPatentRepository struct {
 	mu           sync.RWMutex
 	records      []model.PatentRecord
 	semanticVec  []map[string]float64
+	recordIndexByID map[string]int
 	rankingMode  string
 	dualRatio    int
 	ranker       *neurxRanker
@@ -315,20 +316,25 @@ func NewLocalPatentRepositoryWithModel(dataPath string, rankingMode string, dual
 		return nil, fmt.Errorf("no patent records loaded from %s", dataPath)
 	}
 	semanticVec := make([]map[string]float64, 0, len(records))
+	recordIndexByID := make(map[string]int, len(records))
 	for _, rec := range records {
 		docText := fmt.Sprintf("%s %s %s %s", rec.Title, rec.Abstract, rec.Claim, strings.Join(rec.Keywords, " "))
 		semanticVec = append(semanticVec, buildSemanticVector(docText))
 	}
+	for idx, rec := range records {
+		recordIndexByID[strings.TrimSpace(rec.PatentID)] = idx
+	}
 	return &LocalPatentRepository{
-		records:      records,
-		semanticVec:  semanticVec,
-		rankingMode:  normalizeRankingMode(rankingMode),
-		dualRatio:    clampPercent(dualRatio),
-		ranker:       ranker,
-		encoder:      encoder,
-		deepEnabled:  false,
-		deepTopN:     8,
-		deepMixAlpha: 0.35,
+		records:         records,
+		semanticVec:     semanticVec,
+		recordIndexByID: recordIndexByID,
+		rankingMode:     normalizeRankingMode(rankingMode),
+		dualRatio:       clampPercent(dualRatio),
+		ranker:          ranker,
+		encoder:         encoder,
+		deepEnabled:     false,
+		deepTopN:        8,
+		deepMixAlpha:    0.35,
 	}, nil
 }
 
@@ -782,6 +788,10 @@ func buildResultItemLexical(item scoredPatent) model.TaskResultItem {
 }
 
 func (r *LocalPatentRepository) rankDualCandidates(query string, limit int) ([]scoredPatent, int) {
+	return r.rankDualCandidatesForPatentIDs(query, limit, nil)
+}
+
+func (r *LocalPatentRepository) rankDualCandidatesForPatentIDs(query string, limit int, patentIDs []string) ([]scoredPatent, int) {
 	tokens := splitQuery(query)
 	if len(tokens) == 0 {
 		return []scoredPatent{}, 0
@@ -791,10 +801,32 @@ func (r *LocalPatentRepository) rankDualCandidates(query string, limit int) ([]s
 	}
 	queryVec := buildSemanticVector(query)
 
-	ranked := make([]scoredPatent, 0, len(r.records))
+	candidateIndices := make([]int, 0, len(r.records))
+	if len(patentIDs) == 0 {
+		candidateIndices = make([]int, 0, len(r.records))
+		for idx := range r.records {
+			candidateIndices = append(candidateIndices, idx)
+		}
+	} else {
+		seen := make(map[int]struct{}, len(patentIDs))
+		for _, patentID := range patentIDs {
+			idx, ok := r.recordIndexByID[strings.TrimSpace(patentID)]
+			if !ok {
+				continue
+			}
+			if _, exists := seen[idx]; exists {
+				continue
+			}
+			seen[idx] = struct{}{}
+			candidateIndices = append(candidateIndices, idx)
+		}
+	}
+
+	ranked := make([]scoredPatent, 0, len(candidateIndices))
 	maxLex := 0
 	maxSem := 0.0
-	for i, rec := range r.records {
+	for _, i := range candidateIndices {
+		rec := r.records[i]
 		titleScore, titleMatched := containsAny(rec.Title, tokens)
 		absScore, absMatched := containsAny(rec.Abstract, tokens)
 		claimScore, claimMatched := containsAny(rec.Claim, tokens)
@@ -938,11 +970,15 @@ func (r *LocalPatentRepository) rankDualCandidates(query string, limit int) ([]s
 }
 
 func (r *LocalPatentRepository) ExplainQuery(_ context.Context, query string, limit int) (*model.RankingExplainResponse, error) {
+	return r.ExplainQueryForPatentIDs(query, limit, nil)
+}
+
+func (r *LocalPatentRepository) ExplainQueryForPatentIDs(query string, limit int, patentIDs []string) (*model.RankingExplainResponse, error) {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return nil, fmt.Errorf("query is required")
 	}
-	ranked, totalCandidates := r.rankDualCandidates(query, limit)
+	ranked, totalCandidates := r.rankDualCandidatesForPatentIDs(query, limit, patentIDs)
 	mode, _ := r.GetRankingConfig()
 	resp := &model.RankingExplainResponse{
 		Query:          query,
@@ -994,6 +1030,10 @@ func (r *LocalPatentRepository) ExplainQuery(_ context.Context, query string, li
 }
 
 func (r *LocalPatentRepository) ExplainEncoder(_ context.Context, query string, limit int) (*model.EncoderExplainResponse, error) {
+	return r.ExplainEncoderForPatentIDs(query, limit, nil)
+}
+
+func (r *LocalPatentRepository) ExplainEncoderForPatentIDs(query string, limit int, patentIDs []string) (*model.EncoderExplainResponse, error) {
 	query = strings.TrimSpace(query)
 	if query == "" {
 		return nil, fmt.Errorf("query is required")
@@ -1002,7 +1042,7 @@ func (r *LocalPatentRepository) ExplainEncoder(_ context.Context, query string, 
 		return nil, fmt.Errorf("encoder model not loaded")
 	}
 
-	ranked, totalCandidates := r.rankDualCandidates(query, limit)
+	ranked, totalCandidates := r.rankDualCandidatesForPatentIDs(query, limit, patentIDs)
 	resp := &model.EncoderExplainResponse{
 		Query:          query,
 		Limit:          limit,
@@ -1046,7 +1086,11 @@ func (r *LocalPatentRepository) ExplainEncoder(_ context.Context, query string, 
 }
 
 func (r *LocalPatentRepository) searchDual(query string, limit int) []model.TaskResultItem {
-	ranked, _ := r.rankDualCandidates(query, limit)
+	return r.searchDualForPatentIDs(query, limit, nil)
+}
+
+func (r *LocalPatentRepository) searchDualForPatentIDs(query string, limit int, patentIDs []string) []model.TaskResultItem {
+	ranked, _ := r.rankDualCandidatesForPatentIDs(query, limit, patentIDs)
 	results := make([]model.TaskResultItem, 0, len(ranked))
 	for _, item := range ranked {
 		results = append(results, buildResultItemDual(item))

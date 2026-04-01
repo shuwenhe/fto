@@ -1,0 +1,144 @@
+package repository
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"time"
+
+	"fto-backend/internal/model"
+)
+
+type ElasticsearchPatentRepository struct {
+	local              *LocalPatentRepository
+	baseURL            string
+	index              string
+	candidateMultiplier int
+	client             *http.Client
+}
+
+func NewElasticsearchPatentRepository(local *LocalPatentRepository, baseURL string, index string, candidateMultiplier int) *ElasticsearchPatentRepository {
+	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
+	if candidateMultiplier < 2 {
+		candidateMultiplier = 6
+	}
+	return &ElasticsearchPatentRepository{
+		local:               local,
+		baseURL:             baseURL,
+		index:               strings.TrimSpace(index),
+		candidateMultiplier: candidateMultiplier,
+		client: &http.Client{
+			Timeout: 8 * time.Second,
+		},
+	}
+}
+
+func (r *ElasticsearchPatentRepository) GetRankingConfig() (string, int) {
+	return r.local.GetRankingConfig()
+}
+
+func (r *ElasticsearchPatentRepository) UpdateRankingConfig(mode string, dualRatio int) {
+	r.local.UpdateRankingConfig(mode, dualRatio)
+}
+
+func (r *ElasticsearchPatentRepository) GetRankingModelStatus() model.RankingModelStatus {
+	status := r.local.GetRankingModelStatus()
+	status.ElasticsearchEnabled = true
+	status.ElasticsearchIndex = r.index
+	return status
+}
+
+func (r *ElasticsearchPatentRepository) ExplainQuery(ctx context.Context, query string, limit int) (*model.RankingExplainResponse, error) {
+	patentIDs, err := r.fetchCandidatePatentIDs(ctx, query, limit)
+	if err != nil || len(patentIDs) == 0 {
+		return r.local.ExplainQuery(ctx, query, limit)
+	}
+	return r.local.ExplainQueryForPatentIDs(query, limit, patentIDs)
+}
+
+func (r *ElasticsearchPatentRepository) ExplainEncoder(ctx context.Context, query string, limit int) (*model.EncoderExplainResponse, error) {
+	patentIDs, err := r.fetchCandidatePatentIDs(ctx, query, limit)
+	if err != nil || len(patentIDs) == 0 {
+		return r.local.ExplainEncoder(ctx, query, limit)
+	}
+	return r.local.ExplainEncoderForPatentIDs(query, limit, patentIDs)
+}
+
+func (r *ElasticsearchPatentRepository) Search(ctx context.Context, query string, limit int) ([]model.TaskResultItem, error) {
+	if !r.local.useDualForQuery(query) {
+		return r.local.Search(ctx, query, limit)
+	}
+	patentIDs, err := r.fetchCandidatePatentIDs(ctx, query, limit)
+	if err != nil || len(patentIDs) == 0 {
+		return r.local.Search(ctx, query, limit)
+	}
+	return r.local.searchDualForPatentIDs(query, limit, patentIDs), nil
+}
+
+func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Context, query string, limit int) ([]string, error) {
+	if strings.TrimSpace(query) == "" {
+		return nil, nil
+	}
+	size := limit * r.candidateMultiplier
+	if size < 12 {
+		size = 12
+	}
+
+	body := map[string]interface{}{
+		"size": size,
+		"_source": []string{"patent_id"},
+		"query": map[string]interface{}{
+			"multi_match": map[string]interface{}{
+				"query":  query,
+				"fields": []string{"title^4", "abstract^2", "claim^3", "keywords^2"},
+				"type":   "best_fields",
+			},
+		},
+	}
+	payload, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("%s/%s/_search", r.baseURL, r.index), bytes.NewReader(payload))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := r.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		data, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		return nil, fmt.Errorf("elasticsearch search failed: status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(data)))
+	}
+
+	var parsed struct {
+		Hits struct {
+			Hits []struct {
+				Source struct {
+					PatentID string `json:"patent_id"`
+				} `json:"_source"`
+			} `json:"hits"`
+		} `json:"hits"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&parsed); err != nil {
+		return nil, err
+	}
+
+	out := make([]string, 0, len(parsed.Hits.Hits))
+	for _, hit := range parsed.Hits.Hits {
+		if strings.TrimSpace(hit.Source.PatentID) == "" {
+			continue
+		}
+		out = append(out, hit.Source.PatentID)
+	}
+	return out, nil
+}
