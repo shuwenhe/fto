@@ -18,18 +18,21 @@ type TaskResultItem struct {
 }
 
 type RankingModelStatus struct {
-	RankingMode  string   `json:"ranking_mode"`
-	DualRatio    int      `json:"dual_ratio"`
-	ModelLoaded  bool     `json:"model_loaded"`
-	DeepEnabled  bool     `json:"deep_enabled"`
-	DeepTopN     int      `json:"deep_top_n"`
-	DeepMixAlpha float64  `json:"deep_mix_alpha"`
-	ModelType    string   `json:"model_type,omitempty"`
-	ModelVersion int      `json:"model_version,omitempty"`
-	Activation   string   `json:"activation,omitempty"`
-	FeatureNames []string `json:"feature_names,omitempty"`
-	FeatureCount int      `json:"feature_count"`
-	PatentCount  int      `json:"patent_count"`
+	RankingMode         string   `json:"ranking_mode"`
+	DualRatio           int      `json:"dual_ratio"`
+	ModelLoaded         bool     `json:"model_loaded"`
+	EncoderLoaded       bool     `json:"encoder_loaded"`
+	DeepEnabled         bool     `json:"deep_enabled"`
+	DeepTopN            int      `json:"deep_top_n"`
+	DeepMixAlpha        float64  `json:"deep_mix_alpha"`
+	ModelType           string   `json:"model_type,omitempty"`
+	EncoderModelType    string   `json:"encoder_model_type,omitempty"`
+	ModelVersion        int      `json:"model_version,omitempty"`
+	EncoderModelVersion int      `json:"encoder_model_version,omitempty"`
+	Activation          string   `json:"activation,omitempty"`
+	FeatureNames        []string `json:"feature_names,omitempty"`
+	FeatureCount        int      `json:"feature_count"`
+	PatentCount         int      `json:"patent_count"`
 }
 
 type RankingExplainItem struct {
@@ -64,6 +67,34 @@ type RankingExplainResponse struct {
 	FeatureNames   []string             `json:"feature_names"`
 	CandidateCount int                  `json:"candidate_count"`
 	Results        []RankingExplainItem `json:"results"`
+}
+
+type EncoderExplainItem struct {
+	Rank         int       `json:"rank"`
+	PatentID     string    `json:"patent_id"`
+	PatentURL    string    `json:"patent_url"`
+	Title        string    `json:"title"`
+	Matched      []string  `json:"matched"`
+	Features     []float64 `json:"features"`
+	Embedding    []float64 `json:"embedding"`
+	EncoderScore float64   `json:"encoder_score"`
+	FinalScore   float64   `json:"final_score"`
+	ModelScore   *float64  `json:"model_score,omitempty"`
+	DeepScore    *float64  `json:"deep_score,omitempty"`
+	RiskLevel    string    `json:"risk_level"`
+	Reason       string    `json:"reason"`
+}
+
+type EncoderExplainResponse struct {
+	Query          string               `json:"query"`
+	Limit          int                  `json:"limit"`
+	ModelLoaded    bool                 `json:"model_loaded"`
+	ModelType      string               `json:"model_type,omitempty"`
+	ModelVersion   int                  `json:"model_version,omitempty"`
+	FeatureNames   []string             `json:"feature_names"`
+	EmbeddingDim   int                  `json:"embedding_dim"`
+	CandidateCount int                  `json:"candidate_count"`
+	Results        []EncoderExplainItem `json:"results"`
 }
 
 type TaskState struct {
