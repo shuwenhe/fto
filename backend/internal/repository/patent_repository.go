@@ -589,15 +589,16 @@ func (r *LocalPatentRepository) UpdateRankingConfig(mode string, dualRatio int) 
 func (r *LocalPatentRepository) GetRankingModelStatus() model.RankingModelStatus {
 	mode, ratio := r.GetRankingConfig()
 	status := model.RankingModelStatus{
-		RankingMode:  mode,
-		DualRatio:    ratio,
-		ModelLoaded:  r.ranker != nil,
-		DeepEnabled:  r.deepEnabled,
-		DeepTopN:     r.deepTopN,
-		DeepMixAlpha: r.deepMixAlpha,
-		FeatureNames: append([]string(nil), neurxFeatureNames...),
-		FeatureCount: len(neurxFeatureNames),
-		PatentCount:  len(r.records),
+		RankingMode:   mode,
+		DualRatio:     ratio,
+		ModelLoaded:   r.ranker != nil,
+		EncoderLoaded: r.encoder != nil,
+		DeepEnabled:   r.deepEnabled,
+		DeepTopN:      r.deepTopN,
+		DeepMixAlpha:  r.deepMixAlpha,
+		FeatureNames:  append([]string(nil), neurxFeatureNames...),
+		FeatureCount:  len(neurxFeatureNames),
+		PatentCount:   len(r.records),
 	}
 	if r.ranker != nil {
 		status.ModelType = r.ranker.modelType
@@ -607,6 +608,10 @@ func (r *LocalPatentRepository) GetRankingModelStatus() model.RankingModelStatus
 			status.FeatureNames = append([]string(nil), r.ranker.featureNames...)
 			status.FeatureCount = len(r.ranker.featureNames)
 		}
+	}
+	if r.encoder != nil {
+		status.EncoderModelType = r.encoder.modelType
+		status.EncoderModelVersion = r.encoder.version
 	}
 	return status
 }
