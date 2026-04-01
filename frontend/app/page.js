@@ -408,7 +408,14 @@ export default function HomePage() {
           key={`${options.prefix || 'id'}-${id}`}
           style={mergedHit ? { background: 'rgba(215, 140, 48, 0.12)', borderRadius: '6px', padding: '4px 6px' } : undefined}
         >
-          <code>{id}</code> <span>#{rank}</span>
+          <a
+            href={`https://patents.google.com/patent/${id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <code>{id}</code>
+          </a>{' '}
+          <span>#{rank}</span>
           {options.showDedupedLabel ? ` (${getDedupedLabel(id, esCounts, milvusCounts)})` : ''}
           {options.showSourceHitLabel ? ` [${getSourceHitLabel(id, esRanks, milvusRanks)}]` : ''}
         </li>
@@ -830,10 +837,23 @@ export default function HomePage() {
           })()}
         </div>
         <div className="debugPanel">
-          <p>
-            <strong>最终 merged top ids:</strong>{' '}
-            <code className="vectorText">{formatIdList(rankingMeta?.recallDebug?.merged_ids)}</code>
-          </p>
+          {(() => {
+            const esRanks = buildRankMap(rankingMeta?.recallDebug?.elasticsearch_ids);
+            const milvusRanks = buildRankMap(rankingMeta?.recallDebug?.milvus_ids);
+            return (
+              <>
+                <p><strong>最终 merged top ids</strong></p>
+                <ul>
+                  {renderIdItems(rankingMeta?.recallDebug?.merged_ids, {
+                    prefix: 'merged',
+                    showSourceHitLabel: true,
+                    esRanks,
+                    milvusRanks,
+                  })}
+                </ul>
+              </>
+            );
+          })()}
         </div>
         <table>
           <thead>
