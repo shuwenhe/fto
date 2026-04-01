@@ -1,7 +1,8 @@
 {
-  "generated_at": "2026-04-01T08:03:37.104Z",
+  "generated_at": "2026-04-01T08:08:59.112Z",
   "k": 5,
   "min_ndcg_contribution": 0,
+  "min_hit_queries": 2,
   "baseline_no_rewrite": {
     "queries": 5,
     "rewrite_applied_queries": 0,
@@ -58,7 +59,7 @@
     "rewrite_applied_ratio": 0.4,
     "recall_at_k": 0.8333333333333333,
     "mrr_at_k": 1,
-    "ndcg_at_k": 0.9407002709329643,
+    "ndcg_at_k": 0.9459487321811977,
     "rows": [
       {
         "query_id": "q1",
@@ -72,9 +73,9 @@
         "query_id": "q2",
         "recall": 1,
         "mrr": 1,
-        "ndcg": 0.9737576937588317,
+        "ndcg": 1,
         "rewrite_applied": true,
-        "rewritten_query": "电池 散热 保护 热管理 温控 储能 电芯"
+        "rewritten_query": "电池 散热 保护 储能 电芯"
       },
       {
         "query_id": "q3",
@@ -104,134 +105,118 @@
   },
   "term_contributions": [
     {
-      "match": "散热",
-      "term": "热管理",
-      "contribution_recall_at_k": 0,
-      "contribution_mrr_at_k": 0,
-      "contribution_ndcg_at_k": -0.0018169068295815771,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9425171777625458
-    },
-    {
-      "match": "散热",
-      "term": "温控",
-      "contribution_recall_at_k": 0,
-      "contribution_mrr_at_k": 0,
-      "contribution_ndcg_at_k": -0.0018169068295815771,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9425171777625458
-    },
-    {
       "match": "无线充电",
       "term": "充电",
+      "hit_queries": 1,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "无线充电",
       "term": "电能传输",
+      "hit_queries": 1,
+      "term_applied_queries": 1,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "快充",
       "term": "快速充电",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "快充",
       "term": "充电",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "电池",
       "term": "储能",
+      "hit_queries": 1,
+      "term_applied_queries": 1,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "电池",
       "term": "电芯",
+      "hit_queries": 1,
+      "term_applied_queries": 1,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "逆变器",
       "term": "功率变换",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "逆变器",
       "term": "电力电子",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "变流器",
       "term": "功率变换",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     },
     {
       "match": "变流器",
       "term": "电力电子",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
       "contribution_recall_at_k": 0,
       "contribution_mrr_at_k": 0,
       "contribution_ndcg_at_k": 0,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9407002709329643
+      "full_ndcg_at_k": 0.9459487321811977,
+      "removed_ndcg_at_k": 0.9459487321811977
     }
   ],
-  "harmful_terms": [
-    {
-      "match": "散热",
-      "term": "热管理",
-      "contribution_recall_at_k": 0,
-      "contribution_mrr_at_k": 0,
-      "contribution_ndcg_at_k": -0.0018169068295815771,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9425171777625458
-    },
-    {
-      "match": "散热",
-      "term": "温控",
-      "contribution_recall_at_k": 0,
-      "contribution_mrr_at_k": 0,
-      "contribution_ndcg_at_k": -0.0018169068295815771,
-      "full_ndcg_at_k": 0.9407002709329643,
-      "removed_ndcg_at_k": 0.9425171777625458
-    }
-  ],
+  "harmful_terms": [],
+  "protected_by_min_samples": [],
   "pruned_rules_eval": {
     "queries": 5,
     "rewrite_applied_queries": 2,
@@ -286,7 +271,7 @@
     "full_vs_baseline": {
       "recall_delta": 0,
       "mrr_delta": 0,
-      "ndcg_delta": -0.005248461248233416
+      "ndcg_delta": 0
     },
     "pruned_vs_baseline": {
       "recall_delta": 0,
@@ -296,7 +281,7 @@
     "pruned_vs_full": {
       "recall_delta": 0,
       "mrr_delta": 0,
-      "ndcg_delta": 0.005248461248233416
+      "ndcg_delta": 0
     }
   },
   "pruned_rules": [
