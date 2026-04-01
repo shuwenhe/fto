@@ -16,6 +16,9 @@ export default function HomePage() {
   const [progress, setProgress] = useState(null);
   const [taskId, setTaskId] = useState('-');
   const [rows, setRows] = useState([]);
+  const [encoderStatus, setEncoderStatus] = useState('idle');
+  const [encoderMeta, setEncoderMeta] = useState(null);
+  const [encoderRows, setEncoderRows] = useState([]);
   const buildIdRef = useRef('');
 
   useEffect(() => {
@@ -98,6 +101,48 @@ export default function HomePage() {
     await pollTask(data.task_id);
   }
 
+  async function testEncoder() {
+    if (!query.trim()) {
+      alert('请先输入技术方案描述');
+      return;
+    }
+    setEncoderStatus('loading');
+    setEncoderRows([]);
+    setEncoderMeta(null);
+
+    try {
+      const res = await fetch('/fto/api/ops/encoder-explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query.trim(), limit: 5 }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEncoderStatus(data.error || 'failed');
+        return;
+      }
+      setEncoderMeta({
+        modelType: data.model_type || '-',
+        modelVersion: data.model_version || 0,
+        embeddingDim: data.embedding_dim || 0,
+        candidateCount: data.candidate_count || 0,
+      });
+      setEncoderRows(data.results || []);
+      setEncoderStatus('succeeded');
+    } catch {
+      setEncoderStatus('failed');
+    }
+  }
+
+  function formatVector(values, max = 8) {
+    if (!Array.isArray(values) || values.length === 0) {
+      return '[]';
+    }
+    const preview = values.slice(0, max).map((value) => Number(value).toFixed(4));
+    const suffix = values.length > max ? `, ... (${values.length})` : '';
+    return `[${preview.join(', ')}${suffix}]`;
+  }
+
   return (
     <main className="page">
       <nav className="topNav">
@@ -129,10 +174,12 @@ export default function HomePage() {
 
         <div className="row">
           <button onClick={submitTask}>提交分析任务</button>
+          <button onClick={testEncoder}>测试 Encoder</button>
           <span className="tag">
             状态：{status}
             {progress !== null ? ` ${progress}%` : ''}
           </span>
+          <span className="tag">Encoder：{encoderStatus}</span>
         </div>
 
         <div className="row">
@@ -172,6 +219,63 @@ export default function HomePage() {
                   <td>{r.title}</td>
                   <td>{r.risk_level}</td>
                   <td>{r.reason}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="card">
+        <h2>Encoder 调试面板</h2>
+        <p>使用当前输入的查询，查看 top-k 候选专利的特征向量、embedding 和 encoder score。</p>
+
+        <div className="row">
+          <span className="tag">候选数：{encoderMeta?.candidateCount ?? '-'}</span>
+          <span className="tag">Encoder：{encoderMeta?.modelType ?? '-'}</span>
+          <span className="tag">版本：{encoderMeta?.modelVersion ?? '-'}</span>
+          <span className="tag">Embedding Dim：{encoderMeta?.embeddingDim ?? '-'}</span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>专利号</th>
+              <th>标题</th>
+              <th>Encoder Score</th>
+              <th>Final Score</th>
+              <th>Embedding</th>
+              <th>Features</th>
+            </tr>
+          </thead>
+          <tbody>
+            {encoderRows.length === 0 ? (
+              <tr>
+                <td colSpan={7}>暂无 Encoder 调试结果</td>
+              </tr>
+            ) : (
+              encoderRows.map((row) => (
+                <tr key={row.patent_id}>
+                  <td>{row.rank}</td>
+                  <td>
+                    <a
+                      href={row.patent_url || `https://patents.google.com/patent/${row.patent_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {row.patent_id}
+                    </a>
+                  </td>
+                  <td>{row.title}</td>
+                  <td>{Number(row.encoder_score || 0).toFixed(4)}</td>
+                  <td>{Number(row.final_score || 0).toFixed(4)}</td>
+                  <td>
+                    <code className="vectorText">{formatVector(row.embedding)}</code>
+                  </td>
+                  <td>
+                    <code className="vectorText">{formatVector(row.features)}</code>
+                  </td>
                 </tr>
               ))
             )}

@@ -129,6 +129,10 @@ button:hover {
   background: #115e59;
 }
 
+button + button {
+  margin-left: 2px;
+}
+
 .row {
   display: flex;
   gap: 10px;
@@ -156,6 +160,16 @@ td {
   border-bottom: 1px solid #e2e8f0;
   padding: 8px 6px;
   vertical-align: top;
+}
+
+.vectorText {
+  display: inline-block;
+  max-width: 360px;
+  white-space: normal;
+  word-break: break-word;
+  color: #0f172a;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 @media (max-width: 900px) {
