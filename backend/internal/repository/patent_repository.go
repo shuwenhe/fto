@@ -528,6 +528,41 @@ func (r *neurxRanker) Score(features []float64) float64 {
 	return sum
 }
 
+func (e *neurxEncoder) Encode(features []float64) ([]float64, float64) {
+	if e == nil || len(features) != len(e.featureNames) {
+		return nil, 0
+	}
+	scaled := make([]float64, len(features))
+	for i, value := range features {
+		std := e.stds[i]
+		if math.Abs(std) < 1e-9 {
+			std = 1.0
+		}
+		scaled[i] = (value - e.means[i]) / std
+	}
+
+	embedding := make([]float64, e.embeddingDim)
+	for row := 0; row < e.embeddingDim; row++ {
+		sum := e.extractorBias[row]
+		for col, value := range scaled {
+			sum += value * e.extractor[row][col]
+		}
+		if e.extractorAct == "sigmoid" || e.extractorAct == "" {
+			sum = sigmoid(sum)
+		}
+		embedding[row] = sum
+	}
+
+	score := e.headBias
+	for i, value := range embedding {
+		score += value * e.headWeights[i]
+	}
+	if e.headActivation == "sigmoid" || e.headActivation == "" {
+		score = sigmoid(score)
+	}
+	return embedding, score
+}
+
 func buildNeurxFeatures(item scoredPatent, tokenCount int, maxLex int, maxSem float64) []float64 {
 	lexNorm := 0.0
 	semNorm := 0.0
