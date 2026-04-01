@@ -66,6 +66,13 @@ func main() {
 	elasticsearchURL := getEnv("ELASTICSEARCH_URL", "http://127.0.0.1:9200")
 	elasticsearchIndex := getEnv("ELASTICSEARCH_INDEX", "fto_patents")
 	elasticsearchCandidateMultiplier := getEnvInt("ELASTICSEARCH_CANDIDATE_MULTIPLIER", 6)
+	milvusEnabled := getEnvBool("MILVUS_ENABLED", false)
+	milvusURL := getEnv("MILVUS_URL", "http://127.0.0.1:19530")
+	milvusToken := getEnv("MILVUS_TOKEN", "")
+	milvusCollection := getEnv("MILVUS_COLLECTION", "fto_patent_embeddings")
+	milvusAnnsField := getEnv("MILVUS_ANNS_FIELD", "embedding")
+	milvusCandidateMultiplier := getEnvInt("MILVUS_CANDIDATE_MULTIPLIER", 6)
+	milvusHashDim := getEnvInt("MILVUS_HASH_DIM", 256)
 	rankingMode := getEnv("RANKING_MODE", "dual")
 	dualRatio := getEnvInt("RANKING_DUAL_RATIO", 50)
 	rankingModelPath := getEnv("RANKING_MODEL_PATH", "/app/fto/model_artifacts/fto_ranker_neurx_v1.json")
@@ -109,7 +116,27 @@ func main() {
 
 	var patentRepo repository.PatentDataRepository = localPatentRepo
 	var rankingCtrl repository.RankingConfigController = localPatentRepo
-	if elasticsearchEnabled {
+	if elasticsearchEnabled && milvusEnabled {
+		hybridRepo := repository.NewHybridPatentRepository(
+			localPatentRepo,
+			repository.NewElasticsearchPatentRepository(
+				localPatentRepo,
+				elasticsearchURL,
+				elasticsearchIndex,
+				elasticsearchCandidateMultiplier,
+			),
+			repository.NewMilvusPatentRepository(
+				milvusURL,
+				milvusToken,
+				milvusCollection,
+				milvusAnnsField,
+				milvusCandidateMultiplier,
+				milvusHashDim,
+			),
+		)
+		patentRepo = hybridRepo
+		rankingCtrl = hybridRepo
+	} else if elasticsearchEnabled {
 		esRepo := repository.NewElasticsearchPatentRepository(
 			localPatentRepo,
 			elasticsearchURL,
@@ -140,7 +167,7 @@ func main() {
 	r.Use(observability.AccessLogMiddleware(metrics))
 	router.RegisterRoutes(r, taskService, metrics, rankingCtrl, queryRewriter)
 
-	log.Printf("backend config: redis_addr=%s patent_data_path=%s elasticsearch_enabled=%t elasticsearch_url=%s elasticsearch_index=%s elasticsearch_candidate_multiplier=%d ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t encoder_model_path=%s encoder_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f query_rewrite_enabled=%t query_rewrite_rules_path=%s", redisAddr, patentDataPath, elasticsearchEnabled, elasticsearchURL, elasticsearchIndex, elasticsearchCandidateMultiplier, rankingMode, dualRatio, rankingModelPath, ranker != nil, encoderModelPath, encoder != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha, queryRewriteEnabled, queryRewriteRulesPath)
+	log.Printf("backend config: redis_addr=%s patent_data_path=%s elasticsearch_enabled=%t elasticsearch_url=%s elasticsearch_index=%s elasticsearch_candidate_multiplier=%d milvus_enabled=%t milvus_url=%s milvus_collection=%s milvus_anns_field=%s milvus_candidate_multiplier=%d milvus_hash_dim=%d ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t encoder_model_path=%s encoder_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f query_rewrite_enabled=%t query_rewrite_rules_path=%s", redisAddr, patentDataPath, elasticsearchEnabled, elasticsearchURL, elasticsearchIndex, elasticsearchCandidateMultiplier, milvusEnabled, milvusURL, milvusCollection, milvusAnnsField, milvusCandidateMultiplier, milvusHashDim, rankingMode, dualRatio, rankingModelPath, ranker != nil, encoderModelPath, encoder != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha, queryRewriteEnabled, queryRewriteRulesPath)
 
 	if err := r.Run(":8010"); err != nil {
 		log.Fatalf("run server failed: %v", err)

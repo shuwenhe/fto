@@ -62,12 +62,14 @@ type RankingModelStatus struct {
 	ModelLoaded          bool     `json:"model_loaded"`
 	EncoderLoaded        bool     `json:"encoder_loaded"`
 	ElasticsearchEnabled bool     `json:"elasticsearch_enabled"`
+	MilvusEnabled        bool     `json:"milvus_enabled"`
 	DeepEnabled          bool     `json:"deep_enabled"`
 	DeepTopN             int      `json:"deep_top_n"`
 	DeepMixAlpha         float64  `json:"deep_mix_alpha"`
 	ModelType            string   `json:"model_type,omitempty"`
 	EncoderModelType     string   `json:"encoder_model_type,omitempty"`
 	ElasticsearchIndex   string   `json:"elasticsearch_index,omitempty"`
+	MilvusCollection     string   `json:"milvus_collection,omitempty"`
 	ModelVersion         int      `json:"model_version,omitempty"`
 	EncoderModelVersion  int      `json:"encoder_model_version,omitempty"`
 	Activation           string   `json:"activation,omitempty"`
