@@ -10,6 +10,47 @@ const navItems = [
   { label: '排序模型', href: 'http://111.202.231.146:8080/fto/api/ops/ranking-model' },
 ];
 
+const PDF_FONT_NAME = 'DroidSansFallback';
+const PDF_FONT_FILE = 'DroidSansFallbackFull.ttf';
+let pdfFontBase64Promise = null;
+
+function arrayBufferToBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
+async function ensurePdfFont(doc) {
+  if (typeof doc.getFontList === 'function') {
+    const fonts = doc.getFontList();
+    if (fonts[PDF_FONT_NAME]?.includes?.('normal')) {
+      doc.setFont(PDF_FONT_NAME, 'normal');
+      return;
+    }
+  }
+
+  if (!pdfFontBase64Promise) {
+    pdfFontBase64Promise = fetch(`/fto/fonts/${PDF_FONT_FILE}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`font fetch failed: ${res.status}`);
+        }
+        return res.arrayBuffer();
+      })
+      .then(arrayBufferToBase64);
+  }
+
+  const fontBase64 = await pdfFontBase64Promise;
+  doc.addFileToVFS(PDF_FONT_FILE, fontBase64);
+  doc.addFont(PDF_FONT_FILE, PDF_FONT_NAME, 'normal');
+  doc.setFont(PDF_FONT_NAME, 'normal');
+}
+
 export default function HomePage() {
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState('idle');
@@ -311,7 +352,7 @@ export default function HomePage() {
   async function withPdfDoc(report) {
     const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    doc.setFont('helvetica', 'normal');
+    await ensurePdfFont(doc);
     doc.setFontSize(11);
 
     const lines = buildReportTextLines(report);
