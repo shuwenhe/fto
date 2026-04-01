@@ -63,6 +63,9 @@ type RankingExplainItem struct {
 
 type RankingExplainResponse struct {
 	Query          string               `json:"query"`
+	OriginalQuery  string               `json:"original_query,omitempty"`
+	RewrittenQuery string               `json:"rewritten_query,omitempty"`
+	RewriteApplied bool                 `json:"rewrite_applied,omitempty"`
 	Limit          int                  `json:"limit"`
 	RankingMode    string               `json:"ranking_mode"`
 	ModelLoaded    bool                 `json:"model_loaded"`
@@ -89,6 +92,9 @@ type EncoderExplainItem struct {
 
 type EncoderExplainResponse struct {
 	Query          string               `json:"query"`
+	OriginalQuery  string               `json:"original_query,omitempty"`
+	RewrittenQuery string               `json:"rewritten_query,omitempty"`
+	RewriteApplied bool                 `json:"rewrite_applied,omitempty"`
 	Limit          int                  `json:"limit"`
 	ModelLoaded    bool                 `json:"model_loaded"`
 	ModelType      string               `json:"model_type,omitempty"`
@@ -102,6 +108,7 @@ type EncoderExplainResponse struct {
 type TaskState struct {
 	TaskID    string           `json:"task_id"`
 	Query     string           `json:"query"`
+	RewrittenQuery string      `json:"rewritten_query,omitempty"`
 	Status    string           `json:"status"`
 	Progress  int              `json:"progress"`
 	CreatedAt string           `json:"created_at"`
