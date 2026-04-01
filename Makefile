@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -28,9 +28,11 @@ help:
 	@echo "  make train-fto-reranker-model # Train neurx reranker from recall candidates"
 	@echo "  make train-fto-recall-model # Train neurx dual-recall model artifact"
 	@echo "  make train-fto-judge-model # Train neurx judge classifier from recall+reranker features"
+	@echo "  make train-fto-encoder-model # Train neurx feature encoder artifact"
 	@echo "  make train-eval-fto-recall # One-command reproducible env+train+eval+logs"
 	@echo "  make train-eval-fto-reranker # One-command reproducible env+train+eval+logs"
 	@echo "  make train-eval-fto-judge # One-command reproducible env+train+eval+logs"
+	@echo "  make train-eval-fto-encoder # One-command Ascend 310P3 encoder training"
 	@echo "  make eval-retrieval-model # Eval retrieval with trained recall model"
 	@echo "  make eval-reranker-model # Eval reranker on recall candidates"
 	@echo "  make eval-judge-model # Eval judge classifier with trained artifact"
@@ -156,6 +158,9 @@ train-fto-recall-model:
 train-fto-judge-model:
 	python scripts/train_fto_judge_model_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --reranker-model model_artifacts/fto_reranker_neurx_v1.json --out model_artifacts/fto_judge_neurx_v1.json
 
+train-fto-encoder-model:
+	python encoder/train_fto_encoder_neurx.py --recall-model model_artifacts/fto_recall_dual_v1.json --out model_artifacts/fto_encoder_neurx_v1.json
+
 train-eval-fto-recall:
 	bash scripts/run_fto_recall_pipeline.sh
 
@@ -164,6 +169,9 @@ train-eval-fto-reranker:
 
 train-eval-fto-judge:
 	bash scripts/run_fto_judge_pipeline.sh
+
+train-eval-fto-encoder:
+	bash scripts/run_fto_encoder_pipeline.sh
 
 eval-retrieval-model:
 	node scripts/eval_retrieval.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --verbose

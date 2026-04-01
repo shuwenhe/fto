@@ -177,6 +177,30 @@ cd /app/fto
 make eval-retrieval-model
 ```
 
+## 训练特征提取模型（encoder）
+
+新增 `encoder/` 目录，用于承载特征提取模型说明；训练侧新增了一个基于 `neurx` 的两层特征编码器，会把现有 reranker 手工特征压缩成低维 embedding，并在同一轮训练里学习相关性打分头。
+
+Ascend 310P3 上训练：
+
+```bash
+cd /app/fto
+make train-eval-fto-encoder
+```
+
+仅训练并导出 artifact：
+
+```bash
+cd /app/fto
+make train-fto-encoder-model
+```
+
+默认输出：
+
+```text
+/app/fto/model_artifacts/fto_encoder_neurx_v1.json
+```
+
 ## 验收与基线文档
 
 - 第 2 条验收清单（指标门槛 + 稳定性定义）：`docs/acceptance_checklist_v1.md`

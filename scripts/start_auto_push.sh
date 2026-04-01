@@ -20,6 +20,8 @@ if [[ -f "$PID_FILE" ]]; then
     echo "[auto] log: $LOG_FILE"
     exit 0
   fi
+  rm -f "$PID_FILE"
+  echo "[auto] removed stale pid file"
 fi
 
 cd "$REPO_ROOT"

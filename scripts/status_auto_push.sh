@@ -12,7 +12,8 @@ if [[ -f "$PID_FILE" ]]; then
     echo "[auto] log: $LOG_FILE"
     exit 0
   fi
-  echo "[auto] stale pid file: $PID_FILE"
+  rm -f "$PID_FILE"
+  echo "[auto] removed stale pid file: $PID_FILE"
   exit 1
 fi
 
