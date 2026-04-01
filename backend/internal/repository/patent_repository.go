@@ -33,6 +33,10 @@ type RankingExplainProvider interface {
 	ExplainQuery(ctx context.Context, query string, limit int) (*model.RankingExplainResponse, error)
 }
 
+type EncoderExplainProvider interface {
+	ExplainEncoder(ctx context.Context, query string, limit int) (*model.EncoderExplainResponse, error)
+}
+
 var neurxFeatureNames = []string{
 	"title_score",
 	"abstract_score",
@@ -88,6 +92,40 @@ type neurxRanker struct {
 	activation   string
 }
 
+type neurxEncoderArtifact struct {
+	ModelType    string    `json:"model_type"`
+	Version      int       `json:"version"`
+	FeatureNames []string  `json:"feature_names"`
+	FeatureMeans []float64 `json:"feature_means"`
+	FeatureStds  []float64 `json:"feature_stds"`
+	EmbeddingDim int       `json:"embedding_dim"`
+	Extractor    struct {
+		Weights    [][]float64 `json:"weights"`
+		Bias       []float64   `json:"bias"`
+		Activation string      `json:"activation"`
+	} `json:"extractor"`
+	Head struct {
+		Weights    []float64 `json:"weights"`
+		Bias       float64   `json:"bias"`
+		Activation string    `json:"activation"`
+	} `json:"head"`
+}
+
+type neurxEncoder struct {
+	modelType      string
+	version        int
+	featureNames   []string
+	means          []float64
+	stds           []float64
+	embeddingDim   int
+	extractor      [][]float64
+	extractorBias  []float64
+	extractorAct   string
+	headWeights    []float64
+	headBias       float64
+	headActivation string
+}
+
 type LocalPatentRepository struct {
 	mu           sync.RWMutex
 	records      []model.PatentRecord
@@ -95,6 +133,7 @@ type LocalPatentRepository struct {
 	rankingMode  string
 	dualRatio    int
 	ranker       *neurxRanker
+	encoder      *neurxEncoder
 	deepEnabled  bool
 	deepTopN     int
 	deepMixAlpha float64
