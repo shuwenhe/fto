@@ -69,6 +69,7 @@ export default function HomePage() {
   const [encoderRows, setEncoderRows] = useState([]);
   const [rankingStatus, setRankingStatus] = useState('idle');
   const [rankingMeta, setRankingMeta] = useState(null);
+  const [recallFilter, setRecallFilter] = useState('all');
   const [recallRows, setRecallRows] = useState([]);
   const [rerankerRows, setRerankerRows] = useState([]);
   const [judgeRows, setJudgeRows] = useState([]);
@@ -421,6 +422,20 @@ export default function HomePage() {
         </li>
       );
     });
+  }
+
+  function filterRecallIds(values, filter, esCounts, milvusCounts) {
+    const list = Array.isArray(values) ? values : [];
+    if (filter === 'intersection') {
+      return list.filter((id) => (esCounts.get(id) || 0) > 0 && (milvusCounts.get(id) || 0) > 0);
+    }
+    if (filter === 'es_only') {
+      return list.filter((id) => (esCounts.get(id) || 0) > 0 && (milvusCounts.get(id) || 0) === 0);
+    }
+    if (filter === 'milvus_only') {
+      return list.filter((id) => (milvusCounts.get(id) || 0) > 0 && (esCounts.get(id) || 0) === 0);
+    }
+    return list;
   }
 
   async function copyDebugJson() {
@@ -786,6 +801,13 @@ export default function HomePage() {
           <span className="tag">Fallback：{rankingMeta?.recallDebug?.fallback ?? '-'}</span>
           <button onClick={copyDebugJson}>copy debug json</button>
         </div>
+        <div className="row">
+          <span className="tag">筛选视图</span>
+          <button onClick={() => setRecallFilter('all')} disabled={recallFilter === 'all'}>全部</button>
+          <button onClick={() => setRecallFilter('intersection')} disabled={recallFilter === 'intersection'}>只看交集</button>
+          <button onClick={() => setRecallFilter('es_only')} disabled={recallFilter === 'es_only'}>只看 ES 独有</button>
+          <button onClick={() => setRecallFilter('milvus_only')} disabled={recallFilter === 'milvus_only'}>只看 Milvus 独有</button>
+        </div>
         <div
           className="debugPanel"
           style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}
@@ -796,12 +818,16 @@ export default function HomePage() {
             const esRanks = buildRankMap(rankingMeta?.recallDebug?.elasticsearch_ids);
             const milvusRanks = buildRankMap(rankingMeta?.recallDebug?.milvus_ids);
             const mergedSet = new Set(rankingMeta?.recallDebug?.merged_ids || []);
+            const esIds = filterRecallIds(rankingMeta?.recallDebug?.elasticsearch_ids, recallFilter, esCounts, milvusCounts);
+            const milvusIds = filterRecallIds(rankingMeta?.recallDebug?.milvus_ids, recallFilter, esCounts, milvusCounts);
+            const dedupedIds = filterRecallIds(rankingMeta?.recallDebug?.deduped_ids, recallFilter, esCounts, milvusCounts);
+            const mergedIds = filterRecallIds(rankingMeta?.recallDebug?.merged_ids, recallFilter, esCounts, milvusCounts);
             return (
               <>
                 <div>
                   <p><strong>ES top patent ids</strong></p>
                   <ul>
-                    {renderIdItems(rankingMeta?.recallDebug?.elasticsearch_ids, {
+                    {renderIdItems(esIds, {
                       prefix: 'es',
                       sourceRanks: esRanks,
                       mergedSet,
@@ -811,7 +837,7 @@ export default function HomePage() {
                 <div>
                   <p><strong>Milvus top patent ids</strong></p>
                   <ul>
-                    {renderIdItems(rankingMeta?.recallDebug?.milvus_ids, {
+                    {renderIdItems(milvusIds, {
                       prefix: 'milvus',
                       sourceRanks: milvusRanks,
                       mergedSet,
@@ -821,7 +847,7 @@ export default function HomePage() {
                 <div>
                   <p><strong>合并去重移除的 IDs</strong></p>
                   <ul>
-                    {renderIdItems(rankingMeta?.recallDebug?.deduped_ids, {
+                    {renderIdItems(dedupedIds, {
                       prefix: 'deduped',
                       showDedupedLabel: true,
                       showSourceHitLabel: true,
@@ -840,11 +866,14 @@ export default function HomePage() {
           {(() => {
             const esRanks = buildRankMap(rankingMeta?.recallDebug?.elasticsearch_ids);
             const milvusRanks = buildRankMap(rankingMeta?.recallDebug?.milvus_ids);
+            const esCounts = countIdHits(rankingMeta?.recallDebug?.elasticsearch_ids);
+            const milvusCounts = countIdHits(rankingMeta?.recallDebug?.milvus_ids);
+            const mergedIds = filterRecallIds(rankingMeta?.recallDebug?.merged_ids, recallFilter, esCounts, milvusCounts);
             return (
               <>
                 <p><strong>最终 merged top ids</strong></p>
                 <ul>
-                  {renderIdItems(rankingMeta?.recallDebug?.merged_ids, {
+                  {renderIdItems(mergedIds, {
                     prefix: 'merged',
                     showSourceHitLabel: true,
                     esRanks,
