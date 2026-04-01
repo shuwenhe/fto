@@ -26,6 +26,11 @@ export default function HomePage() {
   const [encoderStatus, setEncoderStatus] = useState('idle');
   const [encoderMeta, setEncoderMeta] = useState(null);
   const [encoderRows, setEncoderRows] = useState([]);
+  const [rankingStatus, setRankingStatus] = useState('idle');
+  const [rankingMeta, setRankingMeta] = useState(null);
+  const [recallRows, setRecallRows] = useState([]);
+  const [rerankerRows, setRerankerRows] = useState([]);
+  const [judgeRows, setJudgeRows] = useState([]);
   const buildIdRef = useRef('');
 
   useEffect(() => {
@@ -131,6 +136,8 @@ export default function HomePage() {
     setProgress(0);
     setRows([]);
     refreshEsMeta(query);
+    refreshRankingExplain(query.trim());
+    runEncoderExplain(query.trim());
 
     const res = await fetch('/fto/api/tasks', {
       method: 'POST',
@@ -149,9 +156,46 @@ export default function HomePage() {
     await pollTask(data.task_id);
   }
 
-  async function testEncoder() {
-    if (!query.trim()) {
-      alert('请先输入技术方案描述');
+  async function refreshRankingExplain(queryText) {
+    if (!queryText.trim()) {
+      return;
+    }
+    setRankingStatus('loading');
+    setRankingMeta(null);
+    setRecallRows([]);
+    setRerankerRows([]);
+    setJudgeRows([]);
+
+    try {
+      const res = await fetch('/fto/api/ops/ranking-explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: queryText.trim(), limit: 5 }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRankingStatus(data.error || 'failed');
+        return;
+      }
+
+      const explainRows = data.results || [];
+      setRankingMeta({
+        mode: data.ranking_mode || '-',
+        modelLoaded: Boolean(data.model_loaded),
+        candidateCount: data.candidate_count || 0,
+        featureNames: data.feature_names || [],
+      });
+      setRecallRows(explainRows);
+      setRerankerRows(explainRows);
+      setJudgeRows(explainRows);
+      setRankingStatus('succeeded');
+    } catch {
+      setRankingStatus('failed');
+    }
+  }
+
+  async function runEncoderExplain(queryText) {
+    if (!queryText.trim()) {
       return;
     }
     setEncoderStatus('loading');
@@ -162,7 +206,7 @@ export default function HomePage() {
       const res = await fetch('/fto/api/ops/encoder-explain', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: query.trim(), limit: 5 }),
+        body: JSON.stringify({ query: queryText.trim(), limit: 5 }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -180,6 +224,14 @@ export default function HomePage() {
     } catch {
       setEncoderStatus('failed');
     }
+  }
+
+  async function refreshAllModelPanels() {
+    if (!query.trim()) {
+      alert('请先输入技术方案描述');
+      return;
+    }
+    await Promise.all([refreshRankingExplain(query.trim()), runEncoderExplain(query.trim())]);
   }
 
   function formatVector(values, max = 8) {
@@ -222,12 +274,13 @@ export default function HomePage() {
 
         <div className="row">
           <button onClick={submitTask}>提交分析任务</button>
-          <button onClick={testEncoder}>Encoder</button>
+          <button onClick={refreshAllModelPanels}>刷新四模型面板</button>
           <button onClick={() => refreshEsMeta(query)}>刷新 ES 状态</button>
           <span className="tag">
             状态：{status}
             {progress !== null ? ` ${progress}%` : ''}
           </span>
+          <span className="tag">Ranking：{rankingStatus}</span>
           <span className="tag">Encoder：{encoderStatus}</span>
         </div>
 
@@ -278,6 +331,143 @@ export default function HomePage() {
                   <td>{r.title}</td>
                   <td>{r.risk_level}</td>
                   <td>{r.reason}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="card">
+        <h2>Recall</h2>
+        <div className="row">
+          <span className="tag">候选数：{rankingMeta?.candidateCount ?? '-'}</span>
+          <span className="tag">模式：{rankingMeta?.mode ?? '-'}</span>
+          <span className="tag">Reranker Loaded：{rankingMeta?.modelLoaded ? 'yes' : 'no'}</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>专利号</th>
+              <th>标题</th>
+              <th>Lexical</th>
+              <th>Semantic</th>
+              <th>Matched</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recallRows.length === 0 ? (
+              <tr>
+                <td colSpan={6}>暂无 Recall 结果</td>
+              </tr>
+            ) : (
+              recallRows.map((row) => (
+                <tr key={`recall-${row.patent_id}`}>
+                  <td>{row.rank}</td>
+                  <td>
+                    <a
+                      href={row.patent_url || `https://patents.google.com/patent/${row.patent_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {row.patent_id}
+                    </a>
+                  </td>
+                  <td>{row.title}</td>
+                  <td>{Number(row.lexical_score || 0).toFixed(4)}</td>
+                  <td>{Number(row.semantic_score || 0).toFixed(4)}</td>
+                  <td>{Array.isArray(row.matched) ? row.matched.join(', ') : '-'}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="card">
+        <h2>Reranker</h2>
+        <p>展示排序模型分数、深度重排分数与融合后最终分数。</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>专利号</th>
+              <th>标题</th>
+              <th>Model Score</th>
+              <th>Deep Score</th>
+              <th>Final Score</th>
+              <th>Features</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rerankerRows.length === 0 ? (
+              <tr>
+                <td colSpan={7}>暂无 Reranker 结果</td>
+              </tr>
+            ) : (
+              rerankerRows.map((row) => (
+                <tr key={`reranker-${row.patent_id}`}>
+                  <td>{row.rank}</td>
+                  <td>
+                    <a
+                      href={row.patent_url || `https://patents.google.com/patent/${row.patent_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {row.patent_id}
+                    </a>
+                  </td>
+                  <td>{row.title}</td>
+                  <td>{row.model_score === undefined ? '-' : Number(row.model_score).toFixed(4)}</td>
+                  <td>{row.deep_score === undefined ? '-' : Number(row.deep_score).toFixed(4)}</td>
+                  <td>{Number(row.final_score || 0).toFixed(4)}</td>
+                  <td>
+                    <code className="vectorText">{formatVector(row.features)}</code>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="card">
+        <h2>Judge</h2>
+        <p>展示风险等级判定与解释理由。</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>专利号</th>
+              <th>标题</th>
+              <th>Risk</th>
+              <th>Final Score</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {judgeRows.length === 0 ? (
+              <tr>
+                <td colSpan={6}>暂无 Judge 结果</td>
+              </tr>
+            ) : (
+              judgeRows.map((row) => (
+                <tr key={`judge-${row.patent_id}`}>
+                  <td>{row.rank}</td>
+                  <td>
+                    <a
+                      href={row.patent_url || `https://patents.google.com/patent/${row.patent_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {row.patent_id}
+                    </a>
+                  </td>
+                  <td>{row.title}</td>
+                  <td>{row.risk_level || '-'}</td>
+                  <td>{Number(row.final_score || 0).toFixed(4)}</td>
+                  <td>{row.reason || '-'}</td>
                 </tr>
               ))
             )}
