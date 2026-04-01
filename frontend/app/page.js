@@ -330,6 +330,52 @@ export default function HomePage() {
     return `${preview.join(', ')}${suffix}`;
   }
 
+  function countIdHits(values) {
+    const counts = new Map();
+    if (!Array.isArray(values)) {
+      return counts;
+    }
+    values.forEach((value) => {
+      const id = String(value || '').trim();
+      if (!id) {
+        return;
+      }
+      counts.set(id, (counts.get(id) || 0) + 1);
+    });
+    return counts;
+  }
+
+  function getDedupedLabel(id, esCounts, milvusCounts) {
+    const esCount = esCounts.get(id) || 0;
+    const milvusCount = milvusCounts.get(id) || 0;
+    if (esCount > 0 && milvusCount > 0) {
+      return '双方重复';
+    }
+    if (esCount > 1 || esCount > 0) {
+      return '来自 ES';
+    }
+    if (milvusCount > 1 || milvusCount > 0) {
+      return '来自 Milvus';
+    }
+    return '未知';
+  }
+
+  function renderIdItems(values, options = {}) {
+    const list = Array.isArray(values) ? values : [];
+    if (list.length === 0) {
+      return <li>-</li>;
+    }
+    const max = options.max ?? 12;
+    const esCounts = options.esCounts || new Map();
+    const milvusCounts = options.milvusCounts || new Map();
+    return list.slice(0, max).map((id) => (
+      <li key={`${options.prefix || 'id'}-${id}`}>
+        <code>{id}</code>
+        {options.showDedupedLabel ? ` (${getDedupedLabel(id, esCounts, milvusCounts)})` : ''}
+      </li>
+    ));
+  }
+
   function buildReportTextLines(report) {
     const lines = [];
     lines.push('FTO 专利防侵权分析报告');
@@ -676,10 +722,43 @@ export default function HomePage() {
           <span className="tag">来源顺序：{Array.isArray(rankingMeta?.recallDebug?.sources) ? rankingMeta.recallDebug.sources.join(' + ') : '-'}</span>
           <span className="tag">Fallback：{rankingMeta?.recallDebug?.fallback ?? '-'}</span>
         </div>
+        <div
+          className="debugPanel"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '16px' }}
+        >
+          {(() => {
+            const esCounts = countIdHits(rankingMeta?.recallDebug?.elasticsearch_ids);
+            const milvusCounts = countIdHits(rankingMeta?.recallDebug?.milvus_ids);
+            return (
+              <>
+                <div>
+                  <p><strong>ES top patent ids</strong></p>
+                  <ul>{renderIdItems(rankingMeta?.recallDebug?.elasticsearch_ids, { prefix: 'es' })}</ul>
+                </div>
+                <div>
+                  <p><strong>Milvus top patent ids</strong></p>
+                  <ul>{renderIdItems(rankingMeta?.recallDebug?.milvus_ids, { prefix: 'milvus' })}</ul>
+                </div>
+                <div>
+                  <p><strong>合并去重移除的 IDs</strong></p>
+                  <ul>
+                    {renderIdItems(rankingMeta?.recallDebug?.deduped_ids, {
+                      prefix: 'deduped',
+                      showDedupedLabel: true,
+                      esCounts,
+                      milvusCounts,
+                    })}
+                  </ul>
+                </div>
+              </>
+            );
+          })()}
+        </div>
         <div className="debugPanel">
-          <p><strong>ES top patent ids:</strong> <code className="vectorText">{formatIdList(rankingMeta?.recallDebug?.elasticsearch_ids)}</code></p>
-          <p><strong>Milvus top patent ids:</strong> <code className="vectorText">{formatIdList(rankingMeta?.recallDebug?.milvus_ids)}</code></p>
-          <p><strong>合并去重移除的 IDs:</strong> <code className="vectorText">{formatIdList(rankingMeta?.recallDebug?.deduped_ids)}</code></p>
+          <p>
+            <strong>最终 merged top ids:</strong>{' '}
+            <code className="vectorText">{formatIdList(rankingMeta?.recallDebug?.merged_ids)}</code>
+          </p>
         </div>
         <table>
           <thead>
