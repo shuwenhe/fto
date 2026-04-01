@@ -280,10 +280,10 @@ func clampMixAlpha(v float64) float64 {
 }
 
 func NewLocalPatentRepositoryWithStrategy(dataPath string, rankingMode string, dualRatio int) (*LocalPatentRepository, error) {
-	return NewLocalPatentRepositoryWithModel(dataPath, rankingMode, dualRatio, nil)
+	return NewLocalPatentRepositoryWithModel(dataPath, rankingMode, dualRatio, nil, nil)
 }
 
-func NewLocalPatentRepositoryWithModel(dataPath string, rankingMode string, dualRatio int, ranker *neurxRanker) (*LocalPatentRepository, error) {
+func NewLocalPatentRepositoryWithModel(dataPath string, rankingMode string, dualRatio int, ranker *neurxRanker, encoder *neurxEncoder) (*LocalPatentRepository, error) {
 	f, err := os.Open(dataPath)
 	if err != nil {
 		return nil, err
@@ -325,6 +325,7 @@ func NewLocalPatentRepositoryWithModel(dataPath string, rankingMode string, dual
 		rankingMode:  normalizeRankingMode(rankingMode),
 		dualRatio:    clampPercent(dualRatio),
 		ranker:       ranker,
+		encoder:      encoder,
 		deepEnabled:  false,
 		deepTopN:     8,
 		deepMixAlpha: 0.35,
