@@ -276,6 +276,155 @@ export default function HomePage() {
     return `[${preview.join(', ')}${suffix}]`;
   }
 
+  function buildReportTextLines(report) {
+    const lines = [];
+    lines.push('FTO 专利防侵权分析报告');
+    lines.push(`报告ID: ${report.report_id || '-'}`);
+    lines.push(`生成时间: ${report.generated_at || '-'}`);
+    lines.push(`原始查询: ${report.original_query || '-'}`);
+    lines.push(`改写查询: ${report.rewritten_query || '-'}`);
+    lines.push(`候选数: ${report.candidate_count ?? '-'}`);
+    lines.push('');
+    lines.push('执行摘要');
+    lines.push(report.executive_summary || '-');
+    lines.push('');
+    lines.push('核心发现');
+    (report.core_findings || []).forEach((item, idx) => lines.push(`${idx + 1}. ${item}`));
+    lines.push('');
+    lines.push('行动建议');
+    (report.recommendations || []).forEach((item, idx) => lines.push(`${idx + 1}. ${item}`));
+    lines.push('');
+    lines.push('证据清单');
+    (report.evidence || []).forEach((item) => {
+      lines.push(
+        `#${item.rank} ${item.patent_id} | ${item.title} | risk=${item.risk_level || '-'} | final=${Number(
+          item.final_score || 0
+        ).toFixed(4)}`
+      );
+      lines.push(`source: ${item.source_url || item.patent_url || '-'}`);
+      lines.push(`reason: ${item.reason || '-'}`);
+      lines.push('');
+    });
+    return lines;
+  }
+
+  async function withPdfDoc(report) {
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+
+    const lines = buildReportTextLines(report);
+    const marginX = 40;
+    const marginY = 50;
+    const lineHeight = 16;
+    const pageWidth = doc.internal.pageSize.getWidth() - marginX * 2;
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let y = marginY;
+
+    for (const line of lines) {
+      const wrapped = doc.splitTextToSize(line, pageWidth);
+      for (const seg of wrapped) {
+        if (y > pageHeight - marginY) {
+          doc.addPage();
+          y = marginY;
+        }
+        doc.text(seg, marginX, y);
+        y += lineHeight;
+      }
+    }
+    return doc;
+  }
+
+  async function downloadReportPdf() {
+    if (!reportData) return;
+    const doc = await withPdfDoc(reportData);
+    const ts = (reportData.generated_at || '').replace(/[:TZ-]/g, '').slice(0, 14) || Date.now();
+    doc.save(`fto_report_${ts}.pdf`);
+  }
+
+  async function viewReportPdf() {
+    if (!reportData) return;
+    const doc = await withPdfDoc(reportData);
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  async function printReportPdf() {
+    if (!reportData) return;
+    const doc = await withPdfDoc(reportData);
+    const blob = doc.output('blob');
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank');
+    if (win) {
+      setTimeout(() => {
+        win.focus();
+        win.print();
+      }, 800);
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  async function buildDocxBlob(report) {
+    const { Document, Packer, Paragraph, HeadingLevel } = await import('docx');
+    const children = [];
+    children.push(new Paragraph({ text: 'FTO 专利防侵权分析报告', heading: HeadingLevel.HEADING_1 }));
+    children.push(new Paragraph(`报告ID: ${report.report_id || '-'}`));
+    children.push(new Paragraph(`生成时间: ${report.generated_at || '-'}`));
+    children.push(new Paragraph(`原始查询: ${report.original_query || '-'}`));
+    children.push(new Paragraph(`改写查询: ${report.rewritten_query || '-'}`));
+    children.push(new Paragraph(`候选数: ${report.candidate_count ?? '-'}`));
+    children.push(new Paragraph(''));
+    children.push(new Paragraph({ text: '执行摘要', heading: HeadingLevel.HEADING_2 }));
+    children.push(new Paragraph(report.executive_summary || '-'));
+    children.push(new Paragraph({ text: '核心发现', heading: HeadingLevel.HEADING_2 }));
+    (report.core_findings || []).forEach((item, idx) => children.push(new Paragraph(`${idx + 1}. ${item}`)));
+    children.push(new Paragraph({ text: '行动建议', heading: HeadingLevel.HEADING_2 }));
+    (report.recommendations || []).forEach((item, idx) =>
+      children.push(new Paragraph(`${idx + 1}. ${item}`))
+    );
+    children.push(new Paragraph({ text: '证据清单（可追溯）', heading: HeadingLevel.HEADING_2 }));
+    (report.evidence || []).forEach((item) => {
+      children.push(
+        new Paragraph(
+          `#${item.rank} ${item.patent_id} | ${item.title} | risk=${item.risk_level || '-'} | final=${Number(
+            item.final_score || 0
+          ).toFixed(4)}`
+        )
+      );
+      children.push(new Paragraph(`source: ${item.source_url || item.patent_url || '-'}`));
+      children.push(new Paragraph(`reason: ${item.reason || '-'}`));
+      children.push(new Paragraph(''));
+    });
+
+    const doc = new Document({ sections: [{ children }] });
+    return Packer.toBlob(doc);
+  }
+
+  async function downloadReportDocx() {
+    if (!reportData) return;
+    const blob = await buildDocxBlob(reportData);
+    const ts = (reportData.generated_at || '').replace(/[:TZ-]/g, '').slice(0, 14) || Date.now();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `fto_report_${ts}.docx`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  async function viewDocxFile() {
+    if (!reportData) return;
+    const blob = await buildDocxBlob(reportData);
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank', 'noopener,noreferrer');
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
   return (
     <main className="page">
       <nav className="topNav">
@@ -339,6 +488,13 @@ export default function HomePage() {
         <h2>FTO 专利防侵权分析报告</h2>
         {reportData ? (
           <>
+            <div className="row">
+              <button onClick={viewReportPdf}>查看 PDF</button>
+              <button onClick={printReportPdf}>打印 PDF</button>
+              <button onClick={downloadReportPdf}>下载 PDF</button>
+              <button onClick={viewDocxFile}>查看 DOCX</button>
+              <button onClick={downloadReportDocx}>下载 DOCX</button>
+            </div>
             <div className="row">
               <span className="tag">报告ID：{reportData.report_id || '-'}</span>
               <span className="tag">生成时间：{reportData.generated_at || '-'}</span>
