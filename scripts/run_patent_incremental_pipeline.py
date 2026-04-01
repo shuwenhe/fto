@@ -110,7 +110,7 @@ def main() -> None:
     state_path = Path(args.state_file)
     batch_dir = Path(args.batch_dir)
     delta_root = Path(args.delta_parquet_root)
-    batch_ts = dt.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+    batch_ts = dt.datetime.now(dt.UTC).strftime("%Y%m%dT%H%M%SZ")
 
     rows_by_id = build_patent_map(load_jsonl(base_jsonl))
     inserted, updated, legal_status_updates = apply_updates(
