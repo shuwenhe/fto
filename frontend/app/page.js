@@ -222,7 +222,7 @@ export default function HomePage() {
 
         <div className="row">
           <button onClick={submitTask}>提交分析任务</button>
-          <button onClick={testEncoder}>测试 Encoder</button>
+          <button onClick={testEncoder}>Encoder</button>
           <button onClick={() => refreshEsMeta(query)}>刷新 ES 状态</button>
           <span className="tag">
             状态：{status}
