@@ -41,7 +41,7 @@ help:
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
 	@echo "  make git-auto-status # Show git auto daemon status"
 	@echo "  make git-auto-log    # Tail git auto daemon log"
-	@echo "  make logs [SERVICE=all|backend|frontend|watch] # Tail systemd service logs"
+	@echo "  make logs [SERVICE=all|backend|frontend|watch|git] # Tail systemd service logs"
 	@echo "  make service-install # Install and enable systemd services"
 	@echo "  make service-start   # Start systemd services"
 	@echo "  make service-stop    # Stop systemd services"
@@ -87,10 +87,12 @@ logs:
 		journalctl -u fto-frontend -n 100 -f --no-pager; \
 	elif [ "$(SERVICE)" = "watch" ]; then \
 		journalctl -u fto-frontend-watch -n 100 -f --no-pager; \
+	elif [ "$(SERVICE)" = "git" ]; then \
+		journalctl -u fto-auto-commit -n 100 -f --no-pager; \
 	elif [ -z "$(SERVICE)" ] || [ "$(SERVICE)" = "all" ]; then \
-		journalctl -u fto-backend -u fto-frontend -u fto-frontend-watch -n 100 -f --no-pager; \
+		journalctl -u fto-backend -u fto-frontend -u fto-frontend-watch -u fto-auto-commit -n 100 -f --no-pager; \
 	else \
-		echo "Usage: make logs [SERVICE=all|backend|frontend|watch]"; \
+		echo "Usage: make logs [SERVICE=all|backend|frontend|watch|git]"; \
 		exit 1; \
 	fi
 
@@ -205,12 +207,20 @@ service-start:
 	else \
 		echo "[warn] fto-frontend-watch not installed, run 'make service-install' to enable auto build/reload"; \
 	fi; \
+	if systemctl cat fto-auto-commit >/dev/null 2>&1; then \
+		units="$$units fto-auto-commit"; \
+	else \
+		echo "[warn] fto-auto-commit not installed, run 'make service-install' to enable auto commit/push"; \
+	fi; \
 	systemctl start $$units
 
 service-stop:
 	@units="fto-backend fto-frontend"; \
 	if systemctl cat fto-frontend-watch >/dev/null 2>&1; then \
 		units="fto-frontend-watch $$units"; \
+	fi; \
+	if systemctl cat fto-auto-commit >/dev/null 2>&1; then \
+		units="fto-auto-commit $$units"; \
 	fi; \
 	systemctl stop $$units
 
@@ -221,12 +231,20 @@ service-restart:
 	else \
 		echo "[warn] fto-frontend-watch not installed, run 'make service-install' to enable auto build/reload"; \
 	fi; \
+	if systemctl cat fto-auto-commit >/dev/null 2>&1; then \
+		units="$$units fto-auto-commit"; \
+	else \
+		echo "[warn] fto-auto-commit not installed, run 'make service-install' to enable auto commit/push"; \
+	fi; \
 	systemctl restart $$units
 
 service-status:
 	@units="fto-backend fto-frontend"; \
 	if systemctl cat fto-frontend-watch >/dev/null 2>&1; then \
 		units="$$units fto-frontend-watch"; \
+	fi; \
+	if systemctl cat fto-auto-commit >/dev/null 2>&1; then \
+		units="$$units fto-auto-commit"; \
 	fi; \
 	systemctl --no-pager --full status $$units
 

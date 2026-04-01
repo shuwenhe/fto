@@ -1,0 +1,17 @@
+[Unit]
+Description=FTO Auto Commit And Push Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/app/fto
+EnvironmentFile=-/etc/default/fto-auto-commit
+ExecStart=/usr/bin/bash /app/fto/scripts/auto_commit_on_change.sh
+Restart=always
+RestartSec=5
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
