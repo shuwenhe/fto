@@ -55,7 +55,6 @@ harmful_terms="$(awk '{print $3}' <<<"${summary}")"
 echo "[info] full_ndcg=${full_ndcg} pruned_ndcg=${pruned_ndcg} harmful_terms=${harmful_terms}"
 
 if [[ "${REWRITE_AUTO_APPLY}" == "1" ]]; then
-  should_apply="$(${ROOT_DIR}/.venv/bin/python - <<PY
   should_apply="$(python3 - <<PY
 full=float('${full_ndcg}')
 pruned=float('${pruned_ndcg}')
