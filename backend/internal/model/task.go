@@ -9,6 +9,45 @@ type RankingExplainRequest struct {
 	Limit int    `json:"limit"`
 }
 
+type FTOReportRequest struct {
+	Query          string `json:"query" binding:"required"`
+	Limit          int    `json:"limit"`
+	TopN           int    `json:"top_n"`
+	IncludeEncoder bool   `json:"include_encoder"`
+}
+
+type FTOReportEvidenceItem struct {
+	Rank         int      `json:"rank"`
+	PatentID     string   `json:"patent_id"`
+	PatentURL    string   `json:"patent_url"`
+	Title        string   `json:"title"`
+	RiskLevel    string   `json:"risk_level"`
+	FinalScore   float64  `json:"final_score"`
+	ModelScore   *float64 `json:"model_score,omitempty"`
+	DeepScore    *float64 `json:"deep_score,omitempty"`
+	EncoderScore *float64 `json:"encoder_score,omitempty"`
+	Matched      []string `json:"matched"`
+	Reason       string   `json:"reason"`
+	SourceType   string   `json:"source_type"`
+	SourceID     string   `json:"source_id"`
+	SourceURL    string   `json:"source_url"`
+}
+
+type FTOReportResponse struct {
+	ReportID          string                  `json:"report_id"`
+	GeneratedAt       string                  `json:"generated_at"`
+	Query             string                  `json:"query"`
+	OriginalQuery     string                  `json:"original_query,omitempty"`
+	RewrittenQuery    string                  `json:"rewritten_query,omitempty"`
+	RewriteApplied    bool                    `json:"rewrite_applied,omitempty"`
+	CandidateCount    int                     `json:"candidate_count"`
+	RiskDistribution  map[string]int          `json:"risk_distribution"`
+	ExecutiveSummary  string                  `json:"executive_summary"`
+	CoreFindings      []string                `json:"core_findings"`
+	Recommendations   []string                `json:"recommendations"`
+	Evidence          []FTOReportEvidenceItem `json:"evidence"`
+}
+
 type TaskResultItem struct {
 	PatentID  string `json:"patent_id"`
 	PatentURL string `json:"patent_url"`
