@@ -162,6 +162,55 @@ def summarize_embeddings(embeddings):
 def export_artifact(extractor, head, means, stds, metrics, embedding_summary, out_path: Path):
     extractor_state = extractor.state_dict()
     head_state = head.state_dict()
+    feature_dim = len(FEATURE_NAMES)
+
+    raw_extractor_weights = extractor_state["weight"].tolist()
+    extractor_bias = [float(value) for value in extractor_state["bias"].tolist()]
+    embedding_dim = len(extractor_bias)
+
+    # neurx Linear may persist weights as [in_dim, out_dim]; backend expects [out_dim, in_dim].
+    if (
+        len(raw_extractor_weights) == feature_dim
+        and raw_extractor_weights
+        and len(raw_extractor_weights[0]) == embedding_dim
+    ):
+        extractor_weights = [
+            [float(raw_extractor_weights[in_idx][out_idx]) for in_idx in range(feature_dim)]
+            for out_idx in range(embedding_dim)
+        ]
+    elif (
+        len(raw_extractor_weights) == embedding_dim
+        and raw_extractor_weights
+        and len(raw_extractor_weights[0]) == feature_dim
+    ):
+        extractor_weights = [[float(value) for value in row] for row in raw_extractor_weights]
+    else:
+        raise ValueError(
+            f"unexpected extractor weight shape: {len(raw_extractor_weights)}x{len(raw_extractor_weights[0]) if raw_extractor_weights else 0}, "
+            f"feature_dim={feature_dim}, embedding_dim={embedding_dim}"
+        )
+
+    raw_head_weights = head_state["weight"].tolist()
+    if (
+        len(raw_head_weights) == 1
+        and raw_head_weights
+        and len(raw_head_weights[0]) == embedding_dim
+    ):
+        head_weights = [float(value) for value in raw_head_weights[0]]
+    elif (
+        len(raw_head_weights) == embedding_dim
+        and raw_head_weights
+        and len(raw_head_weights[0]) == 1
+    ):
+        head_weights = [float(row[0]) for row in raw_head_weights]
+    else:
+        flat_head = [float(value) for row in raw_head_weights for value in row]
+        if len(flat_head) != embedding_dim:
+            raise ValueError(
+                f"unexpected head weight shape: {len(raw_head_weights)}x{len(raw_head_weights[0]) if raw_head_weights else 0}, "
+                f"embedding_dim={embedding_dim}"
+            )
+        head_weights = flat_head
 
     artifact = {
         "model_type": "neurx_feature_encoder",
@@ -170,14 +219,14 @@ def export_artifact(extractor, head, means, stds, metrics, embedding_summary, ou
         "feature_names": FEATURE_NAMES,
         "feature_means": [float(value) for value in means],
         "feature_stds": [float(value) for value in stds],
-        "embedding_dim": len(extractor_state["weight"].tolist()),
+        "embedding_dim": embedding_dim,
         "extractor": {
-            "weights": [[float(value) for value in row] for row in extractor_state["weight"].tolist()],
-            "bias": [float(value) for value in extractor_state["bias"].tolist()],
+            "weights": extractor_weights,
+            "bias": extractor_bias,
             "activation": "sigmoid",
         },
         "head": {
-            "weights": [float(value) for value in head_state["weight"].tolist()[0]],
+            "weights": head_weights,
             "bias": float(head_state["bias"].tolist()[0]),
             "activation": "sigmoid",
         },
