@@ -10,6 +10,12 @@ Training entry:
 /app/fto/encoder/train_fto_encoder_neurx.py
 ```
 
+Ascend 310P3 pipeline entry:
+
+```text
+/app/fto/encoder/run_fto_encoder_pipeline.sh
+```
+
 Train on Ascend 310P3:
 
 ```bash

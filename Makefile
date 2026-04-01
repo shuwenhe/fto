@@ -177,7 +177,7 @@ train-eval-fto-judge:
 	bash scripts/run_fto_judge_pipeline.sh
 
 train-eval-fto-encoder:
-	bash scripts/run_fto_encoder_pipeline.sh
+	bash encoder/run_fto_encoder_pipeline.sh
 
 eval-retrieval-model:
 	node scripts/eval_retrieval.mjs --k 5 --model model_artifacts/fto_recall_dual_v1.json --verbose
