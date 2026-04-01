@@ -11,7 +11,7 @@ import neurx
 import neurx.nn as nn
 import neurx.optim as optim
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_PATENTS = ROOT / "data_sources" / "patents.jsonl"
 DEFAULT_QUERIES = ROOT / "data_sources" / "queries.jsonl"
 DEFAULT_QRELS = ROOT / "data_sources" / "qrels.jsonl"
