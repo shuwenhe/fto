@@ -31,6 +31,8 @@ export default function HomePage() {
   const [recallRows, setRecallRows] = useState([]);
   const [rerankerRows, setRerankerRows] = useState([]);
   const [judgeRows, setJudgeRows] = useState([]);
+  const [reportStatus, setReportStatus] = useState('idle');
+  const [reportData, setReportData] = useState(null);
   const buildIdRef = useRef('');
 
   useEffect(() => {
@@ -240,6 +242,31 @@ export default function HomePage() {
     await Promise.all([refreshRankingExplain(query.trim()), runEncoderExplain(query.trim())]);
   }
 
+  async function generateFTOReport() {
+    if (!query.trim()) {
+      alert('请先输入技术方案描述');
+      return;
+    }
+    setReportStatus('loading');
+    setReportData(null);
+    try {
+      const res = await fetch('/fto/api/ops/fto-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: query.trim(), limit: 8, top_n: 5, include_encoder: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setReportStatus(data.error || 'failed');
+        return;
+      }
+      setReportData(data);
+      setReportStatus('succeeded');
+    } catch {
+      setReportStatus('failed');
+    }
+  }
+
   function formatVector(values, max = 8) {
     if (!Array.isArray(values) || values.length === 0) {
       return '[]';
@@ -281,6 +308,7 @@ export default function HomePage() {
         <div className="row">
           <button onClick={submitTask}>提交分析任务</button>
           <button onClick={refreshAllModelPanels}>刷新四模型面板</button>
+          <button onClick={generateFTOReport}>生成 FTO 专利防侵权分析报告</button>
           <button onClick={() => refreshEsMeta(query)}>刷新 ES 状态</button>
           <span className="tag">
             状态：{status}
@@ -288,6 +316,7 @@ export default function HomePage() {
           </span>
           <span className="tag">Ranking：{rankingStatus}</span>
           <span className="tag">Encoder：{encoderStatus}</span>
+          <span className="tag">Report：{reportStatus}</span>
         </div>
 
         <div className="row">
@@ -304,6 +333,81 @@ export default function HomePage() {
           <strong>Task ID:</strong>
           <span>{taskId}</span>
         </div>
+      </section>
+
+      <section className="card">
+        <h2>FTO 专利防侵权分析报告</h2>
+        {reportData ? (
+          <>
+            <div className="row">
+              <span className="tag">报告ID：{reportData.report_id || '-'}</span>
+              <span className="tag">生成时间：{reportData.generated_at || '-'}</span>
+              <span className="tag">候选数：{reportData.candidate_count ?? '-'}</span>
+              <span className="tag">原始查询：{reportData.original_query || '-'}</span>
+              <span className="tag">改写查询：{reportData.rewritten_query || '-'}</span>
+            </div>
+
+            <p>{reportData.executive_summary || '-'}</p>
+
+            <h3>核心发现</h3>
+            <ol>
+              {(reportData.core_findings || []).map((item, idx) => (
+                <li key={`finding-${idx}`}>{item}</li>
+              ))}
+            </ol>
+
+            <h3>行动建议</h3>
+            <ol>
+              {(reportData.recommendations || []).map((item, idx) => (
+                <li key={`recommendation-${idx}`}>{item}</li>
+              ))}
+            </ol>
+
+            <h3>证据清单（可追溯）</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>专利号</th>
+                  <th>标题</th>
+                  <th>Risk</th>
+                  <th>Final</th>
+                  <th>Model</th>
+                  <th>Deep</th>
+                  <th>Encoder</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(reportData.evidence || []).length === 0 ? (
+                  <tr>
+                    <td colSpan={9}>暂无证据</td>
+                  </tr>
+                ) : (
+                  (reportData.evidence || []).map((item) => (
+                    <tr key={`report-${item.patent_id}`}>
+                      <td>{item.rank}</td>
+                      <td>
+                        <a href={item.source_url || item.patent_url} target="_blank" rel="noopener noreferrer">
+                          {item.patent_id}
+                        </a>
+                      </td>
+                      <td>{item.title}</td>
+                      <td>{item.risk_level || '-'}</td>
+                      <td>{Number(item.final_score || 0).toFixed(4)}</td>
+                      <td>{item.model_score === undefined ? '-' : Number(item.model_score).toFixed(4)}</td>
+                      <td>{item.deep_score === undefined ? '-' : Number(item.deep_score).toFixed(4)}</td>
+                      <td>{item.encoder_score === undefined ? '-' : Number(item.encoder_score).toFixed(4)}</td>
+                      <td>{item.reason || '-'}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </>
+        ) : (
+          <p>点击“生成 FTO 专利防侵权分析报告”后展示结构化报告与可追溯证据。</p>
+        )}
       </section>
 
       <section className="card">
