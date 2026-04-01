@@ -93,12 +93,12 @@ PY
 
 if [[ ! -f "${RECALL_ARTIFACT}" ]]; then
   echo "[info] recall artifact missing, bootstrapping recall training"
-  "${PYTHON_BIN}" "${ROOT_DIR}/scripts/train_fto_recall_model.py" --out "${RECALL_ARTIFACT}"
+  "${PYTHON_BIN}" "${ROOT_DIR}/recall/train_fto_recall_model.py" --out "${RECALL_ARTIFACT}"
 fi
 
 if [[ ! -f "${RERANKER_ARTIFACT}" ]]; then
   echo "[info] reranker artifact missing, bootstrapping reranker training"
-  "${PYTHON_BIN}" "${ROOT_DIR}/scripts/train_fto_model_neurx.py" \
+  "${PYTHON_BIN}" "${ROOT_DIR}/reranker/train_fto_model_neurx.py" \
     --recall-model "${RECALL_ARTIFACT}" \
     --out "${RERANKER_ARTIFACT}"
 fi
@@ -110,14 +110,14 @@ if [[ "${TENSOR_DEVICE}" == "npu" && "${WORLD_SIZE}" -gt 1 ]]; then
     --nproc_per_node "${WORLD_SIZE}" \
     --master_addr "${MASTER_ADDR}" \
     --master_port "${MASTER_PORT}" \
-    "${ROOT_DIR}/scripts/train_fto_judge_model_neurx.py" \
+    "${ROOT_DIR}/judge/train_fto_judge_model_neurx.py" \
     --distributed \
     --backend "${TENSOR_DIST_BACKEND}" \
     --recall-model "${RECALL_ARTIFACT}" \
     --reranker-model "${RERANKER_ARTIFACT}" \
     --out "${JUDGE_ARTIFACT}"
 else
-  "${PYTHON_BIN}" "${ROOT_DIR}/scripts/train_fto_judge_model_neurx.py" \
+  "${PYTHON_BIN}" "${ROOT_DIR}/judge/train_fto_judge_model_neurx.py" \
     --recall-model "${RECALL_ARTIFACT}" \
     --reranker-model "${RERANKER_ARTIFACT}" \
     --out "${JUDGE_ARTIFACT}"

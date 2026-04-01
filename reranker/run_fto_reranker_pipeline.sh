@@ -75,11 +75,11 @@ PY
 
 if [[ ! -f "${RECALL_ARTIFACT}" ]]; then
   echo "[info] recall artifact missing, bootstrapping recall training"
-  "${PYTHON_BIN}" "${ROOT_DIR}/scripts/train_fto_recall_model.py" --out "${RECALL_ARTIFACT}"
+  "${PYTHON_BIN}" "${ROOT_DIR}/recall/train_fto_recall_model.py" --out "${RECALL_ARTIFACT}"
 fi
 
 echo "[info] training reranker model with neurx"
-"${PYTHON_BIN}" "${ROOT_DIR}/scripts/train_fto_model_neurx.py" \
+"${PYTHON_BIN}" "${ROOT_DIR}/reranker/train_fto_model_neurx.py" \
   --recall-model "${RECALL_ARTIFACT}" \
   --out "${RERANKER_ARTIFACT}"
 
