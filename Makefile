@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data eval-retrieval eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -41,6 +41,7 @@ help:
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
 	@echo "  make git-auto-status # Show git auto daemon status"
 	@echo "  make git-auto-log    # Tail git auto daemon log"
+	@echo "  make git-auto-service-install # Install systemd service for auto commit/push"
 	@echo "  make logs [SERVICE=all|backend|frontend|watch|git] # Tail systemd service logs"
 	@echo "  make service-install # Install and enable systemd services"
 	@echo "  make service-start   # Start systemd services"
@@ -79,6 +80,9 @@ git-auto-status:
 
 git-auto-log:
 	tail -n 100 -f .git/.auto-commit.log
+
+git-auto-service-install:
+	bash scripts/install_auto_commit_service.sh
 
 logs:
 	@if [ "$(SERVICE)" = "backend" ]; then \
