@@ -4,6 +4,10 @@
 
 - `frontend/` Next.js 前端（通过 `/fto` 访问）
 - `backend/` Gin 后端（通过 `/fto/api` 访问）
+- `recall/` 召回模型训练与 Ascend 流水线
+- `reranker/` 重排模型训练与 Ascend 流水线
+- `encoder/` 特征提取模型训练与 Ascend 流水线
+- `judge/` 风险判断模型训练与 Ascend 流水线
 - `scripts/` 自动提交/推送脚本
 
 ## 最小联调启动
