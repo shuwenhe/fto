@@ -98,6 +98,29 @@ func RegisterRoutes(r *gin.Engine, taskService service.TaskService, metrics *obs
 		c.JSON(http.StatusOK, resp)
 	})
 
+	r.POST("/ops/encoder-explain", func(c *gin.Context) {
+		provider, ok := rankingCtrl.(repository.EncoderExplainProvider)
+		if !ok || provider == nil {
+			c.JSON(http.StatusNotImplemented, gin.H{"error": "encoder explain not available"})
+			return
+		}
+		var req model.RankingExplainRequest
+		if err := c.ShouldBindJSON(&req); err != nil || strings.TrimSpace(req.Query) == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid query"})
+			return
+		}
+		if req.Limit <= 0 {
+			req.Limit = 5
+		}
+		resp, err := provider.ExplainEncoder(c.Request.Context(), req.Query, req.Limit)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		observability.LogTaskEvent(c, "encoder_explain_queried", map[string]interface{}{"query": req.Query, "limit": req.Limit, "results": len(resp.Results), "model_loaded": resp.ModelLoaded})
+		c.JSON(http.StatusOK, resp)
+	})
+
 	r.POST("/tasks", func(c *gin.Context) {
 		if metrics != nil {
 			metrics.IncTaskCreate()
