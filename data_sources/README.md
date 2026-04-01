@@ -4,9 +4,12 @@ This directory stores patent source datasets for FTO retrieval.
 
 - `patents.jsonl`: newline-delimited JSON records used by backend local retrieval.
 - `patents.json`: JSON array mirror of the same dataset.
+- `../data_lake/patent_core/`: partitioned Parquet dataset for large-scale indexing and analytics.
 - `queries.jsonl`: evaluation queries (`query_id`, `query`, `desc`).
 - `qrels.jsonl`: relevance labels (`query_id`, `patent_id`, `relevance`).
 - Import helper: `node /app/fto/scripts/save_google_patent.mjs <PATENT_ID>`
+
+For large datasets, keep `patents.jsonl` only as import/exchange format. Generate Parquet as the durable source for Elasticsearch and Milvus indexing.
 
 ## Keep JSON and JSONL In Sync
 
@@ -16,6 +19,56 @@ make sync-patent-data
 ```
 
 The sync script auto-detects newer file as source (`patents.jsonl` or `patents.json`) and rewrites both files with de-duplicated records.
+
+## Export To Parquet
+
+```bash
+cd /app/fto
+make export-patents-parquet
+```
+
+Default output:
+
+- `/app/fto/data_lake/patent_core/`
+
+Default partitions:
+
+- `country`
+- `pub_year`
+
+Dependency:
+
+- `pip install pyarrow`
+
+## Build Elasticsearch Index From Parquet
+
+```bash
+cd /app/fto
+make index-patents-es-from-parquet
+```
+
+Dependency:
+
+- `pip install pyarrow`
+
+## Build Milvus Embeddings From Parquet
+
+```bash
+cd /app/fto
+make index-patent-embeddings-milvus
+```
+
+Default mode uses `hash` embeddings for smoke tests. For production embeddings, pass a sentence-transformers model id to the script directly, for example:
+
+```bash
+python3 scripts/index_patent_embeddings_milvus.py \
+  --embedder sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+```
+
+Dependencies:
+
+- `pip install pyarrow pymilvus`
+- `pip install sentence-transformers` for model-based embeddings
 
 ## Retrieval Evaluation
 

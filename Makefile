@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data index-patents-es eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -20,7 +20,10 @@ help:
 	@echo "  make ops-gate         # Run ci-gate + trend-report (dual gate)"
 	@echo "  make data-source-check # Check patent data source JSONL file"
 	@echo "  make sync-patent-data # Sync patents.json and patents.jsonl"
+	@echo "  make export-patents-parquet # Convert patents.jsonl into partitioned Parquet dataset"
 	@echo "  make index-patents-es # Create/update Elasticsearch patent index"
+	@echo "  make index-patents-es-from-parquet # Build Elasticsearch index from Parquet dataset"
+	@echo "  make index-patent-embeddings-milvus # Generate embeddings from Parquet and upsert to Milvus"
 	@echo "  make eval-retrieval   # Run offline retrieval metrics on queries/qrels"
 	@echo "  make eval-query-rewrite-ab # Compare base vs rewrite query retrieval metrics"
 	@echo "  make analyze-query-rewrite-rules # Analyze per-term contribution and output pruned rules"
@@ -153,8 +156,17 @@ data-source-check:
 sync-patent-data:
 	node scripts/sync_patent_data.mjs
 
+export-patents-parquet:
+	python3 scripts/export_patents_parquet.py --overwrite
+
 index-patents-es:
 	node scripts/index_patents_elasticsearch.mjs
+
+index-patents-es-from-parquet:
+	python3 scripts/index_patents_es_from_parquet.py --recreate
+
+index-patent-embeddings-milvus:
+	python3 scripts/index_patent_embeddings_milvus.py
 
 eval-retrieval:
 	node scripts/eval_retrieval.mjs --k 5 --verbose
