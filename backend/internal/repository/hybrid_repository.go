@@ -50,26 +50,46 @@ func (r *HybridPatentRepository) GetRankingModelStatus() model.RankingModelStatu
 }
 
 func (r *HybridPatentRepository) ExplainQuery(ctx context.Context, query string, limit int) (*model.RankingExplainResponse, error) {
-	patentIDs, err := r.fetchCandidatePatentIDs(ctx, query, limit)
+	patentIDs, debug, err := r.fetchCandidatePatentIDsWithDebug(ctx, query, limit)
 	if err != nil || len(patentIDs) == 0 {
-		return r.local.ExplainQuery(ctx, query, limit)
+		resp, localErr := r.local.ExplainQuery(ctx, query, limit)
+		if resp != nil && debug != nil {
+			debug.MergedCount = resp.CandidateCount
+			debug.Fallback = "local_only"
+			resp.RecallDebug = debug
+		}
+		return resp, localErr
 	}
-	return r.local.ExplainQueryForPatentIDs(query, limit, patentIDs)
+	resp, explainErr := r.local.ExplainQueryForPatentIDs(query, limit, patentIDs)
+	if resp != nil {
+		resp.RecallDebug = debug
+	}
+	return resp, explainErr
 }
 
 func (r *HybridPatentRepository) ExplainEncoder(ctx context.Context, query string, limit int) (*model.EncoderExplainResponse, error) {
-	patentIDs, err := r.fetchCandidatePatentIDs(ctx, query, limit)
+	patentIDs, debug, err := r.fetchCandidatePatentIDsWithDebug(ctx, query, limit)
 	if err != nil || len(patentIDs) == 0 {
-		return r.local.ExplainEncoder(ctx, query, limit)
+		resp, localErr := r.local.ExplainEncoder(ctx, query, limit)
+		if resp != nil && debug != nil {
+			debug.MergedCount = resp.CandidateCount
+			debug.Fallback = "local_only"
+			resp.RecallDebug = debug
+		}
+		return resp, localErr
 	}
-	return r.local.ExplainEncoderForPatentIDs(query, limit, patentIDs)
+	resp, explainErr := r.local.ExplainEncoderForPatentIDs(query, limit, patentIDs)
+	if resp != nil {
+		resp.RecallDebug = debug
+	}
+	return resp, explainErr
 }
 
 func (r *HybridPatentRepository) Search(ctx context.Context, query string, limit int) ([]model.TaskResultItem, error) {
 	if !r.local.useDualForQuery(query) {
 		return r.local.Search(ctx, query, limit)
 	}
-	patentIDs, err := r.fetchCandidatePatentIDs(ctx, query, limit)
+	patentIDs, _, err := r.fetchCandidatePatentIDsWithDebug(ctx, query, limit)
 	if err != nil || len(patentIDs) == 0 {
 		return r.local.Search(ctx, query, limit)
 	}
@@ -77,23 +97,36 @@ func (r *HybridPatentRepository) Search(ctx context.Context, query string, limit
 }
 
 func (r *HybridPatentRepository) fetchCandidatePatentIDs(ctx context.Context, query string, limit int) ([]string, error) {
+	ids, _, err := r.fetchCandidatePatentIDsWithDebug(ctx, query, limit)
+	return ids, err
+}
+
+func (r *HybridPatentRepository) fetchCandidatePatentIDsWithDebug(ctx context.Context, query string, limit int) ([]string, *model.RecallDebugInfo, error) {
 	if strings.TrimSpace(query) == "" {
-		return nil, nil
+		return nil, nil, nil
 	}
 	var fetchers []patentCandidateFetcher
+	debug := &model.RecallDebugInfo{
+		HybridActive: r.es != nil && r.milvus != nil,
+		Sources:      []string{},
+	}
 	if r.preferElasticsearch {
 		if r.es != nil {
 			fetchers = append(fetchers, r.es)
+			debug.Sources = append(debug.Sources, "elasticsearch")
 		}
 		if r.milvus != nil {
 			fetchers = append(fetchers, r.milvus)
+			debug.Sources = append(debug.Sources, "milvus")
 		}
 	} else {
 		if r.milvus != nil {
 			fetchers = append(fetchers, r.milvus)
+			debug.Sources = append(debug.Sources, "milvus")
 		}
 		if r.es != nil {
 			fetchers = append(fetchers, r.es)
+			debug.Sources = append(debug.Sources, "elasticsearch")
 		}
 	}
 
@@ -108,14 +141,22 @@ func (r *HybridPatentRepository) fetchCandidatePatentIDs(ctx context.Context, qu
 			log.Printf("[hybrid] candidate_fetch_failed query=%q err=%v", query, err)
 			continue
 		}
+		switch fetcher.(type) {
+		case *ElasticsearchPatentRepository:
+			debug.ElasticsearchCount = len(ids)
+		case *MilvusPatentRepository:
+			debug.MilvusCount = len(ids)
+		}
 		if len(ids) > 0 {
 			resultSets = append(resultSets, ids)
 		}
 	}
 	if len(resultSets) == 0 {
-		return nil, firstErr
+		return nil, debug, firstErr
 	}
-	return interleaveUniquePatentIDs(resultSets...), nil
+	merged := interleaveUniquePatentIDs(resultSets...)
+	debug.MergedCount = len(merged)
+	return merged, debug, nil
 }
 
 func interleaveUniquePatentIDs(groups ...[]string) []string {

@@ -56,17 +56,55 @@ func (r *ElasticsearchPatentRepository) GetRankingModelStatus() model.RankingMod
 func (r *ElasticsearchPatentRepository) ExplainQuery(ctx context.Context, query string, limit int) (*model.RankingExplainResponse, error) {
 	patentIDs, err := r.fetchCandidatePatentIDs(ctx, query, limit)
 	if err != nil || len(patentIDs) == 0 {
-		return r.local.ExplainQuery(ctx, query, limit)
+		resp, localErr := r.local.ExplainQuery(ctx, query, limit)
+		if resp != nil {
+			resp.RecallDebug = &model.RecallDebugInfo{
+				ElasticsearchCount: 0,
+				MergedCount:        resp.CandidateCount,
+				HybridActive:       false,
+				Sources:            []string{"local"},
+				Fallback:           "local_only",
+			}
+		}
+		return resp, localErr
 	}
-	return r.local.ExplainQueryForPatentIDs(query, limit, patentIDs)
+	resp, explainErr := r.local.ExplainQueryForPatentIDs(query, limit, patentIDs)
+	if resp != nil {
+		resp.RecallDebug = &model.RecallDebugInfo{
+			ElasticsearchCount: len(patentIDs),
+			MergedCount:        len(patentIDs),
+			HybridActive:       false,
+			Sources:            []string{"elasticsearch"},
+		}
+	}
+	return resp, explainErr
 }
 
 func (r *ElasticsearchPatentRepository) ExplainEncoder(ctx context.Context, query string, limit int) (*model.EncoderExplainResponse, error) {
 	patentIDs, err := r.fetchCandidatePatentIDs(ctx, query, limit)
 	if err != nil || len(patentIDs) == 0 {
-		return r.local.ExplainEncoder(ctx, query, limit)
+		resp, localErr := r.local.ExplainEncoder(ctx, query, limit)
+		if resp != nil {
+			resp.RecallDebug = &model.RecallDebugInfo{
+				ElasticsearchCount: 0,
+				MergedCount:        resp.CandidateCount,
+				HybridActive:       false,
+				Sources:            []string{"local"},
+				Fallback:           "local_only",
+			}
+		}
+		return resp, localErr
 	}
-	return r.local.ExplainEncoderForPatentIDs(query, limit, patentIDs)
+	resp, explainErr := r.local.ExplainEncoderForPatentIDs(query, limit, patentIDs)
+	if resp != nil {
+		resp.RecallDebug = &model.RecallDebugInfo{
+			ElasticsearchCount: len(patentIDs),
+			MergedCount:        len(patentIDs),
+			HybridActive:       false,
+			Sources:            []string{"elasticsearch"},
+		}
+	}
+	return resp, explainErr
 }
 
 func (r *ElasticsearchPatentRepository) Search(ctx context.Context, query string, limit int) ([]model.TaskResultItem, error) {

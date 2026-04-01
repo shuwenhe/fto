@@ -142,7 +142,9 @@ export default function HomePage() {
       const next = {
         loaded: true,
         enabled: Boolean(modelData.elasticsearch_enabled),
+        milvusEnabled: Boolean(modelData.milvus_enabled),
         index: modelData.elasticsearch_index || '-',
+        milvusCollection: modelData.milvus_collection || '-',
         candidateCount: null,
         error: '',
       };
@@ -226,6 +228,7 @@ export default function HomePage() {
         mode: data.ranking_mode || '-',
         modelLoaded: Boolean(data.model_loaded),
         candidateCount: data.candidate_count || 0,
+        recallDebug: data.recall_debug || null,
         featureNames: data.feature_names || [],
         originalQuery: data.original_query || data.query || '-',
         rewrittenQuery: data.rewritten_query || data.query || '-',
@@ -264,6 +267,7 @@ export default function HomePage() {
         modelVersion: data.model_version || 0,
         embeddingDim: data.embedding_dim || 0,
         candidateCount: data.candidate_count || 0,
+        recallDebug: data.recall_debug || null,
         originalQuery: data.original_query || data.query || '-',
         rewrittenQuery: data.rewritten_query || data.query || '-',
         rewriteApplied: Boolean(data.rewrite_applied),
@@ -654,6 +658,14 @@ export default function HomePage() {
           <span className="tag">原始查询：{rankingMeta?.originalQuery ?? '-'}</span>
           <span className="tag">改写查询：{rankingMeta?.rewrittenQuery ?? '-'}</span>
           <span className="tag">改写：{rankingMeta?.rewriteApplied ? 'applied' : 'no'}</span>
+        </div>
+        <div className="row">
+          <span className="tag">Recall来源 ES：{rankingMeta?.recallDebug?.elasticsearch_count ?? '-'}</span>
+          <span className="tag">Recall来源 Milvus：{rankingMeta?.recallDebug?.milvus_count ?? '-'}</span>
+          <span className="tag">合并后：{rankingMeta?.recallDebug?.merged_count ?? '-'}</span>
+          <span className="tag">Hybrid：{rankingMeta?.recallDebug?.hybrid_active ? 'effective' : 'off'}</span>
+          <span className="tag">来源顺序：{Array.isArray(rankingMeta?.recallDebug?.sources) ? rankingMeta.recallDebug.sources.join(' + ') : '-'}</span>
+          <span className="tag">Fallback：{rankingMeta?.recallDebug?.fallback ?? '-'}</span>
         </div>
         <table>
           <thead>

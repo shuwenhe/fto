@@ -102,6 +102,15 @@ type RankingExplainItem struct {
 	RiskLevel     string    `json:"risk_level"`
 }
 
+type RecallDebugInfo struct {
+	ElasticsearchCount int      `json:"elasticsearch_count"`
+	MilvusCount        int      `json:"milvus_count"`
+	MergedCount        int      `json:"merged_count"`
+	HybridActive       bool     `json:"hybrid_active"`
+	Sources            []string `json:"sources,omitempty"`
+	Fallback           string   `json:"fallback,omitempty"`
+}
+
 type RankingExplainResponse struct {
 	Query          string               `json:"query"`
 	OriginalQuery  string               `json:"original_query,omitempty"`
@@ -112,6 +121,7 @@ type RankingExplainResponse struct {
 	ModelLoaded    bool                 `json:"model_loaded"`
 	FeatureNames   []string             `json:"feature_names"`
 	CandidateCount int                  `json:"candidate_count"`
+	RecallDebug    *RecallDebugInfo     `json:"recall_debug,omitempty"`
 	Results        []RankingExplainItem `json:"results"`
 }
 
@@ -143,6 +153,7 @@ type EncoderExplainResponse struct {
 	FeatureNames   []string             `json:"feature_names"`
 	EmbeddingDim   int                  `json:"embedding_dim"`
 	CandidateCount int                  `json:"candidate_count"`
+	RecallDebug    *RecallDebugInfo     `json:"recall_debug,omitempty"`
 	Results        []EncoderExplainItem `json:"results"`
 }
 
