@@ -993,6 +993,58 @@ func (r *LocalPatentRepository) ExplainQuery(_ context.Context, query string, li
 	return resp, nil
 }
 
+func (r *LocalPatentRepository) ExplainEncoder(_ context.Context, query string, limit int) (*model.EncoderExplainResponse, error) {
+	query = strings.TrimSpace(query)
+	if query == "" {
+		return nil, fmt.Errorf("query is required")
+	}
+	if r.encoder == nil {
+		return nil, fmt.Errorf("encoder model not loaded")
+	}
+
+	ranked, totalCandidates := r.rankDualCandidates(query, limit)
+	resp := &model.EncoderExplainResponse{
+		Query:          query,
+		Limit:          limit,
+		ModelLoaded:    true,
+		ModelType:      r.encoder.modelType,
+		ModelVersion:   r.encoder.version,
+		FeatureNames:   append([]string(nil), r.encoder.featureNames...),
+		EmbeddingDim:   r.encoder.embeddingDim,
+		CandidateCount: totalCandidates,
+		Results:        make([]model.EncoderExplainItem, 0, len(ranked)),
+	}
+
+	for idx, item := range ranked {
+		matched := make([]string, len(item.matched))
+		copy(matched, item.matched)
+		embedding, encoderScore := r.encoder.Encode(item.features)
+		entry := model.EncoderExplainItem{
+			Rank:         idx + 1,
+			PatentID:     item.record.PatentID,
+			PatentURL:    buildPatentURL(item.record.PatentID),
+			Title:        item.record.Title,
+			Matched:      matched,
+			Features:     append([]float64(nil), item.features...),
+			Embedding:    append([]float64(nil), embedding...),
+			EncoderScore: encoderScore,
+			FinalScore:   item.fusionScore,
+			RiskLevel:    calcRiskByFusion(item.fusionScore),
+			Reason:       buildResultItemDual(item).Reason,
+		}
+		if item.usedModel {
+			score := item.modelScore
+			entry.ModelScore = &score
+		}
+		if item.usedDeep {
+			score := item.deepScore
+			entry.DeepScore = &score
+		}
+		resp.Results = append(resp.Results, entry)
+	}
+	return resp, nil
+}
+
 func (r *LocalPatentRepository) searchDual(query string, limit int) []model.TaskResultItem {
 	ranked, _ := r.rankDualCandidates(query, limit)
 	results := make([]model.TaskResultItem, 0, len(ranked))
