@@ -25,8 +25,13 @@ if [[ -f "$PID_FILE" ]]; then
 fi
 
 cd "$REPO_ROOT"
-nohup bash "$DAEMON_SCRIPT" >> "$LOG_FILE" 2>&1 &
-new_pid=$!
+if command -v setsid >/dev/null 2>&1; then
+  setsid bash "$DAEMON_SCRIPT" </dev/null >> "$LOG_FILE" 2>&1 &
+  new_pid=$!
+else
+  nohup bash "$DAEMON_SCRIPT" </dev/null >> "$LOG_FILE" 2>&1 &
+  new_pid=$!
+fi
 echo "$new_pid" > "$PID_FILE"
 
 echo "[auto] started pid=$new_pid"
