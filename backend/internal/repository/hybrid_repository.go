@@ -13,9 +13,9 @@ type patentCandidateFetcher interface {
 }
 
 type HybridPatentRepository struct {
-	local             *LocalPatentRepository
-	es                *ElasticsearchPatentRepository
-	milvus            *MilvusPatentRepository
+	local               *LocalPatentRepository
+	es                  *ElasticsearchPatentRepository
+	milvus              *MilvusPatentRepository
 	preferElasticsearch bool
 }
 

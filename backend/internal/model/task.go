@@ -34,18 +34,18 @@ type FTOReportEvidenceItem struct {
 }
 
 type FTOReportResponse struct {
-	ReportID          string                  `json:"report_id"`
-	GeneratedAt       string                  `json:"generated_at"`
-	Query             string                  `json:"query"`
-	OriginalQuery     string                  `json:"original_query,omitempty"`
-	RewrittenQuery    string                  `json:"rewritten_query,omitempty"`
-	RewriteApplied    bool                    `json:"rewrite_applied,omitempty"`
-	CandidateCount    int                     `json:"candidate_count"`
-	RiskDistribution  map[string]int          `json:"risk_distribution"`
-	ExecutiveSummary  string                  `json:"executive_summary"`
-	CoreFindings      []string                `json:"core_findings"`
-	Recommendations   []string                `json:"recommendations"`
-	Evidence          []FTOReportEvidenceItem `json:"evidence"`
+	ReportID         string                  `json:"report_id"`
+	GeneratedAt      string                  `json:"generated_at"`
+	Query            string                  `json:"query"`
+	OriginalQuery    string                  `json:"original_query,omitempty"`
+	RewrittenQuery   string                  `json:"rewritten_query,omitempty"`
+	RewriteApplied   bool                    `json:"rewrite_applied,omitempty"`
+	CandidateCount   int                     `json:"candidate_count"`
+	RiskDistribution map[string]int          `json:"risk_distribution"`
+	ExecutiveSummary string                  `json:"executive_summary"`
+	CoreFindings     []string                `json:"core_findings"`
+	Recommendations  []string                `json:"recommendations"`
+	Evidence         []FTOReportEvidenceItem `json:"evidence"`
 }
 
 type TaskResultItem struct {
@@ -147,12 +147,12 @@ type EncoderExplainResponse struct {
 }
 
 type TaskState struct {
-	TaskID    string           `json:"task_id"`
-	Query     string           `json:"query"`
-	RewrittenQuery string      `json:"rewritten_query,omitempty"`
-	Status    string           `json:"status"`
-	Progress  int              `json:"progress"`
-	CreatedAt string           `json:"created_at"`
-	UpdatedAt string           `json:"updated_at"`
-	Result    []TaskResultItem `json:"result"`
+	TaskID         string           `json:"task_id"`
+	Query          string           `json:"query"`
+	RewrittenQuery string           `json:"rewritten_query,omitempty"`
+	Status         string           `json:"status"`
+	Progress       int              `json:"progress"`
+	CreatedAt      string           `json:"created_at"`
+	UpdatedAt      string           `json:"updated_at"`
+	Result         []TaskResultItem `json:"result"`
 }
