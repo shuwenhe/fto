@@ -65,6 +65,7 @@ func main() {
 	rankingMode := getEnv("RANKING_MODE", "dual")
 	dualRatio := getEnvInt("RANKING_DUAL_RATIO", 50)
 	rankingModelPath := getEnv("RANKING_MODEL_PATH", "/app/fto/model_artifacts/fto_ranker_neurx_v1.json")
+	encoderModelPath := getEnv("ENCODER_MODEL_PATH", "/app/fto/model_artifacts/fto_encoder_neurx_v1.json")
 	deepRerankEnabled := getEnvBool("RANKING_DEEP_ENABLED", false)
 	deepRerankTopN := getEnvInt("RANKING_DEEP_TOP_N", 8)
 	deepRerankMixAlpha := getEnvFloat("RANKING_DEEP_MIX_ALPHA", 0.35)
@@ -86,8 +87,15 @@ func main() {
 	if err != nil && os.IsNotExist(err) {
 		log.Printf("ranking model not found, fallback to heuristic dual ranking: %s", rankingModelPath)
 	}
+	encoder, err := repository.LoadNeurxEncoder(encoderModelPath)
+	if err != nil && !os.IsNotExist(err) {
+		log.Fatalf("load encoder model failed: %v", err)
+	}
+	if err != nil && os.IsNotExist(err) {
+		log.Printf("encoder model not found, encoder explain disabled: %s", encoderModelPath)
+	}
 
-	patentRepo, err := repository.NewLocalPatentRepositoryWithModel(patentDataPath, rankingMode, dualRatio, ranker)
+	patentRepo, err := repository.NewLocalPatentRepositoryWithModel(patentDataPath, rankingMode, dualRatio, ranker, encoder)
 	if err != nil {
 		log.Fatalf("load patent data source failed: %v", err)
 	}
@@ -103,7 +111,7 @@ func main() {
 	r.Use(observability.AccessLogMiddleware(metrics))
 	router.RegisterRoutes(r, taskService, metrics, patentRepo)
 
-	log.Printf("backend config: redis_addr=%s patent_data_path=%s ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f", redisAddr, patentDataPath, rankingMode, dualRatio, rankingModelPath, ranker != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha)
+	log.Printf("backend config: redis_addr=%s patent_data_path=%s ranking_mode=%s ranking_dual_ratio=%d ranking_model_path=%s ranking_model_loaded=%t encoder_model_path=%s encoder_model_loaded=%t ranking_deep_enabled=%t ranking_deep_top_n=%d ranking_deep_mix_alpha=%.3f", redisAddr, patentDataPath, rankingMode, dualRatio, rankingModelPath, ranker != nil, encoderModelPath, encoder != nil, deepRerankEnabled, deepRerankTopN, deepRerankMixAlpha)
 
 	if err := r.Run(":8010"); err != nil {
 		log.Fatalf("run server failed: %v", err)
