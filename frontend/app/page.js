@@ -345,6 +345,21 @@ export default function HomePage() {
     return counts;
   }
 
+  function buildRankMap(values) {
+    const ranks = new Map();
+    if (!Array.isArray(values)) {
+      return ranks;
+    }
+    values.forEach((value, index) => {
+      const id = String(value || '').trim();
+      if (!id || ranks.has(id)) {
+        return;
+      }
+      ranks.set(id, index + 1);
+    });
+    return ranks;
+  }
+
   function getDedupedLabel(id, esCounts, milvusCounts) {
     const esCount = esCounts.get(id) || 0;
     const milvusCount = milvusCounts.get(id) || 0;
@@ -360,6 +375,19 @@ export default function HomePage() {
     return '未知';
   }
 
+  function getSourceHitLabel(id, esRanks, milvusRanks) {
+    const esRank = esRanks.get(id);
+    const milvusRank = milvusRanks.get(id);
+    const parts = [];
+    if (esRank) {
+      parts.push(`ES#${esRank}`);
+    }
+    if (milvusRank) {
+      parts.push(`Milvus#${milvusRank}`);
+    }
+    return parts.length > 0 ? parts.join(' | ') : '未命中';
+  }
+
   function renderIdItems(values, options = {}) {
     const list = Array.isArray(values) ? values : [];
     if (list.length === 0) {
@@ -368,12 +396,40 @@ export default function HomePage() {
     const max = options.max ?? 12;
     const esCounts = options.esCounts || new Map();
     const milvusCounts = options.milvusCounts || new Map();
-    return list.slice(0, max).map((id) => (
-      <li key={`${options.prefix || 'id'}-${id}`}>
-        <code>{id}</code>
-        {options.showDedupedLabel ? ` (${getDedupedLabel(id, esCounts, milvusCounts)})` : ''}
-      </li>
-    ));
+    const esRanks = options.esRanks || new Map();
+    const milvusRanks = options.milvusRanks || new Map();
+    const mergedSet = options.mergedSet || new Set();
+    const sourceRanks = options.sourceRanks || new Map();
+    return list.slice(0, max).map((id, index) => {
+      const rank = sourceRanks.get(id) || index + 1;
+      const mergedHit = mergedSet.has(id);
+      return (
+        <li
+          key={`${options.prefix || 'id'}-${id}`}
+          style={mergedHit ? { background: 'rgba(215, 140, 48, 0.12)', borderRadius: '6px', padding: '4px 6px' } : undefined}
+        >
+          <code>{id}</code> <span>#{rank}</span>
+          {options.showDedupedLabel ? ` (${getDedupedLabel(id, esCounts, milvusCounts)})` : ''}
+          {options.showSourceHitLabel ? ` [${getSourceHitLabel(id, esRanks, milvusRanks)}]` : ''}
+        </li>
+      );
+    });
+  }
+
+  async function copyDebugJson() {
+    const payload = {
+      query: rankingMeta?.originalQuery || query || '',
+      rewritten_query: rankingMeta?.rewrittenQuery || '',
+      candidate_count: rankingMeta?.candidateCount ?? null,
+      recall_debug: rankingMeta?.recallDebug || null,
+    };
+    const text = JSON.stringify(payload, null, 2);
+    try {
+      await navigator.clipboard.writeText(text);
+      alert('debug json copied');
+    } catch {
+      alert('copy failed');
+    }
   }
 
   function buildReportTextLines(report) {
@@ -721,6 +777,7 @@ export default function HomePage() {
           <span className="tag">Hybrid：{rankingMeta?.recallDebug?.hybrid_active ? 'effective' : 'off'}</span>
           <span className="tag">来源顺序：{Array.isArray(rankingMeta?.recallDebug?.sources) ? rankingMeta.recallDebug.sources.join(' + ') : '-'}</span>
           <span className="tag">Fallback：{rankingMeta?.recallDebug?.fallback ?? '-'}</span>
+          <button onClick={copyDebugJson}>copy debug json</button>
         </div>
         <div
           className="debugPanel"
@@ -729,15 +786,30 @@ export default function HomePage() {
           {(() => {
             const esCounts = countIdHits(rankingMeta?.recallDebug?.elasticsearch_ids);
             const milvusCounts = countIdHits(rankingMeta?.recallDebug?.milvus_ids);
+            const esRanks = buildRankMap(rankingMeta?.recallDebug?.elasticsearch_ids);
+            const milvusRanks = buildRankMap(rankingMeta?.recallDebug?.milvus_ids);
+            const mergedSet = new Set(rankingMeta?.recallDebug?.merged_ids || []);
             return (
               <>
                 <div>
                   <p><strong>ES top patent ids</strong></p>
-                  <ul>{renderIdItems(rankingMeta?.recallDebug?.elasticsearch_ids, { prefix: 'es' })}</ul>
+                  <ul>
+                    {renderIdItems(rankingMeta?.recallDebug?.elasticsearch_ids, {
+                      prefix: 'es',
+                      sourceRanks: esRanks,
+                      mergedSet,
+                    })}
+                  </ul>
                 </div>
                 <div>
                   <p><strong>Milvus top patent ids</strong></p>
-                  <ul>{renderIdItems(rankingMeta?.recallDebug?.milvus_ids, { prefix: 'milvus' })}</ul>
+                  <ul>
+                    {renderIdItems(rankingMeta?.recallDebug?.milvus_ids, {
+                      prefix: 'milvus',
+                      sourceRanks: milvusRanks,
+                      mergedSet,
+                    })}
+                  </ul>
                 </div>
                 <div>
                   <p><strong>合并去重移除的 IDs</strong></p>
@@ -745,8 +817,11 @@ export default function HomePage() {
                     {renderIdItems(rankingMeta?.recallDebug?.deduped_ids, {
                       prefix: 'deduped',
                       showDedupedLabel: true,
+                      showSourceHitLabel: true,
                       esCounts,
                       milvusCounts,
+                      esRanks,
+                      milvusRanks,
                     })}
                   </ul>
                 </div>
