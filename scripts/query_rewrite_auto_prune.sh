@@ -36,7 +36,7 @@ node scripts/analyze_query_rewrite_rule_contrib.mjs \
   --min-hit-queries "${REWRITE_MIN_HIT_QUERIES}" \
   --write-pruned-rules "${REWRITE_PRUNED_RULES_PATH}"
 
-summary="$(${ROOT_DIR}/.venv/bin/python - <<PY
+summary="$(python3 - <<PY
 import json
 from pathlib import Path
 p=Path('${REWRITE_ANALYSIS_JSON}')
@@ -56,6 +56,7 @@ echo "[info] full_ndcg=${full_ndcg} pruned_ndcg=${pruned_ndcg} harmful_terms=${h
 
 if [[ "${REWRITE_AUTO_APPLY}" == "1" ]]; then
   should_apply="$(${ROOT_DIR}/.venv/bin/python - <<PY
+  should_apply="$(python3 - <<PY
 full=float('${full_ndcg}')
 pruned=float('${pruned_ndcg}')
 harmful=int('${harmful_terms}')
