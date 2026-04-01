@@ -19,15 +19,16 @@ type TaskService interface {
 type taskService struct {
 	repo       repository.TaskRepository
 	patentRepo repository.PatentDataRepository
+	queryRewriter QueryRewriter
 	topK       int
 	seq        uint64
 }
 
-func NewTaskService(repo repository.TaskRepository, patentRepo repository.PatentDataRepository, topK int) TaskService {
+func NewTaskService(repo repository.TaskRepository, patentRepo repository.PatentDataRepository, queryRewriter QueryRewriter, topK int) TaskService {
 	if topK <= 0 {
 		topK = 5
 	}
-	return &taskService{repo: repo, patentRepo: patentRepo, topK: topK}
+	return &taskService{repo: repo, patentRepo: patentRepo, queryRewriter: queryRewriter, topK: topK}
 }
 
 func nowUTC() string {
@@ -35,11 +36,20 @@ func nowUTC() string {
 }
 
 func (s *taskService) CreateTask(ctx context.Context, query string) (*model.TaskState, error) {
+	query = strings.TrimSpace(query)
 	taskID := fmt.Sprintf("task-%d-%d", time.Now().UnixNano(), atomic.AddUint64(&s.seq, 1))
 	now := nowUTC()
+	rewrittenQuery := ""
+	if s.queryRewriter != nil {
+		rewritten, applied := s.queryRewriter.Rewrite(query)
+		if applied {
+			rewrittenQuery = rewritten
+		}
+	}
 	task := &model.TaskState{
 		TaskID:    taskID,
 		Query:     query,
+		RewrittenQuery: rewrittenQuery,
 		Status:    "queued",
 		Progress:  0,
 		CreatedAt: now,
@@ -78,7 +88,11 @@ func (s *taskService) runTask(task model.TaskState) {
 		return
 	}
 
-	results, err := s.patentRepo.Search(ctx, task.Query, s.topK)
+	searchQuery := task.Query
+	if strings.TrimSpace(task.RewrittenQuery) != "" {
+		searchQuery = task.RewrittenQuery
+	}
+	results, err := s.patentRepo.Search(ctx, searchQuery, s.topK)
 	task.Progress = 100
 	task.UpdatedAt = nowUTC()
 	if err != nil {
