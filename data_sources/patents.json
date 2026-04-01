@@ -1,5 +1,290 @@
 [
   {
+    "patent_id": "CN100355145C",
+    "title": "Temperature control apparatus and method for high energy electrochemical cells",
+    "abstract": "An apparatus and method provides cooling for electrochemical cells of an energy storage device. A number of electrochemical cells are arranged in a spaced apart relationship, each having opposing first and second planar surfaces and subject to volumetric changes during charge and discharge cycling. A cooling bladder provides temperature control for the energy storage device. The cooling bladder is formed of a conformable thermally conducting material and includes inlet and outlet ports. The cooling bladder conforms to maintain contact with at least the first planar surface or the second planar surface of each cell during volumetric changes of the cells. A heat transfer medium passes between the inlet and outlet ports of the cooling bladder to control an operating temperature of the cells. The cooling bladder can be pressurized to maintain the cells of the energy storage device in a state of compression during charge and discharge cycling.",
+    "claim": "1. electrochemical energy storage equipment, it comprises:",
+    "keywords": [
+      "temperature",
+      "control",
+      "apparatus",
+      "and",
+      "for",
+      "high"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "CN102576824A",
+    "title": "Electrochemical energy store for vehicles and method for cooling or heating such an electrochemical energy store",
+    "abstract": "The invention relates to an electrochemical energy store (1), comprising a housing (2), in which a plurality of flat galvanic cells (3) are arranged. A flat heat conducting body (4) and/or a flat elastic body (5) are arranged between two neighboring flat galvanic cells. The flat galvanic cells, the flat heat conducting bodies and/or the flat elastic bodies preferably exert a force (11) on the contact surfaces in the sense of a surface pressure on each other and the housing comprises a wall having a structure or structures (8, 9) with which a heat conducting body (4) engages such that said heat conducting body cannot be displaced in the direction of the force (11) acting at the contact surfaces.",
+    "claim": "1. an electrochemical energy accumulator (1), it has the shell (2) that a plurality of planes galvanic cells (3) have been installed, it is characterized in that,",
+    "keywords": [
+      "electrochemical",
+      "energy",
+      "store",
+      "for",
+      "vehicles",
+      "and"
+    ],
+    "legal_status": "Withdrawn"
+  },
+  {
+    "patent_id": "CN103109392B",
+    "title": "Electricity storage device",
+    "abstract": "An electricity storage device includes: a plurality of cells (11) that are aligned in a predetermined direction; a pair of end plates (112) that sandwich the plurality of cells in the predetermined direction (X direction); and a restraining member (113) that extends in the predetermined direction, is fixed to the pair of end plates, and exerts a restraining force on the plurality of cells in the predetermined direction via the end plates. Each of the end plates includes a first plate and a second plate. The first plate has a plurality of ribs on a surface that faces the adjacent cell and is formed of insulating material. The second plate is fixed to the first plate on a side opposite to the surface that faces the adjacent cell and is formed of material stronger than the insulating material for the first plate.",
+    "claim": "",
+    "keywords": [
+      "electricity",
+      "storage",
+      "includes",
+      "plurality",
+      "cells",
+      "that"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN104521101B",
+    "title": "Electrical power transmission system",
+    "abstract": "The present invention provides a kind of electrical power transmission system, in the case where carrying out the charging of battery (204) by power side system, can carry out efficient power transmission.The electrical power transmission system (100) of the present invention at least includes：Composition inductive component is L 1 , capacitive component be C 1 Series resonator and be transfused to the power transmission antenna (105) of alternating electromotive force；Composition inductive component is L 2 , capacitive component be C 2 Series resonator and from the power transmission antenna (105) by electromagnetic field receive electromagnetic energy power receiving antenna (201)；Direct current power and the rectification part exported will be rectified into from the output of the power receiving antenna (201)；And for inputting the load of the output from the rectification part, the electrical power transmission system is characterised by, when including situation that the coefficient of coup between the power transmission antenna (105) and the power receiving antenna (201) is k, when meeting R in load resistance value R min ≤R≤R max Scope when being utilized, each component and coefficient have defined relation.",
+    "claim": "1. a kind of electrical power transmission system, at least includes：Composition inductive component is L 1 , capacitive component be C 1 Series resonator and quilt The power transmission antenna of input AC electric power；It is made up of switch element, and DC voltage is converted to the alternating voltage of defined frequency And export to the inverting part of the power transmission antenna；Composition inductive component is L 2 , capacitive component be C 2 Series resonator and from described Power transmission antenna receives the power receiving antenna of electromagnetic energy by electromagnetic field；Output from the power receiving antenna is rectified into direct current power And the rectification part exported；And for inputting the load of the output from the rectification part, the feature of the electrical power transmission system exists In,",
+    "keywords": [
+      "electrical",
+      "power",
+      "transmission",
+      "the",
+      "present",
+      "invention"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "CN105264688A",
+    "title": "Power storage components and power storage components",
+    "abstract": "The invention provides an electricity storage component and an electricity storage module, which reduce the compression reaction force of a heat conduction sheet acting on an element laminated body. The electricity storage member is thermally connected to the heat conductive plate via a heat conductive sheet having elasticity. The electricity storage component comprises an element laminate (11) in which a plurality of square electricity storage elements (101) are laminated and arranged so that the wide surfaces (109w) of adjacent square electricity storage elements (101) face each other, and a pressing device for pressing the element laminate (11) against a heat conductive sheet arranged on a heat conductive plate. The element laminate (11) includes holders (160, 170) having wide surface contact portions (161, 171) that contact at least one of a pair of wide surfaces (109w) of a predetermined rectangular electricity storage element (101). The outer surface of the bottom plate (109b) of the rectangular electricity storage element (101) is used as a heat-conducting surface thermally connected to the heat-conducting plate via a heat-conducting sheet, and the heat-conducting surface protrudes toward the heat-conducting plate side from the heat-conducting plate-side end surface of the wide contact portions (161, 171).",
+    "claim": "1., across having flexible conducting strip and the hot linked electric power storage parts of heat-conducting plate, it is characterized in that, comprise:",
+    "keywords": [
+      "power",
+      "storage",
+      "components",
+      "and",
+      "the",
+      "invention"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN107210126A",
+    "title": "Flux coupled structures with controlled flux cancellation",
+    "abstract": "An inductive power transmission flux coupling device comprises: a first coil (15) arranged in a first layer and configured to generate or receive a magnetic coupling flux in a magnetic flux coupling region; and a second coil (16). At least a portion of the second coil is arranged in a second layer and configured to generate a magnetic flux that reflects the magnetic flux from the first coil.",
+    "claim": "1. a kind of induction power transmits magnetic flux coupling device, including：",
+    "keywords": [
+      "flux",
+      "coupled",
+      "structures",
+      "with",
+      "controlled",
+      "cancellation"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "CN108172384A",
+    "title": "Magnetic conductor structure composed of a plurality of magnetic conductors",
+    "abstract": "The present invention discloses a magnetic conductor structure for a coil module, the coil module includes a coil, and the magnetic conductor structure includes a bottom magnetic conductor, an inner magnetic conductor and an outer magnetic conductor. The bottom magnetic conductor is arranged on one side of the coil, and the bottom magnetic conductor is composed of a plurality of first magnetic conductors. The inner magnetic conductor is arranged on the inner side of the coil, and the inner magnetic conductor is composed of a plurality of second magnetic conductors. The outer magnetic conductor is arranged on the outer side of the coil, and the outer magnetic conductor is composed of a plurality of third magnetic conductors.",
+    "claim": "1. a kind of magnetic conductor structure, for a coil module, which includes a coil, which includes：",
+    "keywords": [
+      "magnetic",
+      "conductor",
+      "structure",
+      "composed",
+      "plurality",
+      "conductors"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "CN108668522B",
+    "title": "Wireless charging equipment",
+    "abstract": "Disclosed is a wireless charging device including: a first cover body having a friction force of a specific magnitude on at least a part of a surface thereof; a second cover disposed under the first cover and having an elastic force of a specific magnitude; an upper case disposed below the second cover; a lower housing coupled to the upper housing; at least one charging coil disposed between the upper case and the lower case and configured to supply power to an electronic device placed on an upper surface of the first cover; a power supply part connected to the at least one charging coil; and a holding state changing portion configured to assist in changing a holding state of the upper case and the lower case.",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "charging",
+      "equipment",
+      "disclosed",
+      "including",
+      "first"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN108688490B",
+    "title": "On-board vehicle charging system and wireless vehicle charging system with shared components",
+    "abstract": "The present disclosure relates to an on-board vehicle charging system and a wireless vehicle charging system having common components. A vehicle comprising: traction battery; an on-board charging system (OBCS) and a Wireless Power Transfer System (WPTS). Each of the in-vehicle charging system and the wireless power transfer system is configured to selectively use the same rectifier such that the rectifier rectifies the output of the in-vehicle charging system and the rectifier rectifies the output of the wireless power transfer system to provide power to the traction battery.",
+    "claim": "1. A vehicle, comprising:",
+    "keywords": [
+      "board",
+      "vehicle",
+      "charging",
+      "and",
+      "wireless",
+      "with"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN109565003B",
+    "title": "Battery cell carrier and housing for a stacked assembly including a plurality of battery cell carriers",
+    "abstract": "A battery module includes a housing having at least one heat sink. Inside the module is a stack assembly, which consists of a series of unit carrier assemblies connected together. Each unit carrier assembly includes a unit carrier having a first spring biased against the heat sink. Each cell carrier assembly also includes a battery cell and a thermally conductive plate thermally coupled to the battery cell. The heat conducting plate is positioned to be pressed against the heat sink by a first spring to promote a good thermal connection between the plate and the heat sink. Therefore, heat is conducted from the battery cells to the heat sink along the heat conducting plate.",
+    "claim": "",
+    "keywords": [
+      "battery",
+      "cell",
+      "carrier",
+      "and",
+      "housing",
+      "for"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN109617152B",
+    "title": "Wireless charging device",
+    "abstract": "The invention discloses a wireless charging device, which comprises: an upper shell and a lower shell, the upper shell and the lower shell together form a cavity for mounting components, and a plurality of openings are arranged at the edge of the lower shell; The air guide bracket is arranged in the cavity, and the air guide bracket isolates the several openings, thereby dividing the cavity into an air inlet area and an air outlet area, and the air guide bracket and the lower shell together form an air guide channel; The air guide bracket is used for charging the receiving device through electromagnetic coupling; the fan is arranged on the air guide bracket and is used to draw outside cold air from the opening of the air inlet area into the air inlet area. The air guiding channel is discharged through the opening of the air outlet area after flowing through the emitting component, so as to take away the heat generated by the emitting component. The wireless charging device according to the present invention adopts a detachable heat dissipation structure, and the fan is arranged below the transmitting coil, which can not only reduce the volume of the wireless charging device, but also improve its charging efficiency.",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "charging",
+      "the",
+      "invention",
+      "discloses",
+      "which"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN110932368A",
+    "title": "Multifunctional folding wireless charging device and working method",
+    "abstract": "The invention relates to a multifunctional folding wireless charging device and a working method, the device comprises an outer shell internally provided with a wireless charger and a base arranged at the first side part of the outer shell, wherein the base extends into the outer shell to form a convex part which can slide relative to the outer shell and can limit the sliding position; the device is reasonable in design and convenient to use, can realize charging and use of the wireless charging equipment in a horizontal state, and can also meet the requirements of charging and use of the wireless charging equipment under the condition of horizontal or longitudinal placement.",
+    "claim": "",
+    "keywords": [
+      "multifunctional",
+      "folding",
+      "wireless",
+      "charging",
+      "and",
+      "working"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "CN111049236B",
+    "title": "Foldable wireless charger",
+    "abstract": "The present invention discloses a foldable wireless charger, including a base, a wireless charging module, a flip assembly and a bracket. The flip assembly can drive the wireless charging module to flip between a flat state and an inclined state; the wireless charging module can wirelessly charge electronic products, and the bracket can be installed on the base in an upside-down manner to support the electronic products. The flip assembly drives the wireless charging module to flip between a flat state and an inclined state, thereby realizing the unfolding and folding of the charger. When the charger is in an inclined state, it is convenient to use electronic products and obtain a better experience after use; at this time, the bracket flips upward and is supported under the terminal to be charged, which can ensure that the position of the electronic product is more stable and will not fall; and when the wireless charging module is in a flat state, the bracket flips downward and is stored in the base, and does not take up space.",
+    "claim": "1. A foldable wireless charger, comprising:",
+    "keywords": [
+      "foldable",
+      "wireless",
+      "charger",
+      "the",
+      "present",
+      "invention"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN111345781B",
+    "title": "Detection device container, detection device, detection system and use method of detection system",
+    "abstract": "Embodiments of the present disclosure provide a detection device container, a detection device, a detection system, and a detection system use method. This detection device container includes first casing, and this first casing includes the first surface and sets up in the first surface have the open-ended to accomodate the groove, should accomodate the groove and be used for holding detachably and set up the sign sensor among first casing, and this sign sensor includes the installation face, and when this sign sensor set up in accomodating the groove, the installation face is exposed by the opening of accomodating the groove, and this first casing still includes the location structure that is located on the first surface, and this location structure is used for the location to combine to the installation face in order to cooperate the removable paster of using with the sign sensor.",
+    "claim": "",
+    "keywords": [
+      "detection",
+      "container",
+      "and",
+      "use",
+      "embodiments",
+      "the"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN111600397A",
+    "title": "A charging device for a smart bracelet",
+    "abstract": "The invention discloses a charging device of an intelligent bracelet, which comprises an upper shell and a lower shell which are rotatably connected, wherein a wireless charging coil is arranged in the shell of the upper shell, a bracelet placing groove is formed in the lower shell, and a charging switch mechanism is also arranged in the lower shell; when the upper shell and the lower shell are closed, the charging switch mechanism charges the bracelet; go up the casing with when the casing was opened down, charging switch mechanism does not give the bracelet charges. The portable charger can be carried about during charging, has multiple charging modes, can be compatible with charging of other electronic products, and is more convenient to maintain and replace parts through a detachable assembly mode.",
+    "claim": "1. The charging device for the intelligent bracelet is characterized by comprising an upper shell and a lower shell which are rotatably connected, wherein a wireless charging coil is arranged in the shell of the upper shell, a bracelet placing groove is formed in the lower shell, and a charging switch mechanism is further arranged in the lower shell; when the upper shell and the lower shell are closed, the charging switch mechanism charges the bracelet; go up the casing with when the casing was opened down, charging switch mechanism does not give the bracelet charges.",
+    "keywords": [
+      "charging",
+      "for",
+      "smart",
+      "bracelet",
+      "the",
+      "invention"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "CN112437185B",
+    "title": "Supporting device and charging device for electronic equipment",
+    "abstract": "The invention provides a supporting device and a charging device of electronic equipment, wherein the supporting device comprises: a base having a first surface and a second surface opposite the first surface, at least a partial region of the first surface being formed as a recess; the cover body is slidably arranged in the concave part, so that when the cover body slides to different positions, the cover body and the second surface of the base form different inclination angles; the rail is arranged on the cover body and is configured to enable the cover body to slide along the rail; and the guide part is fixed on the base and slidably connected with the track. The supporting device can realize multi-angle compatibility of products such as vertical and flat plates, is more humanized and improves the use experience of users.",
+    "claim": "1. A support device for an electronic apparatus, the support device comprising:",
+    "keywords": [
+      "supporting",
+      "and",
+      "charging",
+      "for",
+      "electronic",
+      "equipment"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN114123525B",
+    "title": "Wireless charging equipment and wireless charging system",
+    "abstract": "The present application provides a wireless charging device and a wireless charging system. The wireless charging device includes a charging seat, a lifting platform and a first charging component. The charging seat includes a bottom shell and a guide groove structure provided on the bottom shell; the lifting platform is at least partially located in the guide groove structure, the lifting platform can move relative to the bottom shell, and the outer surface of the lifting platform has a first supporting surface inclined relative to the bottom shell, and the first supporting surface is used to support the device to be charged; the first charging component is arranged in the lifting platform and faces the first supporting surface; or, the first charging component is arranged on the first supporting surface. The wireless charging system includes the wireless charging device and the device to be charged. The wireless charging device and the wireless charging system provided in the present application have strong adaptability.",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "charging",
+      "equipment",
+      "and",
+      "the",
+      "present"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "CN115051096A",
+    "title": "Battery pack",
+    "abstract": "A battery pack assembly includes a housing and one or more battery cell assemblies housed in the housing. Each of the one or more battery cell assemblies includes a frame at least partially defining an interior cavity therein, a plurality of battery cells positioned within the interior cavity, and a heat sink. The heat sink includes a body having a first side and a second side opposite the first side. The heat sink also includes a plurality of fins extending from the first side, and a plurality of protrusions extending from the second side. The heat sink is located outside the inner cavity, and the plurality of protrusions are located in the inner cavity. The protrusions are located between the battery cells such that the battery cells and the protrusions are sequentially arranged in the interior cavity in at least one direction.",
+    "claim": "",
+    "keywords": [
+      "battery",
+      "pack",
+      "assembly",
+      "includes",
+      "housing",
+      "and"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "CN121039880A",
+    "title": "Battery pack and apparatus including the battery pack",
+    "abstract": "The battery pack according to the embodiment of the present disclosure includes a plurality of battery cell assemblies each including a battery cell stack formed by stacking a plurality of battery cells and configured such that at least a portion of sides and upper and lower surfaces of the battery cell stack are exposed, a lower battery pack frame on which the plurality of battery cell assemblies are mounted, and a cross member formed inside the lower battery pack frame and extending between a pair of adjacent battery cell assemblies among the plurality of battery cell assemblies, wherein the battery cell assemblies include sub-cross members contacting at least one side of the battery cell stack, and wherein the cross members and the sub-cross members are spaced apart from each other.",
+    "claim": "",
+    "keywords": [
+      "battery",
+      "pack",
+      "and",
+      "apparatus",
+      "including",
+      "the"
+    ],
+    "legal_status": "Pending"
+  },
+  {
     "patent_id": "CN202209876U",
     "title": "便携设备的导热壳体结构",
     "abstract": "用于便携终端的导热壳体设计，提高散热性能并降低热点。",
@@ -50,6 +335,125 @@
     "legal_status": "审中"
   },
   {
+    "patent_id": "CN203351712U",
+    "title": "Power battery thermal management system based on sintering heat pipes",
+    "abstract": "The utility model discloses a power battery thermal management system based on sintering heat pipes. The power battery thermal management system comprises a module tank body and a module tank body cap, wherein at least two battery pack monomer shells are arranged in the module tank body, more than two battery module packs formed by series connection or parallel connection of battery monomers are arranged in each battery pack monomer shell, wherein sintering heat pipes in a row are arranged between each two battery monomers, the sintering heat pipe is provided with an evaporating end and a condensing end, the evaporating end is arranged on the surface of the battery monomer, and the condensing end extends out of the surface of the battery monomer. The power battery thermal management system disclosed by the utility model has the characteristics of large heat release amount, high radiation efficiency and simple processing, and is capable of effectively solving technical problems of radiating at high temperature, heating for heat insulation at low temperature and recycling of the heat of the power battery.",
+    "claim": "1. the power battery thermal management system based on sintered heat pipe, comprise modular tank, modular tank top cover, be placed with at least two batteries monomer housings in modular tank, in each batteries monomer housing, be provided with more than two by battery cell series winding or the group of battery modules formed in parallel, it is characterized in that: between described every two battery cells, be provided with and be the sintered heat pipe of arranging shape, described sintered heat pipe is divided into evaporation ends and condensation end, described evaporation ends is located at the battery cell surface, and described condensation end stretches out outside the battery cell surface.",
+    "keywords": [
+      "power",
+      "battery",
+      "thermal",
+      "management",
+      "based",
+      "sintering"
+    ],
+    "legal_status": "Expired - Lifetime"
+  },
+  {
+    "patent_id": "EP3087780A4",
+    "title": "System and method for mitigating interference when initializing links between cognitive radios",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "and",
+      "for",
+      "mitigating",
+      "interference",
+      "when",
+      "initializing"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "EP3282459A1",
+    "title": "Ground-side coil unit",
+    "abstract": "A ground-side coil unit is provided with: a magnetic material plate 12 disposed adjacent to a power transmission coil 11 that transmits electric power to a power reception coil 26 in a wireless manner; and a first filter coil 13 disposed facing the power transmission coil 11 with the magnetic material plate 12 interposed therebetween. The first filter coil 13 is disposed in a position where a magnetic flux 13G generated by the first filter coil 13 cancels out a magnetic flux 11G generated by the power transmission coil 11 in the magnetic material plate 12.",
+    "claim": "A ground-side coil unit for use in wireless power supply, comprising: a power transmission coil configured to transmit electric power to a power reception coil in a wireless manner",
+    "keywords": [
+      "ground",
+      "side",
+      "coil",
+      "unit",
+      "provided",
+      "with"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "EP3308388A4",
+    "title": "Wireless power transfer using multiple coil arrays",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "power",
+      "transfer",
+      "using",
+      "multiple",
+      "coil"
+    ],
+    "legal_status": "Withdrawn"
+  },
+  {
+    "patent_id": "EP3701445A4",
+    "title": "Systems and methods for electric vehicle charging",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "systems",
+      "and",
+      "methods",
+      "for",
+      "electric",
+      "vehicle"
+    ],
+    "legal_status": "Withdrawn"
+  },
+  {
+    "patent_id": "EP3740396A4",
+    "title": "Charging arrangement for the charging of electrical vehicles",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "charging",
+      "arrangement",
+      "for",
+      "the",
+      "electrical",
+      "vehicles"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "EP3770005B8",
+    "title": "Electrical vehicle charging system for charging an electrical vehicle",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "electrical",
+      "vehicle",
+      "charging",
+      "for",
+      "ep3770005b8"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "EP3842272A4",
+    "title": "Power generation system and mobile charging vehicle equipped with same",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "power",
+      "generation",
+      "and",
+      "mobile",
+      "charging",
+      "vehicle"
+    ],
+    "legal_status": "Pending"
+  },
+  {
     "patent_id": "EP3899001A1",
     "title": "Heat dissipation design for handheld electronics",
     "abstract": "A layered heat spreader design for smartphones and handheld charging accessories.",
@@ -62,6 +466,284 @@
     "legal_status": "pending"
   },
   {
+    "patent_id": "EP3925817A4",
+    "title": "Chargeable-dischargeable energy storage apparatus, wireless charging system and electric vehicle",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "chargeable",
+      "dischargeable",
+      "energy",
+      "storage",
+      "apparatus",
+      "wireless"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "EP4021755A4",
+    "title": "Electric vehicle charging apparatus, system and methods",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "electric",
+      "vehicle",
+      "charging",
+      "apparatus",
+      "and",
+      "methods"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "EP4029040A1",
+    "title": "Active electromagnetic shielding for high power dynamic wireless charging",
+    "abstract": "Active electromagnetic shielding for dynamic high power wireless charging and related electrified roadway systems, method, and wireless power transmitters is disclosed. A wireless power transmitter includes a first canceling coil offset from a power transmission coil, a second canceling coil offset from the power transmission coil, and circuitry electrically connected to the first canceling coil and the second canceling coil. The circuitry is configured to deliver canceling currents to the first canceling coil and the second canceling coil to destructively interfere with portions of electromagnetic fields generated by the power transmission coil.",
+    "claim": "What is claimed is: 1. A wireless power transmitter, comprising: a first canceling coil offset from a power transmission coil; a second canceling coil offset from the power transmission coil; and circuitry electrically connected to the first canceling coil and the second canceling coil, the circuitry configured to deliver canceling currents to the first canceling coil and the second canceling coil to destructively interfere with portions of electromagnetic fields generated by the power transmission coil.",
+    "keywords": [
+      "active",
+      "electromagnetic",
+      "shielding",
+      "for",
+      "high",
+      "power"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "EP4029040A4",
+    "title": "ACTIVE ELECTROMAGNETIC SHIELDING FOR HIGH POWER DYNAMIC WIRELESS CHARGING",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "active",
+      "electromagnetic",
+      "shielding",
+      "for",
+      "high",
+      "power"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "EP4029112A1",
+    "title": "Electromagnetic shield designs for high power wireless charging of electric vehicles and related shields, vehicles, systems, and methods",
+    "abstract": "Electromagnetic shields, vehicles, wireless charging systems, and related methods are disclosed. An electromagnetic shield includes a shield member including a coil side to face one or more inductive coils. The electromagnetic shield also includes one or more perimeter shield members configured in a loop proximate to a perimeter of the coil side of the shield member. The shield member and the one or more perimeter shield members are configured to shield electromagnetic radiation emitted by the one or more inductive coils.",
+    "claim": "What is claimed is: 1. An electromagnetic shield, comprising: a shield member including a coil side configured to face one or more inductive coils; and one or more perimeter shield members configured in a loop proximate to a perimeter of the coil side of the shield member; wherein the shield member and the one or more perimeter shield members are configured to shield electromagnetic radiation emitted by the one or more inductive coils.",
+    "keywords": [
+      "electromagnetic",
+      "shield",
+      "designs",
+      "for",
+      "high",
+      "power"
+    ],
+    "legal_status": "Withdrawn"
+  },
+  {
+    "patent_id": "EP4029112A4",
+    "title": "Electromagnetic shield designs for high power wireless charging of electric vehicles and related shields, vehicles, systems, and methods",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "electromagnetic",
+      "shield",
+      "designs",
+      "for",
+      "high",
+      "power"
+    ],
+    "legal_status": "Withdrawn"
+  },
+  {
+    "patent_id": "EP4031390A4",
+    "title": "Electric vehicle battery enclosure",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "electric",
+      "vehicle",
+      "battery",
+      "enclosure",
+      "ep4031390a4"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "EP4054055A4",
+    "title": "Wireless charging system and wireless charging method",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "charging",
+      "and",
+      "ep4054055a4"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "EP4055682A4",
+    "title": "Wireless charging system and associated methods",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "charging",
+      "and",
+      "associated",
+      "methods",
+      "ep4055682a4"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "EP4143052B1",
+    "title": "On-board charging device for electric vehicle, system, and methods for wirelessly charging electric vehicle",
+    "abstract": "",
+    "claim": "An on-board charging, OBC, device (102) for an electric vehicle (202), comprising: a mains input (104) comprising a power factor correction, PFC, converter (104A);",
+    "keywords": [
+      "board",
+      "charging",
+      "for",
+      "electric",
+      "vehicle",
+      "and"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "EP4207556A4",
+    "title": "Wireless charging system",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "charging",
+      "ep4207556a4"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "EP4289156A4",
+    "title": "Secure electric vehicle charging",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "secure",
+      "electric",
+      "vehicle",
+      "charging",
+      "ep4289156a4"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "EP4413383A4",
+    "title": "SYSTEM AND METHOD FOR REDUCING ELECTROMAGNETIC RADIATION IN A VEHICLE",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "and",
+      "for",
+      "reducing",
+      "electromagnetic",
+      "radiation",
+      "vehicle"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "JP2014087137A",
+    "title": "Contactless charger",
+    "abstract": "PROBLEM TO BE SOLVED: To provide a contactless charger which eliminates adverse effects on a circuit board which is caused by heat generation of a power transmission coil incorporated into the contactless charger and realizes measures for noise and heat dissipation.SOLUTION: A contactless charger is used for transferring electric power to a power reception coil 91 of a battery drive device 90 by magnetic induction action and charging a built-in battery 92. The contactless charger includes: a case 20 which has a placement surface 23 on which the battery drive device 90 is placed; a power transmission coil 11 which is electromagnetically coupled to the power reception coil 91 of the battery drive device 90 set on the placement surface 23; and a circuit board 13 formed by mounting an electronic component 14 which realizes an AC power source 12 for supplying an alternating-current power to the power transmission coil 11 thereon. The case 20 includes: a placement part 21 in which the placement surface 23 is provided as an inclined surface; and a base horizontal part 22 which supports the placement part 21. The power transmission coil 11 is placed on the rear side of the placement surface 23 and the circuit board 13 is disposed on a base part 22.",
+    "claim": "",
+    "keywords": [
+      "contactless",
+      "charger",
+      "problem",
+      "solved",
+      "provide",
+      "which"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "JP2014175514A",
+    "title": "Power feeding-side coil and non-contact power feeding apparatus",
+    "abstract": "A coil and a non-contact power feeding device that prevent electromagnetic leakage are provided. A power supply resonance coil supplies power to a power reception resonance coil in a non-contact manner. The power supply side resonance coil 23 includes a first power supply side coil portion 23A and a second power supply side coil portion 23B arranged side by side on the same axis. The first feeding side coil part 23A and the second feeding side coil part 23B are wound in opposite directions. [Selection] Figure 2",
+    "claim": "",
+    "keywords": [
+      "power",
+      "feeding",
+      "side",
+      "coil",
+      "and",
+      "non"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "JP2017077113A",
+    "title": "Wireless power transmission device, wireless power receiving device, and wireless power transmission device",
+    "abstract": "An object of the present invention is to suppress a leakage magnetic field while maintaining power transmission efficiency. In a wireless power transmission device according to a first embodiment, two cancel coils (12A, 12B) are provided around a power transmission coil (10). The power transmission coil 10 and the cancel coils 12A and B are solenoid coils, and the winding direction of the cancel coils 12A and B is opposite to that of the power transmission coil 10. Further, the radius of the cancel coils 12 </ b> A and 12 </ b> B is the same as that of the power transmission coil 10. The current supplied to the cancel coils 12 </ b> A and 12 </ b> B is the same as the current supplied to the power transmission coil 10. The cancellation coils 12A and B are arranged coaxially with the central axis of the power transmission coil 10, are arranged to face each other with the power transmission coil 10 interposed therebetween, and the distances from the center of the power transmission coil 10 to the centers of the cancellation coils 12A and B are equal. [Selection] Figure 1",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "power",
+      "transmission",
+      "receiving",
+      "and",
+      "object"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "JP2017107896A",
+    "title": "Contactless power supply system",
+    "abstract": "An object of the present invention is to reduce a leakage magnetic field to the outside of a vehicle while maintaining good power transmission efficiency in a contactless power supply system for an automobile. A first coil (61) installed on the ground and a second coil (11) installed on the lower surface of a vehicle body face each other, and the first coil (61) and the second coil (11) are arranged. In the non-contact power feeding system that performs non-contact power feeding between the first coil (61) and the second coil (11), both the first coil (61) and the second coil (11) are spiral coils. In (11), flanges (15, 65) are erected on both sides in the vehicle width direction with respect to the power transmission coil so that the entire power transmission coil is hidden in a side view from the vehicle width direction. The non-conductive magnetic thin film (16, 66) is formed on the surface on the power transmission coil side of the flange (15, 65). [Selection] Figure 2",
+    "claim": "",
+    "keywords": [
+      "contactless",
+      "power",
+      "supply",
+      "object",
+      "the",
+      "present"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP2020035565A",
+    "title": "Battery pack",
+    "abstract": "PROBLEM TO BE SOLVED: To provide an assembled battery capable of suppressing deterioration of cooling performance of a battery cell. SOLUTION: The assembled battery of the present invention includes a plurality of battery cells 10, a heat transfer plate 20, a connecting pipe 28L, and a restraining portion. The plurality of battery cells 10 are stacked in a predetermined direction. The heat transfer plate 20 is arranged between a plurality of battery cells 10 adjacent to each other. The heat transfer plate 20 has a refrigerant flow path 27 through which the refrigerant passes. The connection pipe 28L is connected to the refrigerant flow path 27 of the heat transfer plate 20 and supplies the refrigerant to the refrigerant flow path 27. The restraint portion restrains the stacked battery cells 10 and the heat transfer plate 20 by applying pressure in the stacking direction. The electrolyte of the battery cell 10 is a solid electrolyte. The connecting pipe 28L is deformable. The refrigerant flow path 27 is provided outside the area of the load application region B in which the restraint load by the restraint portion is applied via the adjacent battery cell 10 in the heat transfer plate 20. [Selection diagram] Fig. 4",
+    "claim": "",
+    "keywords": [
+      "battery",
+      "pack",
+      "problem",
+      "solved",
+      "provide",
+      "assembled"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP2020057701A",
+    "title": "Electronics",
+    "abstract": "PROBLEM TO BE SOLVED: To efficiently conduct heat generated inside an electronic device to the outside of the electronic device from a place which is difficult for the user to touch. SOLUTION: In an electronic device (1), a metal plate (3) has a plurality of aspects of the electronic device so as to absorb heat of a heat-generating component that generates heat inside the electronic device and guide it to the outside of the electronic device. At least one is exposed. Further, the outer surface (3bs) of the metal plate (3) exposed to the outside is formed inside the electronic device rather than the first member (2) and the second member (4). [Selection diagram] Fig. 1",
+    "claim": "",
+    "keywords": [
+      "electronics",
+      "problem",
+      "solved",
+      "efficiently",
+      "conduct",
+      "heat"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
     "patent_id": "JP2023176543A",
     "title": "充电底座热管理系统",
     "abstract": "用于多设备充电底座的温度检测与主动散热控制系统。",
@@ -72,6 +754,698 @@
       "温度传感"
     ],
     "legal_status": "公开"
+  },
+  {
+    "patent_id": "JP2023535943A",
+    "title": "Battery module and battery pack containing same",
+    "abstract": "A battery module according to an embodiment of the present invention includes a battery cell laminate in which a plurality of battery cells including electrode leads are stacked, an elastic member that covers the front surface, rear surface, and both side surfaces of the battery cell laminate; The battery cell includes a heat sink located under the battery cell stack, and a thermally conductive resin layer located between the battery cell stack and the heat sink. A lower portion of the elastic member is open, and a lower surface of the battery cell stack contacts the thermally conductive resin layer.",
+    "claim": "",
+    "keywords": [
+      "battery",
+      "module",
+      "and",
+      "pack",
+      "containing",
+      "same"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP4226041B2",
+    "title": "Transparent conductive shield with laminated structure",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "transparent",
+      "conductive",
+      "shield",
+      "with",
+      "laminated",
+      "structure"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "JP4453741B2",
+    "title": "Electric vehicle and vehicle power supply device",
+    "abstract": "An electrical powered vehicle (100) includes a secondary self-resonant coil (110), a secondary coil (120), a rectifier (130), and a power storage device (140). The secondary self-resonant coil (110) is configured to be magnetically coupled with a primary self-resonant coil (240) of a power feeding device (200) by magnetic field resonance, and allow reception of high frequency power from the primary self-resonant coil (240). The secondary coil (120) is configured to allow reception of electric power from the secondary self-resonant coil (110) by electromagnetic induction. The rectifier (130) rectifies the electric power received by the secondary coil (120). The power storage device (140) stores the electric power rectified by the rectifier (130).",
+    "claim": "",
+    "keywords": [
+      "electric",
+      "vehicle",
+      "and",
+      "power",
+      "supply",
+      "electrical"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP5839020B2",
+    "title": "Power transmission coil unit and wireless power transmission device",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "power",
+      "transmission",
+      "coil",
+      "unit",
+      "and",
+      "wireless"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP5966822B2",
+    "title": "Wireless power transmission equipment",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "wireless",
+      "power",
+      "transmission",
+      "equipment",
+      "jp5966822b2"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "JP6008237B2",
+    "title": "Mobile device",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "mobile",
+      "jp6008237b2"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "JP6232191B2",
+    "title": "Power feeding unit, power receiving unit, and power feeding system",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "power",
+      "feeding",
+      "unit",
+      "receiving",
+      "and",
+      "jp6232191b2"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "JP6363687B2",
+    "title": "Semiconductor device",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "semiconductor",
+      "jp6363687b2"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP6432251B2",
+    "title": "Power transmission coil unit and wireless power transmission device",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "power",
+      "transmission",
+      "coil",
+      "unit",
+      "and",
+      "wireless"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP6453545B2",
+    "title": "Power receiving unit and power supply system having the same",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "power",
+      "receiving",
+      "unit",
+      "and",
+      "supply",
+      "having"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "JP6480976B2",
+    "title": "Non-contact power receiving device",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "non",
+      "contact",
+      "power",
+      "receiving",
+      "jp6480976b2"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP6614210B2",
+    "title": "Power receiving apparatus and wireless power transmission system",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "power",
+      "receiving",
+      "apparatus",
+      "and",
+      "wireless",
+      "transmission"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP7012776B2",
+    "title": "Heat transport equipment and electronic equipment",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "heat",
+      "transport",
+      "equipment",
+      "and",
+      "electronic",
+      "jp7012776b2"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "JP7225674B2",
+    "title": "coil unit",
+    "abstract": "",
+    "claim": "",
+    "keywords": [
+      "coil",
+      "unit",
+      "jp7225674b2"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US10080318B2",
+    "title": "Safety shield for charging",
+    "abstract": "Methods, devices, and systems are provided to shield a passenger compartment of an electric vehicle from electromagnetic fields present during a wireless charging process. A charging system may include a power source and a charging plate wirelessly coupled to the power source, where the power source wirelessly transfers power to the charging plate. The system may further include at least one shield portion between the charging plate and a passenger compartment of the electric vehicle, where the at least one shield portion is configured to attenuate an electromagnetic field provided by the charging system.",
+    "claim": "1. A system for charging an electric vehicle, the system comprising: a charging system including a power source and a charging plate wirelessly coupled to the power source, wherein the power source wirelessly transfers power to the charging plate;",
+    "keywords": [
+      "safety",
+      "shield",
+      "for",
+      "charging",
+      "methods",
+      "devices"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US10128698B2",
+    "title": "Device and method for detecting an object within a wireless charging region",
+    "abstract": "An assembly and method are provided for detecting an object within a wireless charging region of an electric vehicle. The method includes applying by a controller, a voltage to the wireless charging region to generate a capacitance value and measuring by the controller, the capacitance value of an electromagnetic shield disposed on the underside of the vehicle. Further, the controller monitors the capacitance value of the electromagnetic shield; and the controller detects a change in the capacitance value when the object enters the wireless charging region.",
+    "claim": "1. A method of detecting an object within a wireless charging region of an electric vehicle, comprising: applying, by a controller, a voltage to the wireless charging region to generate a capacitance value;",
+    "keywords": [
+      "and",
+      "for",
+      "detecting",
+      "object",
+      "within",
+      "wireless"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US10245963B2",
+    "title": "Air cooled wireless charging pad",
+    "abstract": "A charging pad includes a housing, an interface layer, a magnetics assembly, and an electronics assembly. The housing has a magnetics assembly housing part and an electronics assembly housing part. The interface layer is within the housing. The magnetics assembly is arranged below the interface layer within the magnetics assembly housing part and the electronics assembly is arranged above the interface layer within the electronics assembly housing part.",
+    "claim": "1. A charging pad comprising: a housing having a magnetics assembly housing part and an electronics assembly housing part;",
+    "keywords": [
+      "air",
+      "cooled",
+      "wireless",
+      "charging",
+      "pad",
+      "includes"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US10367369B2",
+    "title": "System and method for charging or powering devices, including mobile devices, machines or equipment",
+    "abstract": "In accordance with various embodiments, described herein are systems and methods for enabling efficient wireless power transfer and charging of devices and/or batteries, including in some embodiments freedom of placement of the devices and/or the batteries in one or multiple (e.g. one, two or three) dimensions, and/or improved features including ease of use and compatibility. Exemplary applications include beam inductive or magnetic charging and power for use in, e.g., mobile, electronic, electric, lighting or other devices, machines, batteries, power tools, kitchen, military, medical, industrial tools or systems, robots, trains, buses, trucks and/or vehicles, and other environments.",
+    "claim": "1. A system for charging of one or more devices, including robots, vehicles, or batteries, the system comprising: a wireless charger that comprises a charger coil, an optional receiver that includes a receiver coil, and an optional wired charger, for charging one or more devices, including robots, vehicles, or batteries, the wireless charger and the optional wired charger using respectively wireless and wired means of communication with the devices to initial and control a charging process, wherein the wireless and the wired charger and/or the device can communicate with a local area, wide area, cellular, satellite, fiber, DSL or other wireless or wired network, to exchange information remotely regarding the charging of the one or more devices.",
+    "keywords": [
+      "and",
+      "for",
+      "charging",
+      "powering",
+      "devices",
+      "including"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US11881726B2",
+    "title": "Shielding system for wireless power transfer",
+    "abstract": "A shield construction for transfer of wireless power is provided. The shield construction may be a magnetic shield having a plurality of layers and provided for a wireless transmitter or a wireless receiver, or both. The magnetic shield may include a first layer and a second layer, where the first layer may be nearer to a core than the second layer, and where the second layer may include a second layer area that is larger than a first layer area of the first layer. The wireless transmitter and the wireless receiver may be configured to multi-phase wireless power transfer.",
+    "claim": "1. A three-phase wireless power transfer (3φ-WPT) system for wirelessly providing high-frequency AC power to an electric vehicle or a plug-in electric vehicle, the system comprising: an off-board transmitter comprising: a transmitter pad configured to wirelessly transmit the high-frequency AC power, the transmitter pad being hexagonally shaped and comprising three bipolar coils backed by a core;",
+    "keywords": [
+      "shielding",
+      "for",
+      "wireless",
+      "power",
+      "transfer",
+      "shield"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US12149096B2",
+    "title": "Active electromagnetic shielding for high power dynamic wireless charging and related systems, methods, and devices",
+    "abstract": "Active electromagnetic shielding for dynamic high power wireless charging and related electrified roadway systems, method, and wireless power transmitters is disclosed. A wireless power transmitter includes a first canceling coil offset from a power transmission coil, a second canceling coil offset from the power transmission coil, and circuitry electrically connected to the first canceling coil and the second canceling coil. The circuitry is configured to deliver canceling currents to the first canceling coil and the second canceling coil to destructively interfere with portions of electromagnetic fields generated by the power transmission coil.",
+    "claim": "1. A wireless power transmitter, comprising: a first canceling coil laterally offset from a power transmission coil on a first side thereof;",
+    "keywords": [
+      "active",
+      "electromagnetic",
+      "shielding",
+      "for",
+      "high",
+      "power"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "US20100081483A1",
+    "title": "Shield for use with a computing device that receives an inductive signal transmission",
+    "abstract": "Embodiments described herein include a computing device that is capable of inductive signal transfer with other computing devices. Such computing devices are provided a shield that protects the device and other components from electromagnetic interference and unwanted electrical affects resulting from the inductive signal transfer.",
+    "claim": "1 . A computing device comprising: a housing;",
+    "keywords": [
+      "shield",
+      "for",
+      "use",
+      "with",
+      "computing",
+      "that"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20120262002A1",
+    "title": "Antenna alignment and vehicle guidance for wireless charging of electric vehicles",
+    "abstract": "Embodiments are directed to a wireless power antenna alignment systems and methods for electric vehicles. A system may include a sensor configured to detect the strength of an electromagnetic field in multiple dimensions and a processor configured to determine at least one of a direction and a position of a transmitted beacon signal based on an output of the sensor.",
+    "claim": "1 . An apparatus for receiving wireless power, the apparatus comprising: a sensor coupled to a wireless power receive antenna, the sensor comprising: a core;",
+    "keywords": [
+      "antenna",
+      "alignment",
+      "and",
+      "vehicle",
+      "guidance",
+      "for"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20130119928A1",
+    "title": "Intelligent charging of multiple electric or electronic devices with a multi-dimensional inductive charger",
+    "abstract": "A system and method for intelligent charging of multiple electric or electronic devices with a multi-dimensional inductive charger. In accordance with an embodiment, the system comprises a base unit having one or more transmitter coils; one or more receiver coils or receivers associated with one or more mobile device; one or more components including a ferromagnetic, ferrite, or other magnetic material or layer, that modify the magnitude and/or phase of an electromagnetic field in one or multiple dimensions; and one or more components within the base unit and/or the mobile device, for intelligent charging of multiple mobile devices. In accordance with various embodiments, the base unit can determine the presence of a mobile device in proximity to the base unit, and wherein a receiver coil or receiver thereby activated performs an initiation process whereby its ID, presence, power, voltage or other requirements are communicated to the base unit.",
+    "claim": "1 . A system for intelligent charging of multiple electric or electronic devices with a multi-dimensional inductive charger, comprising: a base unit having one or more transmitter coils;",
+    "keywords": [
+      "intelligent",
+      "charging",
+      "multiple",
+      "electric",
+      "electronic",
+      "devices"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20130154553A1",
+    "title": "Wireless Automated Vehicle Energizing System",
+    "abstract": "A wireless recharging system for battery or hybrid vehicles having an in-road magnetic power transmission assembly that interconnects to a magnetic power reception assembly onboard the vehicle. As the vehicle stops or passes over the in-road magnetic power transmission assembly, magnetic coupling transfers power to the magnetic power reception assembly which, in turn, is used to recharge the vehicle battery. The in-road magnetic power transmission assembly may be powered from the electrical grid or designated electrical generators and is preferably designed to build the powering magnetic field in response to the detection of an authorized vehicle in proximity to the transmission assembly.",
+    "claim": "1 . A wireless energizing system for charging an electric battery positioned in a vehicle, comprising: a power transmit module positioned in a fixed location and including at least one transmit coil for transmitting power via a magnetic field;",
+    "keywords": [
+      "wireless",
+      "automated",
+      "vehicle",
+      "energizing",
+      "recharging",
+      "for"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "US20150145341A1",
+    "title": "Power feeding coil unit and wireless power transmission device",
+    "abstract": "A power feeding coil unit includes a power feeding coil, and first and second auxiliary coils arranged so that a wire of the first auxiliary coil and a wire of the second auxiliary coil do not overlap a wire of the a power feeding coil when viewed from a direction perpendicular to an axial direction of the power feeding coil. A direction of circulation of a magnetic flux generated by the first auxiliary coil and a magnetic flux generated by the second auxiliary coil are opposite to a direction of circulation of a magnetic flux generated by the power feeding coil. An axes of the first and second auxiliary coils are substantially perpendicular to a power feeding direction of the power feeding coil, and are not aligned with the axis of the power feeding coil.",
+    "claim": "1 . A power feeding coil unit for wirelessly feeding power, comprising: a power feeding coil having a wire wound in a helical shape; and",
+    "keywords": [
+      "power",
+      "feeding",
+      "coil",
+      "unit",
+      "and",
+      "wireless"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20150244181A1",
+    "title": "Power supply unit, power receiving unit, and power supply system",
+    "abstract": "Provided is a power supply system in which an electromagnetic leakage is prevented. A power supply side resonance coil provided to a power supply unit and a power receiving side resonance coil provided to a power receiving unit are housed respectively in a conductive power supply side shield case and power receiving side shield case. The power supply side shield case is formed of a bottom wall covering a side of the power supply side resonance coil spaced apart from the power receiving side resonance coil and a vertical wall erecting from a periphery of the bottom wall, and a ferrite is provided onto surfaces of the bottom wall and the vertical wall.",
+    "claim": "1 . A power supply unit comprising: a power source;",
+    "keywords": [
+      "power",
+      "supply",
+      "unit",
+      "receiving",
+      "and",
+      "provided"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20150246614A1",
+    "title": "Inductive power coupling systems for roadways",
+    "abstract": "An inductive power transfer system ( 10 ) for roadways includes at least one drive unit arrangement ( 50 ) coupled to at least one drive coil arrangement ( 40 ) disposed along a roadway ( 20 ) for generating a magnetic field extending upwardly from the roadway ( 20 ), and at least one vehicle ( 30 ) including a corresponding pickup coil arrangement ( 60 ) coupled to a power conditioning circuit arrangement ( 80, 200 ) for receiving the extending magnetic field for providing power to operate the at least one vehicle ( 30 ). The at least one drive unit arrangement ( 50 ) is operable to excite, for example at resonance, the at least one drive coil arrangement ( 40 ) at a fundamental frequency (f 0 ) of at least 30 kHz, preferably at least 50 kHz, more preferably at least 100 kHz, and most preferably at least 140 kHz. The at least one drive coil arrangement ( 40 ) is implemented to be substantially devoid of ferromagnetic components for providing a path for the extending magnetic field. Optionally, the at least one drive unit arrangement ( 50 ) is operable to employ a balanced class-E amplifier arrangement for exciting the at least one drive coil arrangement ( 40 ) at the fundamental frequency (f 0 ). Optionally, the at least one drive unit arrangement ( 50 ) is operable to employ one or more Silicon Carbide semiconductor devices for switching the currents provided to the corresponding at least one drive coil arrangement ( 40 ). Optionally, there is further included a passive and/or active suppression arrangement ( 100, 110, 120, 130, 140 ) for suppressing harmonic magnetic field components generated by the system ( 10 ) at multiples of the fundamental frequency (f 0 ) when in operation.",
+    "claim": "1 . An inductive power transfer system for roadways, the system comprising at least one drive unit arrangement coupled to at least one drive coil arrangement disposed along a roadway for generating a magnetic field extending upwardly from the roadway, and at least one vehicle including a corresponding pickup coil arrangement coupled to a power conditioning circuit arrangement for receiving the extending magnetic field for providing power to operate the at least one vehicle, wherein the inductive power transfer system further includes an active suppression arrangement for suppressing harmonic magnetic field components generated by the system at multiples of the fundamental frequency when in operation.",
+    "keywords": [
+      "inductive",
+      "power",
+      "coupling",
+      "systems",
+      "for",
+      "roadways"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "US20150371768A1",
+    "title": "Methods for forming shield materials onto inductive coils",
+    "abstract": "Methods of and systems for directing flux from a transmit coil to a receive coil within an inductive power transfer system are disclosed. For example, a transmit coil may be shielded with a contoured shield made from a ferromagnetic material. The contoured shield may contour to several surfaces of the transmit coil so as to define a single plane through which flux may be directed to a receive coil.",
+    "claim": "1 . A shield for an annular coil comprising: an outer portion contoured to an outer sidewall of the annular coil;",
+    "keywords": [
+      "methods",
+      "for",
+      "forming",
+      "shield",
+      "materials",
+      "onto"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20150380154A1",
+    "title": "Power supplying side coil and contactless power supplying apparatus",
+    "abstract": "A power supplying side resonant coil contactlessly supplies power to a power receiving side resonant coil. The power supplying side resonant coil includes a first power supplying side coil unit and a second power supplying side coil unit disposed side by side on the same axis. The first power supplying side coil unit and the second power supplying side coil unit are opposite to each other in the direction of winding.",
+    "claim": "1 . A power supplying side coil that contactlessly supplies power to a power receiving side coil, comprising a first coil unit and a second coil unit disposed side by side on the same axis,",
+    "keywords": [
+      "power",
+      "supplying",
+      "side",
+      "coil",
+      "and",
+      "contactless"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "US20160020019A1",
+    "title": "Power supplying unit, power receiving unit, and power supplying system",
+    "abstract": "A power supplying unit includes a power supply, a power supplying side resonant coil that resonates with a power receiving side resonant coil mounted on a vehicle and contactlessly supply the power supplied from the power supply to the power receiving side resonant coil, and a conductive power supplying side shield case for housing the power supplying side resonant coil. A power receiving unit includes the power receiving side resonant coil that electromagnetically resonates with the power supplying side resonant coil and contactlessly receive the power from the power supplying side resonant coil, and a power receiving side shield case for housing the power receiving side resonant coil. A ferrite is disposed outside the power receiving side shield case.",
+    "claim": "1 . A power supplying unit comprising: a power supply; a power supplying side resonant coil that resonates with a power receiving side resonant coil mounted on a vehicle for contactlessly supplying power supplied from the power supply to the power receiving side resonant coil; and a conductive shield case for housing the power supplying side resonant coil, wherein the power supplying unit further has a magnetic body disposed outside the shield case.",
+    "keywords": [
+      "power",
+      "supplying",
+      "unit",
+      "receiving",
+      "and",
+      "includes"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "US20160052398A1",
+    "title": "Road bearing for electric vehicle connection",
+    "abstract": "A road bearing for inductive coupling to an electrical connection device of an electric vehicle includes a series of primary induction coils, a bearing surface element, and a plurality of deformation features in the bearing surface element. The series of primary induction coils are interconnected to a source of electrical power and disposed in a substantially linear array below a roadway surface and within a roadway structure, and are aligned generally parallel to an alignment of the roadway. The bearing surface element is disposed above the primary induction coils, and has an upper surface that is substantially flush with the roadway surface, has a surface flatness in the range of ±1 μm per 30 mm, and a magnetic permeability in the range of 0.9 to 2. The plurality of deformation features include depressions in the upper surface of the bearing surface element, and are configured to provide friction to vehicle wheels.",
+    "claim": "1 . A road bearing for inductive coupling to an electrical connection device of an electric vehicle, comprising: a series of primary induction coils, interconnected to a source of electrical power, disposed in a substantially linear array below a roadway surface and within a roadway structure and aligned generally parallel to an alignment of the roadway;",
+    "keywords": [
+      "road",
+      "bearing",
+      "for",
+      "electric",
+      "vehicle",
+      "connection"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "US20160068070A1",
+    "title": "Methods and apparatus for tuning and controlling double couple inductive power transfer systems",
+    "abstract": "An apparatus for transmitting charging power wirelessly to a vehicle is provided. The apparatus comprises a first coupler having a first reactance at an operating frequency and configured to wirelessly receive power from a power source, the first coupler wound on a ferromagnetic core. The apparatus comprises a first capacitor having a second reactance at the operating frequency and electrically connected in series with the first coupler, the second reactance having a magnitude equal to a magnitude of the first reactance. The apparatus comprises a second capacitor electrically connected in parallel across the first coupler and the first capacitor. The apparatus comprises a first base coupler configured to be electrically connected in parallel across the second capacitor via a first switch. A magnitude of a peak voltage across the second capacitor is proportional to a magnitude of a peak voltage induced in the first coupler at the operating frequency.",
+    "claim": "1 . An apparatus for transmitting charging power wirelessly to a vehicle, the apparatus comprising: a first coupler having a first reactance at an operating frequency and configured to wirelessly receive power from a power source, the first coupler wound on a ferromagnetic core;",
+    "keywords": [
+      "methods",
+      "and",
+      "apparatus",
+      "for",
+      "tuning",
+      "controlling"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20160144727A1",
+    "title": "Shield apparatus and wireless power supply system",
+    "abstract": "A shield apparatus is used during wireless power supply from a power-transmitting coil to a power-receiving coil of a vehicle, and includes a multilayer magnetic shield member installed around the power-transmitting coil and arranged so as to surround a space between the power-transmitting coil and the power-receiving coil during supply of electric power.",
+    "claim": "1 . A shield apparatus used during wireless power supply from a power-transmitting coil to a power-receiving coil of a vehicle, the shield apparatus comprising: a multilayer magnetic shield member installed around the power-transmitting coil and arranged so as to surround a space between the power-transmitting coil and the power-receiving coil during supply of electric power.",
+    "keywords": [
+      "shield",
+      "apparatus",
+      "and",
+      "wireless",
+      "power",
+      "supply"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "US20160285317A1",
+    "title": "Wireless Power Transfer Using Multiple Coil Arrays",
+    "abstract": "In one embodiment of a wireless power transmitter, two coils are magnetically coupled together by placing both coils on a magnetic layer. A power circuit generates an AC signal of a defined voltage magnitude that causes a current to flow through the first coil, which generates a magnetic field having a first polarity. The second coil is coupled to the first coil. Current flows through the second coil and generates a magnetic field having a second polarity that is opposite from the first polarity. Because the magnetic field generated by each coil has a different polarity, the magnetic fields attract and form a strong magnetic field that flows from the first coil to the second coil. The strong magnetic field can transfer greater amounts of power to a receiver in comparison to coil configurations that emit magnetic fields in the same direction that repel one another.",
+    "claim": "1 . A wireless power device comprising: a first coil configured to receive a time-varying current that flows in the first coil in a first direction; and",
+    "keywords": [
+      "wireless",
+      "power",
+      "transfer",
+      "using",
+      "multiple",
+      "coil"
+    ],
+    "legal_status": "Withdrawn"
+  },
+  {
+    "patent_id": "US20160347188A1",
+    "title": "Power receiving unit and power supply system having the same",
+    "abstract": "Provided are a power receiving unit suppressing temperature rise of at least one of a coil and a capacitor, and a power supply system having the power receiving unit. The power receiving unit includes a coil and a capacitor body used for noncontactly receiving the power transmitted from the power supply device, and a receiving side case including therewithin a space housing the coil and the capacitor body. A pace K inside the receiving side case is wholly filled with heat conduction member.",
+    "claim": "1 . A power receiving unit disposed at an underside of a vehicle, and noncontactly receiving power transmitted from a power supply part disposed on the ground, the power receiving unit comprising: a coil and a capacitor used for receiving the power; and",
+    "keywords": [
+      "power",
+      "receiving",
+      "unit",
+      "and",
+      "supply",
+      "having"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "US20160380469A1",
+    "title": "Low inductance pad winding using a matched winding of multiple spirals",
+    "abstract": "An apparatus for wireless power charging includes a first charging coil with a first conductor arranged in a winding pattern with a first winding around a center point and each successive winding of the first charging coil is further away from the center point than the first winding and any previous windings. A second charging coil includes a second conductor wound with respect to the first charging coil where each coil of the second charging coil is arranged between each winding of the first charging coil. The first charging coil and second charging coil are connected in parallel. A ferrite structure is positioned adjacent to the first charging coil and the second charging coil.",
+    "claim": "1 . An apparatus comprising: a first charging coil comprising a first conductor arranged in a winding pattern with a first winding around a center point and each successive winding of the first charging coil is further away from the center point than the first winding and any previous windings;",
+    "keywords": [
+      "low",
+      "inductance",
+      "pad",
+      "winding",
+      "using",
+      "matched"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "US20170126059A1",
+    "title": "Contactless power supply system supplying power using power supply pad in contact less manner",
+    "abstract": "A contactless power supply system includes: a power supply pad including a power supply core formed of a magnetic material, and a power supply coil that uses the power supply core as a magnetic path; and a filter circuit including an inductor coil, the filter circuit being connected to the power supply pad. The power supply pads to which the respective filter circuits are connected are brought into a face-to-face relation so that electric power is transmitted from one power supply pad to the other power supply pad in a contactless manner. An inductor coil of at least either one of the filter circuits is provided to the power supply core of the power supply pad to which the filter circuit is connected, and the inductor coil uses the power supply core as a magnetic path.",
+    "claim": "1 . A contactless power supply system comprising: a power supply pad including a power supply core formed of a magnetic material, and a power supply coil provided to the power supply core to use the power supply core as a magnetic path; and",
+    "keywords": [
+      "contactless",
+      "power",
+      "supply",
+      "supplying",
+      "using",
+      "pad"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "US20170136896A1",
+    "title": "Deployable safety shield for charging",
+    "abstract": "Methods, devices, and systems are provided to shield a passenger compartment of an electric vehicle from electromagnetic fields present during a wireless charging process. A charging system may include a shield portion between the charging plate and a passenger compartment of the electric vehicle. The shield portion may include at least two states, a first state being a non-deployed state and a second state being a deployed state and the shield portion is configured to attenuate an electromagnetic field provided by the charging system when in the second state.",
+    "claim": "1 . A system for charging an electric vehicle, the system comprising: a charging system including a power source and a charging plate wirelessly coupled to the power source, wherein the power source wirelessly transfers power to the charging plate; and",
+    "keywords": [
+      "deployable",
+      "safety",
+      "shield",
+      "for",
+      "charging",
+      "methods"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20170222490A1",
+    "title": "Magnetic flux coupling structures with controlled flux cancellation",
+    "abstract": "Inductive power transfer flux coupling apparatus includes a first coil arranged in a first layer and configured to generate or receive a magnetic coupling flux in a flux coupling region, and a second coil. At least part of the second coil being arranged in a second layer and is configured to generate a magnetic flux that reflects flux from the first coil,",
+    "claim": "1 . Inductive power transfer flux coupling apparatus, comprising: a first coil of at least one turn arranged in a first layer, the first coil configured to generate or receive a magnetic coupling flux in a flux coupling region; and",
+    "keywords": [
+      "magnetic",
+      "flux",
+      "coupling",
+      "structures",
+      "with",
+      "controlled"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "US20180040416A1",
+    "title": "Inductor system having shared material for flux cancellation",
+    "abstract": "Methods and apparatus for flux cancellation includes first and second inductors, wherein the first inductor is configured for coupling to a first energy source and the second inductor is configured for coupling to a second energy source. A layer of magnetic material is disposed between the first and second inductors, wherein the first and second inductors are configured such that, when driven with an oscillating current, magnetic flux generated by the first inductor is substantially canceled by magnetic flux generated by the second inductor in the layer of magnetic material.",
+    "claim": "1 . A system comprising: a first inductor driven by a first oscillating current generated by a first energy source;",
+    "keywords": [
+      "inductor",
+      "having",
+      "shared",
+      "material",
+      "for",
+      "flux"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20180090956A1",
+    "title": "Structural framework for wireless charging mats",
+    "abstract": "Embodiments describe a wireless charging device including: a housing having a charging surface and first and second walls that define an interior cavity; a transmitter coil arrangement disposed within the interior cavity, an interconnection structure positioned within the interior cavity below the transmitter coil arrangement, the interconnection structure including a plurality of packaged electrical components mounted on the interconnection structure and configured to operate the plurality of transmitter coils during wireless power transfer, where the plurality of packaged electrical components is located below the transmitter coil arrangement; and a frame comprising a plurality of openings positioned corresponding to the plurality of packaged electrical components, each opening providing space within which a respective packaged electrical device is disposed.",
+    "claim": "1 . A wireless charging device comprising: a housing having a charging surface and first and second walls that define an interior cavity;",
+    "keywords": [
+      "structural",
+      "framework",
+      "for",
+      "wireless",
+      "charging",
+      "mats"
+    ],
+    "legal_status": "Abandoned"
+  },
+  {
+    "patent_id": "US20180090974A1",
+    "title": "Electromagnetic shielding for wireless power transfer systems",
+    "abstract": "Embodiments describe electromagnetic shielding for wireless charging systems. A wireless charging system includes a transmitter coil configured to generate a magnetic flux, a receiver coil positioned coaxial with the transmitter coil to receive the generated magnetic flux, where electrical interaction between the transmitter coil and the receiver coil generates electric fields, a transmitter shield positioned between the transmitter coil and the receiver coil to intercept some of the electric fields directed away from the transmitter coil and allow the magnetic flux to pass through the transmitter shield, and a receiver shield positioned between the transmitter shield and the receiver coil to intercept some of the electric fields directed away from the receiver coil and allow the magnetic flux to pass through the receiver shield.",
+    "claim": "1 . A wireless charging system, comprising: a transmitter coil configured to generate a magnetic flux;",
+    "keywords": [
+      "electromagnetic",
+      "shielding",
+      "for",
+      "wireless",
+      "power",
+      "transfer"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20180294683A1",
+    "title": "Non-contact power receiving device",
+    "abstract": "A non-contact power receiving device includes a power receiving device, a shielding member, supports, a housing, and fastening elements. The power receiving device is mounted on a vehicle body and configured to receive wirelessly transmitted electric power. The shielding member is provided between the vehicle body and the power receiving device. The supports are provided so as to project from the vehicle body. The housing is provided between the supports and in which the power receiving device is disposed. The fastening elements are respectively mounted on the supports so as to be disposed on the opposite side of the housing and that respectively fasten the shielding member to the supports.",
+    "claim": "1 . A non-contact power receiving device comprising: a power receiving device mounted on a vehicle body and configured to receive wirelessly transmitted electric power;",
+    "keywords": [
+      "non",
+      "contact",
+      "power",
+      "receiving",
+      "includes",
+      "shielding"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20190035543A1",
+    "title": "Coil unit, and power transmitting device, power receiving device and wireless power transmission system using the coil unit",
+    "abstract": "Disclosed herein is a coil unit that includes a coil formed by spirally winding a conductive wire, a capacitor electrically connected to the coil, a magnetic member covering the coil in an axial direction of the coil, a first metal shield covering the coil with the magnetic member interposed therebetween, and a second metal shield disposed between the magnetic member and the first metal shield so as to form a space for housing the capacitor. The second metal shield includes a flat plate part facing to the magnetic member, a side wall disposed around the capacitor, and a flange part formed by bending a leading end portion of the side wall extending toward the first metal shield. The flange part is disposed so as to be thermally connected to the first metal shield.",
+    "claim": "1 . A coil unit comprising: a coil formed by spirally winding a conductive wire;",
+    "keywords": [
+      "coil",
+      "unit",
+      "and",
+      "power",
+      "transmitting",
+      "receiving"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20190190317A1",
+    "title": "Wireless Power Supply Device And Electrical Apparatus",
+    "abstract": "A wireless power supply device comprises a transmitting coil assembly and a receiving coil assembly. The transmitting coil assembly includes a first ferrite core having a receiving chamber with an opening and a transmitting coil disposed in the receiving chamber of the first ferrite core. The receiving coil assembly is adapted to be moved into the receiving chamber through the opening of the receiving chamber and located at a predetermined position in the receiving chamber. The receiving coil assembly is electromagnetically coupled with the transmitting coil assembly.",
+    "claim": "1 . A wireless power supply device, comprising: a transmitting coil assembly including a first ferrite core having a receiving chamber with an opening and a transmitting coil disposed in the receiving chamber of the first ferrite core; and",
+    "keywords": [
+      "wireless",
+      "power",
+      "supply",
+      "and",
+      "electrical",
+      "apparatus"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "US20200126717A1",
+    "title": "Coil unit",
+    "abstract": "A power-transmission-side coil unit includes: a housing including a metal case body and a resin cover, an electric device provided in the housing, a metal substrate disposed between the cover and the electric device and covering the electric device, and a power transmission coil. The case body includes a base portion, and a ring-shaped wall portion protruding toward the cover along the outer peripheral edge of base portion inside the outer peripheral edge of base portion. The metal substrate includes a partition wall disposed between the cover and the electric device, and a peripheral wall extending from the partition wall toward the base portion. An end portion of the peripheral wall is disposed in the D direction relative to the upper face of the ring-shaped wall portion. At least part of a lateral face of the peripheral wall is in contact with a lateral face of the ring-shaped wall portion.",
+    "claim": "1 . A coil unit comprising: a housing including a metal body, and a resin cover covering the metal body;",
+    "keywords": [
+      "coil",
+      "unit",
+      "power",
+      "transmission",
+      "side",
+      "includes"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20220393510A1",
+    "title": "Active electromagnetic shielding for high power dynamic wireless charging",
+    "abstract": "Active electromagnetic shielding for dynamic high power wireless charging and related electrified roadway systems, method, and wireless power transmitters is disclosed. A wireless power transmitter includes a first canceling coil offset from a power transmission coil, a second canceling coil offset from the power transmission coil, and circuitry electrically connected to the first canceling coil and the second canceling coil. The circuitry is configured to deliver canceling currents to the first canceling coil and the second canceling coil to destructively interfere with portions of electromagnetic fields generated by the power transmission coil.",
+    "claim": "1 . A wireless power transmitter, comprising: a first canceling coil offset from a power transmission coil;",
+    "keywords": [
+      "active",
+      "electromagnetic",
+      "shielding",
+      "for",
+      "high",
+      "power"
+    ],
+    "legal_status": "Ceased"
   },
   {
     "patent_id": "US20230222222A1",
@@ -97,6 +1471,111 @@
       "handle",
       "includes",
       "positioning"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US20240181901A1",
+    "title": "Devices, systems, and methods for wireless vehicle charging",
+    "abstract": "Devices, systems, and methods related to wireless charging for transportation vehicles include a wireless charge assembly including a capacitor bank assembly, shielding body, and a coil assembly. The coil assembly can include a coil body having a plurality of shielding turns positioned which can be arranged to reduce stray field from inductive charging of the transportation vehicle.",
+    "claim": "1 . A vehicle capable of wireless charging comprising: a transportation vehicle chassis having a lower section; and",
+    "keywords": [
+      "devices",
+      "systems",
+      "and",
+      "methods",
+      "for",
+      "wireless"
+    ],
+    "legal_status": "Pending"
+  },
+  {
+    "patent_id": "US8008888B2",
+    "title": "Electrical powered vehicle and power feeding device for vehicle",
+    "abstract": "An electrical powered vehicle includes a secondary self-resonant coil, a secondary coil, a rectifier, and a power storage device. The secondary self-resonant coil is configured to be magnetically coupled with a primary self-resonant coil of a power feeding device by magnetic field resonance, and allow reception of high frequency power from the primary self-resonant coil. The secondary coil is configured to allow reception of electric power from the secondary self-resonant coil by electromagnetic induction. The rectifier rectifies the electric power received by the secondary coil. The power storage device stores the electric power rectified by the rectifier.",
+    "claim": "1. An electrical powered vehicle comprising: a secondary self-resonant coil configured to be magnetically coupled with a primary self-resonant coil external to a vehicle by magnetic field resonance, and allow reception of electric power from said primary self-resonant coil,",
+    "keywords": [
+      "electrical",
+      "powered",
+      "vehicle",
+      "and",
+      "power",
+      "feeding"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US8946938B2",
+    "title": "Safety systems for wireless energy transfer in vehicle applications",
+    "abstract": "A vehicle powering wireless receiver for use with a first electromagnetic resonator coupled to a power supply. The wireless receiver including a load configured to power the drive system of a vehicle using electrical power, a second electromagnetic resonator adapted to be housed upon the vehicle and configured to be coupled to the load, a safety system for to provide protection with respect to an object that may become hot during operation of the first electromagnetic resonator. The safety system including a detection subsystem configured to detect the presence of the object in substantial proximity to at least one of the resonators, and a notification subsystem operatively coupled to the detection subsystem and configured to provide an indication of the object, wherein the second resonator is configured to be wirelessly coupled to the first resonator to provide resonant, non-radiative wireless power to the second resonator from the first resonator.",
+    "claim": "1. A vehicle powering wireless receiver, comprising: a load coupled to a drive system of the vehicle;",
+    "keywords": [
+      "safety",
+      "systems",
+      "for",
+      "wireless",
+      "energy",
+      "transfer"
+    ],
+    "legal_status": "Active"
+  },
+  {
+    "patent_id": "US9306635B2",
+    "title": "Wireless energy transfer with reduced fields",
+    "abstract": "A magnetic resonator includes an inductor comprising a conductive first loop having a first dipole moment and a conductive second loop having a second dipole moment wherein a direction of the first dipole moment is substantially opposite to a direction of the second dipole moment and at least one capacitor in series with at least one of the first loop and the second loop.",
+    "claim": "1. A system for wireless power transfer, comprising: a first source magnetic resonator comprising a conductive first coil having one or more loops coupled to at least one capacitor;",
+    "keywords": [
+      "wireless",
+      "energy",
+      "transfer",
+      "with",
+      "reduced",
+      "fields"
+    ],
+    "legal_status": "Ceased"
+  },
+  {
+    "patent_id": "US9707852B2",
+    "title": "Protective shield for an electric vehicle inductive charging pad",
+    "abstract": "A vehicle includes a vehicle coil assembly configured to couple with a ground coil assembly in a presence of a magnetic field therebetween for wireless power transfer to the vehicle. The vehicle coil assembly includes an inflatable shield configured to extend from the vehicle and form a barrier around a portion of the magnetic field.",
+    "claim": "1. A vehicle comprising: a vehicle coil assembly configured to couple with a ground coil assembly in a presence of a magnetic field therebetween for wireless power transfer to the vehicle, and including an inflatable shield configured to extend from the vehicle and form a barrier around a portion of the magnetic field.",
+    "keywords": [
+      "protective",
+      "shield",
+      "for",
+      "electric",
+      "vehicle",
+      "inductive"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "US9889757B2",
+    "title": "Mobile machine, wireless power transmission system, and wireless power transmission method",
+    "abstract": "According to one embodiment, a mobile machine includes a mobile body and a plurality of power transmission resonators. The mobile body is capable of being tilted in a particular direction such that a distance between a particular part opposed to a travel surface and the travel surface is reduced. The plurality of power transmission resonators are arranged at portions of the particular part of the mobile body, heights of the portions with reference to the travel surface being approximately identical with each other in a state of the mobile body being tilted.",
+    "claim": "1. A mobile machine comprising: a mobile body capable of being tilted in a particular direction such that a distance between a particular part opposed to a travel surface and the travel surface is reduced; and",
+    "keywords": [
+      "mobile",
+      "machine",
+      "wireless",
+      "power",
+      "transmission",
+      "and"
+    ],
+    "legal_status": "Expired - Fee Related"
+  },
+  {
+    "patent_id": "US9923406B2",
+    "title": "System and method for reducing leakage flux in wireless charging systems",
+    "abstract": "One innovation includes a system for reducing magnetic flux of a wireless charging field in a wireless power charging system. The system comprises a wireless power transmitter configured to generate the wireless charging field, the field comprising the magnetic flux and a collector comprising a ferromagnetic material and configured to reduce the magnetic flux. The collector is positioned between a first distance and a second distance at a third distance from the transmitter. The collector is configured to reduce the magnetic flux at a first level at the first distance, at a second level at the second distance, and at a third level at the third distance, the third level greater than each of the first and second levels.",
+    "claim": "1. An apparatus for reducing leakage magnetic flux of a wireless charging field in a wireless power charging system, the apparatus comprising: a wireless power transmitter having a transmitter edge and configured to generate the wireless charging field; and",
+    "keywords": [
+      "and",
+      "for",
+      "reducing",
+      "leakage",
+      "flux",
+      "wireless"
     ],
     "legal_status": "Active"
   }
