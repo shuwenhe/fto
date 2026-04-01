@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-01T07:59:49.550Z",
+  "generated_at": "2026-04-01T08:03:49.272Z",
   "summary": {
     "k": 5,
     "queries": 5,
@@ -14,12 +14,12 @@
     "rewrite": {
       "recall_at_k": 0.8333333333333333,
       "mrr_at_k": 1,
-      "ndcg_at_k": 0.9407002709329643
+      "ndcg_at_k": 0.9459487321811977
     },
     "delta": {
       "recall_at_k": 0,
       "mrr_at_k": 0,
-      "ndcg_at_k": -0.005248461248233416
+      "ndcg_at_k": 0
     }
   },
   "rows": [
@@ -57,7 +57,7 @@
     {
       "query_id": "q2",
       "query": "电池 散热 保护",
-      "rewritten_query": "电池 散热 保护 热管理 温控 储能 电芯",
+      "rewritten_query": "电池 散热 保护 储能 电芯",
       "rewrite_applied": true,
       "base": {
         "recall": 1,
@@ -67,12 +67,12 @@
       "rewrite": {
         "recall": 1,
         "mrr": 1,
-        "ndcg": 0.9737576937588317
+        "ndcg": 1
       },
       "delta": {
         "recall": 0,
         "mrr": 0,
-        "ndcg": -0.0262423062411683
+        "ndcg": 0
       },
       "topk_base": [
         "CN202311998B",
@@ -82,9 +82,8 @@
       ],
       "topk_rewrite": [
         "CN202311998B",
-        "CN202410001A",
-        "JP2023176543A",
         "CN202209876U",
+        "JP2023176543A",
         "CN202355566A"
       ]
     },
