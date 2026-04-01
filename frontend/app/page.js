@@ -433,49 +433,6 @@ export default function HomePage() {
       </section>
 
       <section className="card">
-        <h2>Judge</h2>
-        <p>展示风险等级判定与解释理由。</p>
-        <table>
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>专利号</th>
-              <th>标题</th>
-              <th>Risk</th>
-              <th>Final Score</th>
-              <th>Reason</th>
-            </tr>
-          </thead>
-          <tbody>
-            {judgeRows.length === 0 ? (
-              <tr>
-                <td colSpan={6}>暂无 Judge 结果</td>
-              </tr>
-            ) : (
-              judgeRows.map((row) => (
-                <tr key={`judge-${row.patent_id}`}>
-                  <td>{row.rank}</td>
-                  <td>
-                    <a
-                      href={row.patent_url || `https://patents.google.com/patent/${row.patent_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {row.patent_id}
-                    </a>
-                  </td>
-                  <td>{row.title}</td>
-                  <td>{row.risk_level || '-'}</td>
-                  <td>{Number(row.final_score || 0).toFixed(4)}</td>
-                  <td>{row.reason || '-'}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </section>
-
-      <section className="card">
         <h2>Encoder</h2>
         <p>使用当前输入的查询，查看 top-k 候选专利的特征向量、embedding 和 encoder score。</p>
 
@@ -525,6 +482,49 @@ export default function HomePage() {
                   <td>
                     <code className="vectorText">{formatVector(row.features)}</code>
                   </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="card">
+        <h2>Judge</h2>
+        <p>展示风险等级判定与解释理由。</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>专利号</th>
+              <th>标题</th>
+              <th>Risk</th>
+              <th>Final Score</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {judgeRows.length === 0 ? (
+              <tr>
+                <td colSpan={6}>暂无 Judge 结果</td>
+              </tr>
+            ) : (
+              judgeRows.map((row) => (
+                <tr key={`judge-${row.patent_id}`}>
+                  <td>{row.rank}</td>
+                  <td>
+                    <a
+                      href={row.patent_url || `https://patents.google.com/patent/${row.patent_id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {row.patent_id}
+                    </a>
+                  </td>
+                  <td>{row.title}</td>
+                  <td>{row.risk_level || '-'}</td>
+                  <td>{Number(row.final_score || 0).toFixed(4)}</td>
+                  <td>{row.reason || '-'}</td>
                 </tr>
               ))
             )}
