@@ -55,6 +55,7 @@ func (r *HybridPatentRepository) ExplainQuery(ctx context.Context, query string,
 		resp, localErr := r.local.ExplainQuery(ctx, query, limit)
 		if resp != nil && debug != nil {
 			debug.MergedCount = resp.CandidateCount
+			debug.MergedIDs = rankingExplainPatentIDs(resp.Results)
 			debug.Fallback = "local_only"
 			resp.RecallDebug = debug
 		}
@@ -73,6 +74,7 @@ func (r *HybridPatentRepository) ExplainEncoder(ctx context.Context, query strin
 		resp, localErr := r.local.ExplainEncoder(ctx, query, limit)
 		if resp != nil && debug != nil {
 			debug.MergedCount = resp.CandidateCount
+			debug.MergedIDs = encoderExplainPatentIDs(resp.Results)
 			debug.Fallback = "local_only"
 			resp.RecallDebug = debug
 		}
@@ -158,8 +160,33 @@ func (r *HybridPatentRepository) fetchCandidatePatentIDsWithDebug(ctx context.Co
 	}
 	merged, deduped := interleaveUniquePatentIDsWithDeduped(resultSets...)
 	debug.MergedCount = len(merged)
+	debug.MergedIDs = append([]string(nil), merged...)
 	debug.DedupedIDs = deduped
 	return merged, debug, nil
+}
+
+func rankingExplainPatentIDs(items []model.RankingExplainItem) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		id := strings.TrimSpace(item.PatentID)
+		if id == "" {
+			continue
+		}
+		out = append(out, id)
+	}
+	return out
+}
+
+func encoderExplainPatentIDs(items []model.EncoderExplainItem) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		id := strings.TrimSpace(item.PatentID)
+		if id == "" {
+			continue
+		}
+		out = append(out, id)
+	}
+	return out
 }
 
 func interleaveUniquePatentIDs(groups ...[]string) []string {
