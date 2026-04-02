@@ -61,7 +61,7 @@ func (r *ElasticsearchPatentRepository) ExplainQuery(ctx context.Context, query 
 			resp.RecallDebug = &model.RecallDebugInfo{
 				ElasticsearchCount: 0,
 				MergedCount:        resp.CandidateCount,
-				MergedIDs:          rankingExplainPatentIDs(resp.Results),
+				MergedIDs:          esRankingExplainPatentIDs(resp.Results),
 				HybridActive:       false,
 				Sources:            []string{"local"},
 				Fallback:           "local_only",
@@ -91,7 +91,7 @@ func (r *ElasticsearchPatentRepository) ExplainEncoder(ctx context.Context, quer
 			resp.RecallDebug = &model.RecallDebugInfo{
 				ElasticsearchCount: 0,
 				MergedCount:        resp.CandidateCount,
-				MergedIDs:          encoderExplainPatentIDs(resp.Results),
+				MergedIDs:          esEncoderExplainPatentIDs(resp.Results),
 				HybridActive:       false,
 				Sources:            []string{"local"},
 				Fallback:           "local_only",
@@ -124,7 +124,7 @@ func (r *ElasticsearchPatentRepository) Search(ctx context.Context, query string
 	return r.local.searchDualForPatentIDs(query, limit, patentIDs), nil
 }
 
-func rankingExplainPatentIDs(items []model.RankingExplainItem) []string {
+func esRankingExplainPatentIDs(items []model.RankingExplainItem) []string {
 	out := make([]string, 0, len(items))
 	for _, item := range items {
 		id := strings.TrimSpace(item.PatentID)
@@ -136,7 +136,7 @@ func rankingExplainPatentIDs(items []model.RankingExplainItem) []string {
 	return out
 }
 
-func encoderExplainPatentIDs(items []model.EncoderExplainItem) []string {
+func esEncoderExplainPatentIDs(items []model.EncoderExplainItem) []string {
 	out := make([]string, 0, len(items))
 	for _, item := range items {
 		id := strings.TrimSpace(item.PatentID)
