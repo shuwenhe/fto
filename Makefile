@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet patent-incremental-sync patent-process-pending-embeddings index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus search-stack-up search-stack-down search-stack-logs eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet patent-incremental-sync patent-process-pending-embeddings index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus search-stack-up search-stack-down search-stack-logs eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model check-qrels-distribution compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -50,6 +50,7 @@ help:
 	@echo "  make eval-retrieval-model # Eval retrieval with trained recall model"
 	@echo "  make eval-reranker-model # Eval reranker on recall candidates"
 	@echo "  make eval-judge-model # Eval judge classifier with trained artifact"
+	@echo "  make check-qrels-distribution # Check qrels class/query balance for judge labeling"
 	@echo "  make import-patent PATENT_ID=CN202410001A # Import from Google Patents"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
@@ -213,6 +214,9 @@ auto-prune-query-rewrite-status:
 
 eval-ab-reranker:
 	node scripts/eval_ab_reranker.mjs --k 5 --deep-top-n 8 --deep-mix-alpha 0.35 --verbose
+
+check-qrels-distribution:
+	python3 scripts/check_qrels_distribution.py
 
 compare-online-offline:
 	node scripts/compare_online_offline.mjs --k 5 --sample 5 --verbose
