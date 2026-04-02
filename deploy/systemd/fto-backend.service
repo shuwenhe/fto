@@ -7,7 +7,7 @@ Type=simple
 WorkingDirectory=/app/fto
 EnvironmentFile=-/etc/default/fto-backend
 Environment=GIN_MODE=release
-ExecStart=/usr/bin/make -C /app/fto backend-run
+ExecStart=/app/fto/backend/fto-backend-bin
 Restart=always
 RestartSec=2
 User=root

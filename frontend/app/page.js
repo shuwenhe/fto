@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 const navItems = [
-  { label: '首页', href: 'http://111.202.231.146:8080/fto' },
-  { label: '健康检查', href: 'http://111.202.231.146:8080/fto/api/health' },
-  { label: '运行指标', href: 'http://111.202.231.146:8080/fto/api/metrics' },
-  { label: '排序配置', href: 'http://111.202.231.146:8080/fto/api/ops/ranking-config' },
-  { label: '排序模型', href: 'http://111.202.231.146:8080/fto/api/ops/ranking-model' },
+  { label: '首页', href: '/fto' },
+  { label: '健康检查', href: '/fto/api/health' },
+  { label: '运行指标', href: '/fto/api/metrics' },
+  { label: '排序配置', href: '/fto/api/ops/ranking-config' },
+  { label: '排序模型', href: '/fto/api/ops/ranking-model' },
 ];
 
 const PDF_FONT_NAME = 'DroidSansFallback';

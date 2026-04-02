@@ -105,20 +105,38 @@ cd /app/fto
 make backend-run
 ```
 
-4. 另一个终端检查联通
+4. 安装并启用 Nginx 反向代理
+
+示例站点配置已经放在：
+
+```text
+deploy/nginx/fto.conf
+```
+
+将其链接到 Nginx 站点目录后测试并重载：
 
 ```bash
+ln -sf /app/fto/deploy/nginx/fto.conf /etc/nginx/conf.d/fto.conf
 cd /app/fto
 make nginx-test
 make nginx-reload
-make backend-health
 ```
 
-5. 浏览器访问
+5. 另一个终端检查联通
+
+```bash
+cd /app/fto
+make backend-health
+curl -I http://127.0.0.1/fto
+```
+
+6. 浏览器访问
 
 ```text
-http://111.202.231.146:8080/fto
+http://39.107.59.4/fto
 ```
+
+如果公网仍无法访问，优先检查云服务器安全组和本机防火墙是否已放行 `80` 端口。
 
 ## 代码更新自动提交到 GitHub
 
