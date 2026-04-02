@@ -883,9 +883,15 @@ export default function HomePage() {
         return;
       }
       items.forEach((item) => {
-        children.push(new Paragraph(item.heading));
-        children.push(new Paragraph(item.source));
-        children.push(new Paragraph(item.reason));
+        children.push(
+          new Paragraph(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`)
+        );
+        children.push(
+          new Paragraph(
+            `Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}`
+          )
+        );
+        children.push(new Paragraph(`Reason ${item.reason}`));
         children.push(new Paragraph(''));
       });
     });
@@ -919,7 +925,7 @@ export default function HomePage() {
         const blocks = items
           .map(
             (item) =>
-              `<div class="evidence"><p><strong>${item.heading}</strong></p><p>${item.source}</p><p>${item.reason}</p></div>`
+              `<div class="evidence"><p><strong>Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}</strong></p><p>Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}</p><p>Reason ${item.reason}</p></div>`
           )
           .join('');
         return `<section><h2>${section.title}</h2>${blocks}</section>`;
