@@ -605,6 +605,25 @@ export default function HomePage() {
       reason: `reason: ${safeText(item.reason)}`,
     }));
 
+    const fallbackCoreFindings = useAsciiFallback
+      ? ['No structured findings were returned. Please review evidence items directly.']
+      : ['未返回结构化核心发现，请直接查看证据清单中的证据条目。'];
+
+    const fallbackRecommendations = useAsciiFallback
+      ? [
+          'Prioritize claim chart comparison for high-risk patents.',
+          'Evaluate substitute technical routes for medium-risk candidates.',
+          'Archive source links for compliance and audit traceability.',
+        ]
+      : [
+          '优先对高风险专利进行权利要求逐条比对，输出可规避的结构差异清单。',
+          '对中风险候选开展技术特征映射，评估侵权边界和可替代方案。',
+          '将本次证据链接纳入评审记录，形成可追溯审计链路。',
+        ];
+
+    const coreFindings = (report.core_findings || []).map((item) => safeText(item)).filter(Boolean);
+    const recommendations = (report.recommendations || []).map((item) => safeText(item)).filter(Boolean);
+
     return {
       labels,
       title: labels.title,
@@ -625,12 +644,12 @@ export default function HomePage() {
         {
           title: labels.coreFindings,
           type: 'list',
-          content: (report.core_findings || []).map((item) => safeText(item)),
+          content: coreFindings.length > 0 ? coreFindings : fallbackCoreFindings,
         },
         {
           title: labels.recommendations,
           type: 'list',
-          content: (report.recommendations || []).map((item) => safeText(item)),
+          content: recommendations.length > 0 ? recommendations : fallbackRecommendations,
         },
         {
           title: labels.evidenceList,
