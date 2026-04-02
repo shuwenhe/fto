@@ -512,79 +512,233 @@ export default function HomePage() {
     }
   }
 
-  function buildReportTextLines(report, useAsciiFallback = false) {
-    const safeText = (value) => {
-      const text = String(value ?? '').trim();
-      return text || '-';
+  function safeText(value, fallback = '-') {
+    const text = String(value ?? '').trim();
+    return text || fallback;
+  }
+
+  function buildReportTemplate(report, useAsciiFallback = false) {
+    const labels = useAsciiFallback
+      ? {
+          title: 'FTO Patent Risk Report',
+          subtitle: 'Structured freedom-to-operate risk summary',
+          reportId: 'Report ID',
+          generatedAt: 'Generated At',
+          originalQuery: 'Original Query',
+          rewrittenQuery: 'Rewritten Query',
+          candidateCount: 'Candidate Count',
+          executiveSummary: 'Executive Summary',
+          coreFindings: 'Core Findings',
+          recommendations: 'Recommendations',
+          evidenceList: 'Evidence List',
+          riskDistribution: 'Risk Distribution',
+          noEvidence: 'No evidence available.',
+          fallbackNotice: 'Notice: fallback font is used.',
+        }
+      : {
+          title: 'FTO 专利防侵权分析报告',
+          subtitle: '结构化风险结论与证据链',
+          reportId: '报告ID',
+          generatedAt: '生成时间',
+          originalQuery: '原始查询',
+          rewrittenQuery: '改写查询',
+          candidateCount: '候选数',
+          executiveSummary: '执行摘要',
+          coreFindings: '核心发现',
+          recommendations: '行动建议',
+          evidenceList: '证据清单',
+          riskDistribution: '风险分布',
+          noEvidence: '暂无证据。',
+          fallbackNotice: '提示：当前使用回退字体。',
+        };
+
+    const riskDistribution = report.risk_distribution || {};
+    const riskSummary = `${labels.riskDistribution}: high=${Number(riskDistribution.high || 0)}, medium=${Number(
+      riskDistribution.medium || 0
+    )}, low=${Number(riskDistribution.low || 0)}`;
+
+    const evidence = (report.evidence || []).map((item) => ({
+      heading: `#${item.rank} ${safeText(item.patent_id)} | ${safeText(item.title)} | risk=${safeText(
+        item.risk_level
+      )} | final=${Number(item.final_score || 0).toFixed(4)}`,
+      source: `source: ${safeText(item.source_url || item.patent_url)}`,
+      reason: `reason: ${safeText(item.reason)}`,
+    }));
+
+    return {
+      labels,
+      title: labels.title,
+      subtitle: labels.subtitle,
+      meta: [
+        { label: labels.reportId, value: safeText(report.report_id) },
+        { label: labels.generatedAt, value: safeText(report.generated_at) },
+        { label: labels.originalQuery, value: safeText(report.original_query) },
+        { label: labels.rewrittenQuery, value: safeText(report.rewritten_query) },
+        { label: labels.candidateCount, value: safeText(report.candidate_count) },
+      ],
+      sections: [
+        {
+          title: labels.executiveSummary,
+          type: 'paragraph',
+          content: [safeText(report.executive_summary), riskSummary],
+        },
+        {
+          title: labels.coreFindings,
+          type: 'list',
+          content: (report.core_findings || []).map((item) => safeText(item)),
+        },
+        {
+          title: labels.recommendations,
+          type: 'list',
+          content: (report.recommendations || []).map((item) => safeText(item)),
+        },
+        {
+          title: labels.evidenceList,
+          type: 'evidence',
+          content: evidence,
+          emptyText: labels.noEvidence,
+        },
+      ],
     };
-
-    const lines = [];
-    lines.push(useAsciiFallback ? 'FTO Patent Risk Report' : 'FTO 专利防侵权分析报告');
-    lines.push(`Report ID: ${safeText(report.report_id)}`);
-    lines.push(`${useAsciiFallback ? 'Generated At' : '生成时间'}: ${safeText(report.generated_at)}`);
-    lines.push(`${useAsciiFallback ? 'Original Query' : '原始查询'}: ${safeText(report.original_query)}`);
-    lines.push(`${useAsciiFallback ? 'Rewritten Query' : '改写查询'}: ${safeText(report.rewritten_query)}`);
-    lines.push(`候选数: ${report.candidate_count ?? '-'}`);
-    lines.push('');
-    lines.push(useAsciiFallback ? 'Executive Summary' : '执行摘要');
-    lines.push(safeText(report.executive_summary));
-    lines.push('');
-    lines.push(useAsciiFallback ? 'Core Findings' : '核心发现');
-    (report.core_findings || []).forEach((item, idx) => lines.push(`${idx + 1}. ${safeText(item)}`));
-    lines.push('');
-    lines.push(useAsciiFallback ? 'Recommendations' : '行动建议');
-    (report.recommendations || []).forEach((item, idx) => lines.push(`${idx + 1}. ${safeText(item)}`));
-    lines.push('');
-    lines.push(useAsciiFallback ? 'Evidence List' : '证据清单');
-    (report.evidence || []).forEach((item) => {
-      lines.push(
-        `#${item.rank} ${safeText(item.patent_id)} | ${safeText(item.title)} | risk=${safeText(item.risk_level)} | final=${Number(
-          item.final_score || 0
-        ).toFixed(4)}`
-      );
-      lines.push(`source: ${safeText(item.source_url || item.patent_url)}`);
-      lines.push(`reason: ${safeText(item.reason)}`);
-      lines.push('');
-    });
-
-    if ((report.evidence || []).length === 0) {
-      lines.push(useAsciiFallback ? 'No evidence available.' : '暂无证据。');
-      lines.push('');
-    }
-
-    return lines;
   }
 
   async function withPdfDoc(report) {
     const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const customFontReady = await ensurePdfFont(doc);
-    doc.setFontSize(11);
-    doc.setTextColor(20, 20, 20);
+    const template = buildReportTemplate(report, !customFontReady);
 
-    const lines = buildReportTextLines(report, !customFontReady);
-    if (!customFontReady) {
-      lines.unshift('Notice: fallback font is used.');
-      lines.unshift('');
-    }
-    const marginX = 40;
-    const marginY = 50;
-    const lineHeight = 16;
-    const pageWidth = doc.internal.pageSize.getWidth() - marginX * 2;
+    const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
-    let y = marginY;
+    const marginX = 40;
+    const marginTop = 48;
+    const marginBottom = 46;
+    const contentWidth = pageWidth - marginX * 2;
+    const lineHeight = 15;
+    let y = marginTop;
 
-    for (const line of lines) {
-      const wrapped = doc.splitTextToSize(line, pageWidth);
-      for (const seg of wrapped) {
-        if (y > pageHeight - marginY) {
-          doc.addPage();
-          y = marginY;
-        }
-        doc.text(seg, marginX, y);
-        y += lineHeight;
+    const ensureSpace = (height) => {
+      if (y + height > pageHeight - marginBottom) {
+        doc.addPage();
+        y = marginTop;
       }
+    };
+
+    const drawWrapped = (text, options = {}) => {
+      const size = options.fontSize || 10.5;
+      doc.setFontSize(size);
+      doc.setTextColor(31, 41, 55);
+      const wrapped = doc.splitTextToSize(String(text || '-'), contentWidth);
+      const step = options.lineHeight || lineHeight;
+      wrapped.forEach((line) => {
+        ensureSpace(step);
+        doc.text(line, marginX, y);
+        y += step;
+      });
+    };
+
+    const drawSectionHeader = (title) => {
+      ensureSpace(24);
+      doc.setFillColor(0, 102, 204);
+      doc.roundedRect(marginX, y - 11, contentWidth, 18, 4, 4, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(11.5);
+      doc.text(String(title), marginX + 8, y + 1);
+      y += 24;
+    };
+
+    const drawMetaCards = (items) => {
+      const cardGap = 10;
+      const cols = 2;
+      const cardWidth = (contentWidth - cardGap) / cols;
+      const cardHeight = 42;
+      for (let i = 0; i < items.length; i += cols) {
+        ensureSpace(cardHeight + 8);
+        const row = items.slice(i, i + cols);
+        row.forEach((item, idx) => {
+          const x = marginX + idx * (cardWidth + cardGap);
+          doc.setDrawColor(214, 225, 239);
+          doc.setFillColor(248, 250, 252);
+          doc.roundedRect(x, y - 10, cardWidth, cardHeight, 5, 5, 'FD');
+          doc.setTextColor(100, 116, 139);
+          doc.setFontSize(9);
+          doc.text(String(item.label), x + 8, y + 2);
+
+          doc.setTextColor(15, 23, 42);
+          doc.setFontSize(10.5);
+          const wrapped = doc.splitTextToSize(String(item.value), cardWidth - 16);
+          const firstLine = wrapped[0] || '-';
+          doc.text(firstLine, x + 8, y + 18);
+        });
+        y += cardHeight + 8;
+      }
+      y += 6;
+    };
+
+    doc.setTextColor(0, 51, 102);
+    doc.setFontSize(18);
+    doc.text(template.title, pageWidth / 2, y, { align: 'center' });
+    y += 18;
+    doc.setTextColor(102, 102, 102);
+    doc.setFontSize(10);
+    doc.text(template.subtitle, pageWidth / 2, y, { align: 'center' });
+    y += 20;
+
+    if (!customFontReady) {
+      drawWrapped(template.labels.fallbackNotice, { fontSize: 9.5, lineHeight: 13 });
+      y += 6;
     }
+
+    drawMetaCards(template.meta);
+
+    template.sections.forEach((section) => {
+      drawSectionHeader(section.title);
+
+      if (section.type === 'paragraph') {
+        (section.content || []).forEach((line) => drawWrapped(line));
+        y += 6;
+        return;
+      }
+
+      if (section.type === 'list') {
+        const items = section.content || [];
+        if (items.length === 0) {
+          drawWrapped('-');
+        } else {
+          items.forEach((item, idx) => drawWrapped(`${idx + 1}. ${item}`));
+        }
+        y += 6;
+        return;
+      }
+
+      const evidenceItems = section.content || [];
+      if (evidenceItems.length === 0) {
+        drawWrapped(section.emptyText || '-');
+        y += 6;
+        return;
+      }
+
+      evidenceItems.forEach((item) => {
+        drawWrapped(item.heading, { fontSize: 10.5 });
+        drawWrapped(item.source, { fontSize: 9.5, lineHeight: 14 });
+        drawWrapped(item.reason, { fontSize: 9.5, lineHeight: 14 });
+        y += 4;
+      });
+      y += 4;
+    });
+
+    const totalPages = doc.getNumberOfPages();
+    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+      doc.setPage(pageNum);
+      doc.setDrawColor(0, 102, 204);
+      doc.line(marginX, pageHeight - 26, pageWidth - marginX, pageHeight - 26);
+      doc.setTextColor(107, 114, 128);
+      doc.setFontSize(8.5);
+      doc.text(`FTO Report | Page ${pageNum}/${totalPages}`, pageWidth / 2, pageHeight - 14, {
+        align: 'center',
+      });
+    }
+
     return doc;
   }
 
@@ -636,34 +790,42 @@ export default function HomePage() {
 
   async function buildDocxBlob(report) {
     const { Document, Packer, Paragraph, HeadingLevel } = await import('docx');
+    const template = buildReportTemplate(report, false);
     const children = [];
-    children.push(new Paragraph({ text: 'FTO 专利防侵权分析报告', heading: HeadingLevel.HEADING_1 }));
-    children.push(new Paragraph(`报告ID: ${report.report_id || '-'}`));
-    children.push(new Paragraph(`生成时间: ${report.generated_at || '-'}`));
-    children.push(new Paragraph(`原始查询: ${report.original_query || '-'}`));
-    children.push(new Paragraph(`改写查询: ${report.rewritten_query || '-'}`));
-    children.push(new Paragraph(`候选数: ${report.candidate_count ?? '-'}`));
+    children.push(new Paragraph({ text: template.title, heading: HeadingLevel.HEADING_1 }));
+    children.push(new Paragraph(template.subtitle));
+    template.meta.forEach((item) => {
+      children.push(new Paragraph(`${item.label}: ${item.value}`));
+    });
     children.push(new Paragraph(''));
-    children.push(new Paragraph({ text: '执行摘要', heading: HeadingLevel.HEADING_2 }));
-    children.push(new Paragraph(report.executive_summary || '-'));
-    children.push(new Paragraph({ text: '核心发现', heading: HeadingLevel.HEADING_2 }));
-    (report.core_findings || []).forEach((item, idx) => children.push(new Paragraph(`${idx + 1}. ${item}`)));
-    children.push(new Paragraph({ text: '行动建议', heading: HeadingLevel.HEADING_2 }));
-    (report.recommendations || []).forEach((item, idx) =>
-      children.push(new Paragraph(`${idx + 1}. ${item}`))
-    );
-    children.push(new Paragraph({ text: '证据清单（可追溯）', heading: HeadingLevel.HEADING_2 }));
-    (report.evidence || []).forEach((item) => {
-      children.push(
-        new Paragraph(
-          `#${item.rank} ${item.patent_id} | ${item.title} | risk=${item.risk_level || '-'} | final=${Number(
-            item.final_score || 0
-          ).toFixed(4)}`
-        )
-      );
-      children.push(new Paragraph(`source: ${item.source_url || item.patent_url || '-'}`));
-      children.push(new Paragraph(`reason: ${item.reason || '-'}`));
-      children.push(new Paragraph(''));
+
+    template.sections.forEach((section) => {
+      children.push(new Paragraph({ text: section.title, heading: HeadingLevel.HEADING_2 }));
+      if (section.type === 'paragraph') {
+        (section.content || []).forEach((line) => children.push(new Paragraph(String(line))));
+        return;
+      }
+      if (section.type === 'list') {
+        const items = section.content || [];
+        if (items.length === 0) {
+          children.push(new Paragraph('-'));
+        } else {
+          items.forEach((line, idx) => children.push(new Paragraph(`${idx + 1}. ${String(line)}`)));
+        }
+        return;
+      }
+
+      const items = section.content || [];
+      if (items.length === 0) {
+        children.push(new Paragraph(section.emptyText || '-'));
+        return;
+      }
+      items.forEach((item) => {
+        children.push(new Paragraph(item.heading));
+        children.push(new Paragraph(item.source));
+        children.push(new Paragraph(item.reason));
+        children.push(new Paragraph(''));
+      });
     });
 
     const doc = new Document({ sections: [{ children }] });
