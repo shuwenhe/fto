@@ -444,6 +444,7 @@ export default function HomePage() {
     const dedupedIds = Array.isArray(recallDebug?.deduped_ids) ? recallDebug.deduped_ids : [];
     const esSet = new Set(esIds);
     const milvusSet = new Set(milvusIds);
+    const dedupedSet = new Set(dedupedIds);
 
     let intersection = 0;
     esSet.forEach((id) => {
@@ -466,7 +467,17 @@ export default function HomePage() {
       }
     });
 
+    let milvusDedupedInMerge = 0;
+    milvusSet.forEach((id) => {
+      if (dedupedSet.has(id)) {
+        milvusDedupedInMerge += 1;
+      }
+    });
+
     return {
+      milvusTotal: milvusSet.size,
+      milvusOverlapWithEs: intersection,
+      milvusDedupedInMerge,
       intersection,
       esOnly,
       milvusOnly,
@@ -841,10 +852,10 @@ export default function HomePage() {
           const summary = computeRecallSummary(rankingMeta?.recallDebug);
           return (
             <div className="row">
-              <span className="tag">交集数：{summary.intersection}</span>
-              <span className="tag">ES 独有数：{summary.esOnly}</span>
+              <span className="tag">Milvus 召回总数：{summary.milvusTotal}</span>
               <span className="tag">Milvus 独有数：{summary.milvusOnly}</span>
-              <span className="tag">去重数：{summary.deduped}</span>
+              <span className="tag">Milvus 与 ES 重合数：{summary.milvusOverlapWithEs}</span>
+              <span className="tag">Milvus 命中但在合并时被去重数：{summary.milvusDedupedInMerge}</span>
             </div>
           );
         })()}
