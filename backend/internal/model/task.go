@@ -106,6 +106,7 @@ type RecallDebugInfo struct {
 	ElasticsearchCount int      `json:"elasticsearch_count"`
 	MilvusCount        int      `json:"milvus_count"`
 	MergedCount        int      `json:"merged_count"`
+	MergedIDs          []string `json:"merged_ids,omitempty"`
 	HybridActive       bool     `json:"hybrid_active"`
 	Sources            []string `json:"sources,omitempty"`
 	Fallback           string   `json:"fallback,omitempty"`
