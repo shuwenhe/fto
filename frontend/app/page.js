@@ -26,11 +26,14 @@ function arrayBufferToBase64(buffer) {
 }
 
 async function ensurePdfFont(doc) {
+  // Start from a built-in font so PDF always has a renderable baseline.
+  doc.setFont('helvetica', 'normal');
+
   if (typeof doc.getFontList === 'function') {
     const fonts = doc.getFontList();
     if (fonts[PDF_FONT_NAME]?.includes?.('normal')) {
       doc.setFont(PDF_FONT_NAME, 'normal');
-      return;
+      return true;
     }
   }
 
@@ -45,10 +48,18 @@ async function ensurePdfFont(doc) {
       .then(arrayBufferToBase64);
   }
 
-  const fontBase64 = await pdfFontBase64Promise;
-  doc.addFileToVFS(PDF_FONT_FILE, fontBase64);
-  doc.addFont(PDF_FONT_FILE, PDF_FONT_NAME, 'normal');
-  doc.setFont(PDF_FONT_NAME, 'normal');
+  try {
+    const fontBase64 = await pdfFontBase64Promise;
+    doc.addFileToVFS(PDF_FONT_FILE, fontBase64);
+    doc.addFont(PDF_FONT_FILE, PDF_FONT_NAME, 'normal');
+    doc.setFont(PDF_FONT_NAME, 'normal');
+    return true;
+  } catch (error) {
+    // Keep the default built-in font to avoid blank PDF pages when custom font fails.
+    console.warn('pdf font fallback to helvetica', error);
+    doc.setFont('helvetica', 'normal');
+    return false;
+  }
 }
 
 export default function HomePage() {
@@ -501,45 +512,61 @@ export default function HomePage() {
     }
   }
 
-  function buildReportTextLines(report) {
+  function buildReportTextLines(report, useAsciiFallback = false) {
+    const safeText = (value) => {
+      const text = String(value ?? '').trim();
+      return text || '-';
+    };
+
     const lines = [];
-    lines.push('FTO 专利防侵权分析报告');
-    lines.push(`报告ID: ${report.report_id || '-'}`);
-    lines.push(`生成时间: ${report.generated_at || '-'}`);
-    lines.push(`原始查询: ${report.original_query || '-'}`);
-    lines.push(`改写查询: ${report.rewritten_query || '-'}`);
+    lines.push(useAsciiFallback ? 'FTO Patent Risk Report' : 'FTO 专利防侵权分析报告');
+    lines.push(`Report ID: ${safeText(report.report_id)}`);
+    lines.push(`${useAsciiFallback ? 'Generated At' : '生成时间'}: ${safeText(report.generated_at)}`);
+    lines.push(`${useAsciiFallback ? 'Original Query' : '原始查询'}: ${safeText(report.original_query)}`);
+    lines.push(`${useAsciiFallback ? 'Rewritten Query' : '改写查询'}: ${safeText(report.rewritten_query)}`);
     lines.push(`候选数: ${report.candidate_count ?? '-'}`);
     lines.push('');
-    lines.push('执行摘要');
-    lines.push(report.executive_summary || '-');
+    lines.push(useAsciiFallback ? 'Executive Summary' : '执行摘要');
+    lines.push(safeText(report.executive_summary));
     lines.push('');
-    lines.push('核心发现');
-    (report.core_findings || []).forEach((item, idx) => lines.push(`${idx + 1}. ${item}`));
+    lines.push(useAsciiFallback ? 'Core Findings' : '核心发现');
+    (report.core_findings || []).forEach((item, idx) => lines.push(`${idx + 1}. ${safeText(item)}`));
     lines.push('');
-    lines.push('行动建议');
-    (report.recommendations || []).forEach((item, idx) => lines.push(`${idx + 1}. ${item}`));
+    lines.push(useAsciiFallback ? 'Recommendations' : '行动建议');
+    (report.recommendations || []).forEach((item, idx) => lines.push(`${idx + 1}. ${safeText(item)}`));
     lines.push('');
-    lines.push('证据清单');
+    lines.push(useAsciiFallback ? 'Evidence List' : '证据清单');
     (report.evidence || []).forEach((item) => {
       lines.push(
-        `#${item.rank} ${item.patent_id} | ${item.title} | risk=${item.risk_level || '-'} | final=${Number(
+        `#${item.rank} ${safeText(item.patent_id)} | ${safeText(item.title)} | risk=${safeText(item.risk_level)} | final=${Number(
           item.final_score || 0
         ).toFixed(4)}`
       );
-      lines.push(`source: ${item.source_url || item.patent_url || '-'}`);
-      lines.push(`reason: ${item.reason || '-'}`);
+      lines.push(`source: ${safeText(item.source_url || item.patent_url)}`);
+      lines.push(`reason: ${safeText(item.reason)}`);
       lines.push('');
     });
+
+    if ((report.evidence || []).length === 0) {
+      lines.push(useAsciiFallback ? 'No evidence available.' : '暂无证据。');
+      lines.push('');
+    }
+
     return lines;
   }
 
   async function withPdfDoc(report) {
     const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    await ensurePdfFont(doc);
+    const customFontReady = await ensurePdfFont(doc);
     doc.setFontSize(11);
+    doc.setTextColor(20, 20, 20);
 
-    const lines = buildReportTextLines(report);
+    const lines = buildReportTextLines(report, !customFontReady);
+    if (!customFontReady) {
+      lines.unshift('Notice: fallback font is used.');
+      lines.unshift('');
+    }
     const marginX = 40;
     const marginY = 50;
     const lineHeight = 16;
@@ -563,33 +590,48 @@ export default function HomePage() {
 
   async function downloadReportPdf() {
     if (!reportData) return;
-    const doc = await withPdfDoc(reportData);
-    const ts = (reportData.generated_at || '').replace(/[:TZ-]/g, '').slice(0, 14) || Date.now();
-    doc.save(`fto_report_${ts}.pdf`);
+    try {
+      const doc = await withPdfDoc(reportData);
+      const ts = (reportData.generated_at || '').replace(/[:TZ-]/g, '').slice(0, 14) || Date.now();
+      doc.save(`fto_report_${ts}.pdf`);
+    } catch (error) {
+      console.error('downloadReportPdf failed', error);
+      alert('PDF 生成失败，请重试。');
+    }
   }
 
   async function viewReportPdf() {
     if (!reportData) return;
-    const doc = await withPdfDoc(reportData);
-    const blob = doc.output('blob');
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank', 'noopener,noreferrer');
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    try {
+      const doc = await withPdfDoc(reportData);
+      const blob = doc.output('blob');
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank', 'noopener,noreferrer');
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (error) {
+      console.error('viewReportPdf failed', error);
+      alert('PDF 预览失败，请重试。');
+    }
   }
 
   async function printReportPdf() {
     if (!reportData) return;
-    const doc = await withPdfDoc(reportData);
-    const blob = doc.output('blob');
-    const url = URL.createObjectURL(blob);
-    const win = window.open(url, '_blank');
-    if (win) {
-      setTimeout(() => {
-        win.focus();
-        win.print();
-      }, 800);
+    try {
+      const doc = await withPdfDoc(reportData);
+      const blob = doc.output('blob');
+      const url = URL.createObjectURL(blob);
+      const win = window.open(url, '_blank');
+      if (win) {
+        setTimeout(() => {
+          win.focus();
+          win.print();
+        }, 800);
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (error) {
+      console.error('printReportPdf failed', error);
+      alert('PDF 打印失败，请重试。');
     }
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
   async function buildDocxBlob(report) {
