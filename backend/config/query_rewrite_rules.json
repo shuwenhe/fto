@@ -4,7 +4,16 @@
       "match": "无线充电",
       "append": [
         "充电",
-        "电能传输"
+        "电能传输",
+        "wireless charging",
+        "wireless power transfer"
+      ]
+    },
+    {
+      "match": "无线充电系统",
+      "append": [
+        "wireless charging system",
+        "wireless power transfer system"
       ]
     },
     {
