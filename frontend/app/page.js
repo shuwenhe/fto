@@ -517,6 +517,42 @@ export default function HomePage() {
     return text || fallback;
   }
 
+  function hasCjk(text) {
+    return /[\u3400-\u9fff]/.test(String(text || ''));
+  }
+
+  function toFullWidthDigits(value) {
+    return String(value ?? '').replace(/[0-9]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) + 65248));
+  }
+
+  function normalizeRiskLabel(value) {
+    const level = String(value || '').trim().toLowerCase();
+    if (level === 'high') return '高风险';
+    if (level === 'medium') return '中风险';
+    if (level === 'low') return '低风险';
+    return value ? String(value) : '未知';
+  }
+
+  function buildChineseExecutiveSummary(report) {
+    const riskDistribution = report.risk_distribution || {};
+    const high = Number(riskDistribution.high || 0);
+    const medium = Number(riskDistribution.medium || 0);
+    const low = Number(riskDistribution.low || 0);
+
+    const topRisk = (report.evidence || []).reduce((acc, item) => {
+      const current = String(item?.risk_level || '').toLowerCase();
+      if (current === 'high') return 'high';
+      if (acc !== 'high' && current === 'medium') return 'medium';
+      if (!acc && current === 'low') return 'low';
+      return acc;
+    }, '');
+
+    const riskText = normalizeRiskLabel(topRisk || (high > 0 ? 'high' : medium > 0 ? 'medium' : low > 0 ? 'low' : ''));
+    return `本次识别到高风险专利 ${toFullWidthDigits(high)} 条，中风险专利 ${toFullWidthDigits(
+      medium
+    )} 条，整体最高风险等级为 ${riskText}。`;
+  }
+
   function buildReportTemplate(report, useAsciiFallback = false) {
     const labels = useAsciiFallback
       ? {
@@ -553,9 +589,13 @@ export default function HomePage() {
         };
 
     const riskDistribution = report.risk_distribution || {};
-    const riskSummary = `${labels.riskDistribution}: high=${Number(riskDistribution.high || 0)}, medium=${Number(
-      riskDistribution.medium || 0
-    )}, low=${Number(riskDistribution.low || 0)}`;
+    const riskSummary = useAsciiFallback
+      ? `${labels.riskDistribution}: high=${Number(riskDistribution.high || 0)}, medium=${Number(
+          riskDistribution.medium || 0
+        )}, low=${Number(riskDistribution.low || 0)}`
+      : `${labels.riskDistribution}：高=${toFullWidthDigits(Number(riskDistribution.high || 0))}，中=${toFullWidthDigits(
+          Number(riskDistribution.medium || 0)
+        )}，低=${toFullWidthDigits(Number(riskDistribution.low || 0))}`;
 
     const evidence = (report.evidence || []).map((item) => ({
       heading: `#${item.rank} ${safeText(item.patent_id)} | ${safeText(item.title)} | risk=${safeText(
@@ -580,7 +620,7 @@ export default function HomePage() {
         {
           title: labels.executiveSummary,
           type: 'paragraph',
-          content: [safeText(report.executive_summary), riskSummary],
+          content: [useAsciiFallback ? safeText(report.executive_summary) : buildChineseExecutiveSummary(report), riskSummary],
         },
         {
           title: labels.coreFindings,
@@ -624,13 +664,28 @@ export default function HomePage() {
       }
     };
 
+    const applyFontByText = (text) => {
+      if (!customFontReady) {
+        doc.setFont('helvetica', 'normal');
+        return;
+      }
+      if (hasCjk(text)) {
+        doc.setFont(PDF_FONT_NAME, 'normal');
+        return;
+      }
+      doc.setFont('helvetica', 'normal');
+    };
+
     const drawWrapped = (text, options = {}) => {
+      const normalizedText = String(text || '-');
+      applyFontByText(normalizedText);
       const size = options.fontSize || 10.5;
       doc.setFontSize(size);
       doc.setTextColor(31, 41, 55);
-      const wrapped = doc.splitTextToSize(String(text || '-'), contentWidth);
+      const wrapped = doc.splitTextToSize(normalizedText, contentWidth);
       const step = options.lineHeight || lineHeight;
       wrapped.forEach((line) => {
+        applyFontByText(line);
         ensureSpace(step);
         doc.text(line, marginX, y);
         y += step;
@@ -641,6 +696,7 @@ export default function HomePage() {
       ensureSpace(24);
       doc.setFillColor(0, 102, 204);
       doc.roundedRect(marginX, y - 11, contentWidth, 18, 4, 4, 'F');
+      applyFontByText(title);
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(11.5);
       doc.text(String(title), marginX + 8, y + 1);
@@ -661,13 +717,16 @@ export default function HomePage() {
           doc.setFillColor(248, 250, 252);
           doc.roundedRect(x, y - 10, cardWidth, cardHeight, 5, 5, 'FD');
           doc.setTextColor(100, 116, 139);
+          applyFontByText(item.label);
           doc.setFontSize(9);
           doc.text(String(item.label), x + 8, y + 2);
 
           doc.setTextColor(15, 23, 42);
+          applyFontByText(item.value);
           doc.setFontSize(10.5);
           const wrapped = doc.splitTextToSize(String(item.value), cardWidth - 16);
           const firstLine = wrapped[0] || '-';
+          applyFontByText(firstLine);
           doc.text(firstLine, x + 8, y + 18);
         });
         y += cardHeight + 8;
@@ -675,10 +734,12 @@ export default function HomePage() {
       y += 6;
     };
 
+    applyFontByText(template.title);
     doc.setTextColor(0, 51, 102);
     doc.setFontSize(18);
     doc.text(template.title, pageWidth / 2, y, { align: 'center' });
     y += 18;
+    applyFontByText(template.subtitle);
     doc.setTextColor(102, 102, 102);
     doc.setFontSize(10);
     doc.text(template.subtitle, pageWidth / 2, y, { align: 'center' });
@@ -832,6 +893,73 @@ export default function HomePage() {
     return Packer.toBlob(doc);
   }
 
+  function buildDocxPreviewHtml(report) {
+    const template = buildReportTemplate(report, false);
+    const sectionHtml = template.sections
+      .map((section) => {
+        if (section.type === 'paragraph') {
+          const lines = (section.content || [])
+            .map((line) => `<p>${String(line)}</p>`)
+            .join('');
+          return `<section><h2>${section.title}</h2>${lines}</section>`;
+        }
+        if (section.type === 'list') {
+          const items = section.content || [];
+          if (items.length === 0) {
+            return `<section><h2>${section.title}</h2><p>-</p></section>`;
+          }
+          const list = items.map((line) => `<li>${String(line)}</li>`).join('');
+          return `<section><h2>${section.title}</h2><ol>${list}</ol></section>`;
+        }
+        const items = section.content || [];
+        if (items.length === 0) {
+          return `<section><h2>${section.title}</h2><p>${section.emptyText || '-'}</p></section>`;
+        }
+        const blocks = items
+          .map(
+            (item) =>
+              `<div class="evidence"><p><strong>${item.heading}</strong></p><p>${item.source}</p><p>${item.reason}</p></div>`
+          )
+          .join('');
+        return `<section><h2>${section.title}</h2>${blocks}</section>`;
+      })
+      .join('');
+
+    const cards = template.meta
+      .map((item) => `<div class="card"><div class="label">${item.label}</div><div class="value">${item.value}</div></div>`)
+      .join('');
+
+    return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <title>${template.title}</title>
+    <style>
+      body { font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif; margin: 24px; color: #0f172a; background: #f8fafc; }
+      main { max-width: 980px; margin: 0 auto; background: #fff; border: 1px solid #dbe7f3; border-radius: 14px; padding: 20px; }
+      h1 { margin: 0 0 8px; text-align: center; color: #0b3f87; }
+      .subtitle { text-align: center; color: #64748b; margin-bottom: 14px; }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+      .card { border: 1px solid #dbe7f3; border-radius: 10px; padding: 10px 12px; background: #f8fafc; }
+      .label { font-size: 12px; color: #64748b; }
+      .value { margin-top: 4px; font-weight: 600; color: #0f172a; word-break: break-word; }
+      section { margin-top: 12px; }
+      h2 { margin: 0 0 8px; padding: 8px 12px; background: #0066cc; color: white; border-radius: 8px; font-size: 16px; }
+      p, li { line-height: 1.7; }
+      .evidence { border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: #fff; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>${template.title}</h1>
+      <div class="subtitle">${template.subtitle}</div>
+      <div class="grid">${cards}</div>
+      ${sectionHtml}
+    </main>
+  </body>
+</html>`;
+  }
+
   async function downloadReportDocx() {
     if (!reportData) return;
     const blob = await buildDocxBlob(reportData);
@@ -848,10 +976,15 @@ export default function HomePage() {
 
   async function viewDocxFile() {
     if (!reportData) return;
-    const blob = await buildDocxBlob(reportData);
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank', 'noopener,noreferrer');
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    const html = buildDocxPreviewHtml(reportData);
+    const win = window.open('', '_blank', 'noopener,noreferrer');
+    if (!win) {
+      alert('浏览器可能拦截了新窗口，请允许弹窗后重试。');
+      return;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
   }
 
   return (
