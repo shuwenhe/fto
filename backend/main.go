@@ -77,7 +77,7 @@ func main() {
 	dualRatio := getEnvInt("RANKING_DUAL_RATIO", 50)
 	rankingModelPath := getEnv("RANKING_MODEL_PATH", "/app/fto/model_artifacts/fto_ranker_neurx_v1.json")
 	encoderModelPath := getEnv("ENCODER_MODEL_PATH", "/app/fto/model_artifacts/fto_encoder_neurx_v1.json")
-	deepRerankEnabled := getEnvBool("RANKING_DEEP_ENABLED", false)
+	deepRerankEnabled := getEnvBool("RANKING_DEEP_ENABLED", true)
 	deepRerankTopN := getEnvInt("RANKING_DEEP_TOP_N", 8)
 	deepRerankMixAlpha := getEnvFloat("RANKING_DEEP_MIX_ALPHA", 0.35)
 	queryRewriteEnabled := getEnvBool("QUERY_REWRITE_ENABLED", false)
