@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-01T19:31:10.242Z",
+  "generated_at": "2026-04-02T07:13:06.236Z",
   "k": 5,
   "min_ndcg_contribution": 0,
   "min_hit_queries": 2,
@@ -239,6 +239,50 @@
       "removed_ndcg_at_k": 0.6802949195049343
     },
     {
+      "match": "无线充电",
+      "term": "wireless charging",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
+      "contribution_recall_at_k": 0,
+      "contribution_mrr_at_k": 0,
+      "contribution_ndcg_at_k": 0,
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
+    },
+    {
+      "match": "无线充电",
+      "term": "wireless power transfer",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
+      "contribution_recall_at_k": 0,
+      "contribution_mrr_at_k": 0,
+      "contribution_ndcg_at_k": 0,
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
+    },
+    {
+      "match": "无线充电系统",
+      "term": "wireless charging system",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
+      "contribution_recall_at_k": 0,
+      "contribution_mrr_at_k": 0,
+      "contribution_ndcg_at_k": 0,
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
+    },
+    {
+      "match": "无线充电系统",
+      "term": "wireless power transfer system",
+      "hit_queries": 0,
+      "term_applied_queries": 0,
+      "contribution_recall_at_k": 0,
+      "contribution_mrr_at_k": 0,
+      "contribution_ndcg_at_k": 0,
+      "full_ndcg_at_k": 0.6802949195049343,
+      "removed_ndcg_at_k": 0.6802949195049343
+    },
+    {
       "match": "快充",
       "term": "快速充电",
       "hit_queries": 0,
@@ -457,7 +501,16 @@
       "match": "无线充电",
       "append": [
         "充电",
-        "电能传输"
+        "电能传输",
+        "wireless charging",
+        "wireless power transfer"
+      ]
+    },
+    {
+      "match": "无线充电系统",
+      "append": [
+        "wireless charging system",
+        "wireless power transfer system"
       ]
     },
     {
