@@ -553,7 +553,27 @@ export default function HomePage() {
     )} 条，整体最高风险等级为 ${riskText}。`;
   }
 
-  function buildReportTemplate(report, useAsciiFallback = false) {
+  function buildExportSnapshot() {
+    return {
+      query: query.trim(),
+      taskId,
+      status,
+      progress,
+      esMeta,
+      rankingMeta,
+      encoderMeta,
+      reportData,
+      taskRows: rows,
+      recallRows,
+      rerankerRows,
+      encoderRows,
+      judgeRows,
+      recallFilter,
+    };
+  }
+
+  function buildReportTemplate(snapshot, useAsciiFallback = false) {
+    const report = snapshot?.reportData || {};
     const labels = useAsciiFallback
       ? {
           title: 'FTO Patent Risk Report',
@@ -582,6 +602,12 @@ export default function HomePage() {
           coreFindings: '核心发现',
           recommendations: '行动建议',
           evidenceList: '证据清单（可追溯）',
+          pageOverview: '页面概览',
+          taskResults: '候选专利风险结果',
+          recallPanel: 'Recall 面板',
+          rerankerPanel: 'Reranker 面板',
+          encoderPanel: 'Encoder 面板',
+          judgePanel: 'Judge 面板',
           noEvidence: '暂无证据。',
           fallbackNotice: '提示：当前使用回退字体。',
         };
@@ -598,6 +624,87 @@ export default function HomePage() {
       reason: safeText(item.reason),
     }));
 
+    const taskRows = (snapshot.taskRows || []).map((item) => ({
+      patentId: safeText(item.patent_id),
+      title: safeText(item.title),
+      risk: safeText(item.risk_level),
+      reason: safeText(item.reason),
+    }));
+
+    const recallRowsForReport = (snapshot.recallRows || []).map((item) => ({
+      rank: safeText(item.rank),
+      patentId: safeText(item.patent_id),
+      title: safeText(item.title),
+      lexicalScore: Number(item.lexical_score || 0).toFixed(4),
+      semanticScore: Number(item.semantic_score || 0).toFixed(4),
+      matched: Array.isArray(item.matched) && item.matched.length > 0 ? item.matched.join(', ') : '-',
+    }));
+
+    const rerankerRowsForReport = (snapshot.rerankerRows || []).map((item) => ({
+      rank: safeText(item.rank),
+      patentId: safeText(item.patent_id),
+      title: safeText(item.title),
+      modelScore: item.model_score === undefined ? '-' : Number(item.model_score).toFixed(4),
+      deepScore: item.deep_score === undefined ? '-' : Number(item.deep_score).toFixed(4),
+      finalScore: Number(item.final_score || 0).toFixed(4),
+      features: formatVector(item.features),
+    }));
+
+    const encoderRowsForReport = (snapshot.encoderRows || []).map((item) => ({
+      rank: safeText(item.rank),
+      patentId: safeText(item.patent_id),
+      title: safeText(item.title),
+      encoderScore: Number(item.encoder_score || 0).toFixed(4),
+      finalScore: Number(item.final_score || 0).toFixed(4),
+      embedding: formatVector(item.embedding),
+      features: formatVector(item.features),
+    }));
+
+    const judgeRowsForReport = (snapshot.judgeRows || []).map((item) => ({
+      rank: safeText(item.rank),
+      patentId: safeText(item.patent_id),
+      title: safeText(item.title),
+      risk: safeText(item.risk_level),
+      finalScore: Number(item.final_score || 0).toFixed(4),
+      reason: safeText(item.reason),
+    }));
+
+    const recallSummary = computeRecallSummary(snapshot.rankingMeta?.recallDebug);
+
+    const pageOverviewLines = [
+      `当前输入查询: ${safeText(snapshot.query)}`,
+      `Task ID: ${safeText(snapshot.taskId)}`,
+      `任务状态: ${safeText(snapshot.status)}${snapshot.progress !== null && snapshot.progress !== undefined ? ` ${snapshot.progress}%` : ''}`,
+      `ES 召回: ${snapshot.esMeta?.loaded ? (snapshot.esMeta?.enabled ? 'enabled' : 'disabled') : 'loading'}`,
+      `ES 索引: ${safeText(snapshot.esMeta?.index)}`,
+      `ES 候选数: ${safeText(snapshot.esMeta?.candidateCount)}`,
+      `Recall 模式: ${safeText(snapshot.rankingMeta?.mode)}`,
+      `Reranker Loaded: ${snapshot.rankingMeta?.modelLoaded ? 'yes' : 'no'}`,
+      `Recall 原始查询: ${safeText(snapshot.rankingMeta?.originalQuery)}`,
+      `Recall 改写查询: ${safeText(snapshot.rankingMeta?.rewrittenQuery)}`,
+      `Recall 改写: ${snapshot.rankingMeta?.rewriteApplied ? 'applied' : 'no'}`,
+      `Recall 来源 ES: ${safeText(snapshot.rankingMeta?.recallDebug?.elasticsearch_count)}`,
+      `Recall 来源 Milvus: ${safeText(snapshot.rankingMeta?.recallDebug?.milvus_count)}`,
+      `Recall 合并后: ${safeText(snapshot.rankingMeta?.recallDebug?.merged_count)}`,
+      `Hybrid: ${snapshot.rankingMeta?.recallDebug?.hybrid_active ? 'effective' : 'off'}`,
+      `来源顺序: ${Array.isArray(snapshot.rankingMeta?.recallDebug?.sources) ? snapshot.rankingMeta.recallDebug.sources.join(' + ') : '-'}`,
+      `Fallback: ${safeText(snapshot.rankingMeta?.recallDebug?.fallback)}`,
+      `当前 Recall 视图筛选: ${safeText(snapshot.recallFilter)}`,
+      `Milvus 召回总数: ${safeText(recallSummary.milvusTotal)}`,
+      `Milvus 独有数: ${safeText(recallSummary.milvusOnly)}`,
+      `Milvus 与 ES 重合数: ${safeText(recallSummary.milvusOverlapWithEs)}`,
+      `Milvus 命中但在合并时被去重数: ${safeText(recallSummary.milvusDedupedInMerge)}`,
+      `Encoder 状态: ${safeText(encoderStatus)}`,
+      `Encoder 候选数: ${safeText(snapshot.encoderMeta?.candidateCount)}`,
+      `Encoder 模型: ${safeText(snapshot.encoderMeta?.modelType)}`,
+      `Encoder 版本: ${safeText(snapshot.encoderMeta?.modelVersion)}`,
+      `Embedding Dim: ${safeText(snapshot.encoderMeta?.embeddingDim)}`,
+      `Encoder 原始查询: ${safeText(snapshot.encoderMeta?.originalQuery)}`,
+      `Encoder 改写查询: ${safeText(snapshot.encoderMeta?.rewrittenQuery)}`,
+      `Encoder 改写: ${snapshot.encoderMeta?.rewriteApplied ? 'applied' : 'no'}`,
+      `Report 状态: ${safeText(reportStatus)}`,
+    ];
+
     return {
       labels,
       title: labels.title,
@@ -610,6 +717,11 @@ export default function HomePage() {
         { label: labels.candidateCount, value: safeText(report.candidate_count) },
       ],
       sections: [
+        {
+          title: labels.pageOverview,
+          type: 'list',
+          content: pageOverviewLines,
+        },
         {
           title: labels.executiveSummary,
           type: 'paragraph',
@@ -631,15 +743,45 @@ export default function HomePage() {
           content: evidence,
           emptyText: labels.noEvidence,
         },
+        {
+          title: labels.taskResults,
+          type: 'task-table',
+          content: taskRows,
+          emptyText: '暂无结果',
+        },
+        {
+          title: labels.recallPanel,
+          type: 'recall-table',
+          content: recallRowsForReport,
+          emptyText: '暂无 Recall 结果',
+        },
+        {
+          title: labels.rerankerPanel,
+          type: 'reranker-table',
+          content: rerankerRowsForReport,
+          emptyText: '暂无 Reranker 结果',
+        },
+        {
+          title: labels.encoderPanel,
+          type: 'encoder-table',
+          content: encoderRowsForReport,
+          emptyText: '暂无 Encoder 调试结果',
+        },
+        {
+          title: labels.judgePanel,
+          type: 'judge-table',
+          content: judgeRowsForReport,
+          emptyText: '暂无 Judge 结果',
+        },
       ],
     };
   }
 
-  async function withPdfDoc(report) {
+  async function withPdfDoc(snapshot) {
     const { jsPDF } = await import('jspdf');
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const customFontReady = await ensurePdfFont(doc);
-    const template = buildReportTemplate(report, !customFontReady);
+    const template = buildReportTemplate(snapshot, !customFontReady);
 
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -765,27 +907,84 @@ export default function HomePage() {
         return;
       }
 
-      const evidenceItems = section.content || [];
-      if (evidenceItems.length === 0) {
+      const items = section.content || [];
+      if (items.length === 0) {
         drawWrapped(section.emptyText || '-');
         y += 6;
         return;
       }
 
-      evidenceItems.forEach((item) => {
-        drawWrapped(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`, {
-          fontSize: 10.2,
+      if (section.type === 'evidence-table') {
+        items.forEach((item) => {
+          drawWrapped(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`, {
+            fontSize: 10.2,
+          });
+          drawWrapped(
+            `Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}`,
+            {
+              fontSize: 9.5,
+              lineHeight: 14,
+            }
+          );
+          drawWrapped(`Reason ${item.reason}`, { fontSize: 9.5, lineHeight: 14 });
+          y += 4;
         });
-        drawWrapped(
-          `Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}`,
-          {
-            fontSize: 9.5,
-            lineHeight: 14,
-          }
-        );
-        drawWrapped(`Reason ${item.reason}`, { fontSize: 9.5, lineHeight: 14 });
         y += 4;
-      });
+        return;
+      }
+
+      if (section.type === 'task-table') {
+        items.forEach((item) => {
+          drawWrapped(`专利号 ${item.patentId} | 标题 ${item.title}`, { fontSize: 10.2 });
+          drawWrapped(`Risk ${item.risk} | Reason ${item.reason}`, { fontSize: 9.5, lineHeight: 14 });
+          y += 4;
+        });
+        y += 4;
+        return;
+      }
+
+      if (section.type === 'recall-table') {
+        items.forEach((item) => {
+          drawWrapped(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`, { fontSize: 10.2 });
+          drawWrapped(`Lexical ${item.lexicalScore} | Semantic ${item.semanticScore}`, { fontSize: 9.5, lineHeight: 14 });
+          drawWrapped(`Matched ${item.matched}`, { fontSize: 9.5, lineHeight: 14 });
+          y += 4;
+        });
+        y += 4;
+        return;
+      }
+
+      if (section.type === 'reranker-table') {
+        items.forEach((item) => {
+          drawWrapped(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`, { fontSize: 10.2 });
+          drawWrapped(`Model ${item.modelScore} | Deep ${item.deepScore} | Final ${item.finalScore}`, { fontSize: 9.5, lineHeight: 14 });
+          drawWrapped(`Features ${item.features}`, { fontSize: 9.5, lineHeight: 14 });
+          y += 4;
+        });
+        y += 4;
+        return;
+      }
+
+      if (section.type === 'encoder-table') {
+        items.forEach((item) => {
+          drawWrapped(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`, { fontSize: 10.2 });
+          drawWrapped(`Encoder ${item.encoderScore} | Final ${item.finalScore}`, { fontSize: 9.5, lineHeight: 14 });
+          drawWrapped(`Embedding ${item.embedding}`, { fontSize: 9.5, lineHeight: 14 });
+          drawWrapped(`Features ${item.features}`, { fontSize: 9.5, lineHeight: 14 });
+          y += 4;
+        });
+        y += 4;
+        return;
+      }
+
+      if (section.type === 'judge-table') {
+        items.forEach((item) => {
+          drawWrapped(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`, { fontSize: 10.2 });
+          drawWrapped(`Risk ${item.risk} | Final ${item.finalScore}`, { fontSize: 9.5, lineHeight: 14 });
+          drawWrapped(`Reason ${item.reason}`, { fontSize: 9.5, lineHeight: 14 });
+          y += 4;
+        });
+      }
       y += 4;
     });
 
@@ -807,7 +1006,7 @@ export default function HomePage() {
   async function downloadReportPdf() {
     if (!reportData) return;
     try {
-      const doc = await withPdfDoc(reportData);
+      const doc = await withPdfDoc(buildExportSnapshot());
       const ts = (reportData.generated_at || '').replace(/[:TZ-]/g, '').slice(0, 14) || Date.now();
       doc.save(`fto_report_${ts}.pdf`);
     } catch (error) {
@@ -819,7 +1018,7 @@ export default function HomePage() {
   async function viewReportPdf() {
     if (!reportData) return;
     try {
-      const doc = await withPdfDoc(reportData);
+      const doc = await withPdfDoc(buildExportSnapshot());
       const blob = doc.output('blob');
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank', 'noopener,noreferrer');
@@ -833,7 +1032,7 @@ export default function HomePage() {
   async function printReportPdf() {
     if (!reportData) return;
     try {
-      const doc = await withPdfDoc(reportData);
+      const doc = await withPdfDoc(buildExportSnapshot());
       const blob = doc.output('blob');
       const url = URL.createObjectURL(blob);
       const win = window.open(url, '_blank');
@@ -850,9 +1049,9 @@ export default function HomePage() {
     }
   }
 
-  async function buildDocxBlob(report) {
+  async function buildDocxBlob(snapshot) {
     const { Document, Packer, Paragraph, HeadingLevel } = await import('docx');
-    const template = buildReportTemplate(report, false);
+    const template = buildReportTemplate(snapshot, false);
     const children = [];
     children.push(new Paragraph({ text: template.title, heading: HeadingLevel.HEADING_1 }));
     children.push(new Paragraph(template.subtitle));
@@ -900,8 +1099,8 @@ export default function HomePage() {
     return Packer.toBlob(doc);
   }
 
-  function buildDocxPreviewHtml(report) {
-    const template = buildReportTemplate(report, false);
+  function buildDocxPreviewHtml(snapshot) {
+    const template = buildReportTemplate(snapshot, false);
     const sectionHtml = template.sections
       .map((section) => {
         if (section.type === 'paragraph') {
@@ -969,7 +1168,7 @@ export default function HomePage() {
 
   async function downloadReportDocx() {
     if (!reportData) return;
-    const blob = await buildDocxBlob(reportData);
+    const blob = await buildDocxBlob(buildExportSnapshot());
     const ts = (reportData.generated_at || '').replace(/[:TZ-]/g, '').slice(0, 14) || Date.now();
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -983,7 +1182,7 @@ export default function HomePage() {
 
   async function viewDocxFile() {
     if (!reportData) return;
-    const html = buildDocxPreviewHtml(reportData);
+    const html = buildDocxPreviewHtml(buildExportSnapshot());
     const win = window.open('', '_blank', 'noopener,noreferrer');
     if (!win) {
       alert('浏览器可能拦截了新窗口，请允许弹窗后重试。');
