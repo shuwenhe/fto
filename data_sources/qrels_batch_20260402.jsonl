@@ -1,10 +1,48 @@
-{"query_id":"q13","patent_id":"TODO_FILL_PATENT_ID_HIGH_01","relevance":3}
-{"query_id":"q13","patent_id":"TODO_FILL_PATENT_ID_MEDIUM_01","relevance":2}
-{"query_id":"q13","patent_id":"TODO_FILL_PATENT_ID_MEDIUM_02","relevance":2}
-{"query_id":"q13","patent_id":"TODO_FILL_PATENT_ID_LOW_01","relevance":1}
-{"query_id":"q13","patent_id":"TODO_FILL_PATENT_ID_LOW_02","relevance":0}
-{"query_id":"q14","patent_id":"TODO_FILL_PATENT_ID_HIGH_01","relevance":3}
-{"query_id":"q14","patent_id":"TODO_FILL_PATENT_ID_MEDIUM_01","relevance":2}
-{"query_id":"q14","patent_id":"TODO_FILL_PATENT_ID_MEDIUM_02","relevance":2}
-{"query_id":"q14","patent_id":"TODO_FILL_PATENT_ID_LOW_01","relevance":1}
-{"query_id":"q14","patent_id":"TODO_FILL_PATENT_ID_LOW_02","relevance":0}
+{"query_id": "q1", "patent_id": "TODO_FILL_Q1_LOW_01", "relevance": 1}
+{"query_id": "q1", "patent_id": "TODO_FILL_Q1_LOW_02", "relevance": 1}
+{"query_id": "q1", "patent_id": "TODO_FILL_Q1_LOW_03", "relevance": 1}
+{"query_id": "q1", "patent_id": "TODO_FILL_Q1_MEDIUM_01", "relevance": 2}
+{"query_id": "q2", "patent_id": "TODO_FILL_Q2_LOW_01", "relevance": 1}
+{"query_id": "q2", "patent_id": "TODO_FILL_Q2_LOW_02", "relevance": 1}
+{"query_id": "q2", "patent_id": "TODO_FILL_Q2_MEDIUM_01", "relevance": 2}
+{"query_id": "q2", "patent_id": "TODO_FILL_Q2_LOW_03", "relevance": 1}
+{"query_id": "q3", "patent_id": "TODO_FILL_Q3_LOW_01", "relevance": 1}
+{"query_id": "q3", "patent_id": "TODO_FILL_Q3_LOW_02", "relevance": 1}
+{"query_id": "q3", "patent_id": "TODO_FILL_Q3_LOW_03", "relevance": 1}
+{"query_id": "q3", "patent_id": "TODO_FILL_Q3_MEDIUM_01", "relevance": 2}
+{"query_id": "q4", "patent_id": "TODO_FILL_Q4_LOW_01", "relevance": 1}
+{"query_id": "q4", "patent_id": "TODO_FILL_Q4_LOW_02", "relevance": 1}
+{"query_id": "q4", "patent_id": "TODO_FILL_Q4_LOW_03", "relevance": 1}
+{"query_id": "q4", "patent_id": "TODO_FILL_Q4_MEDIUM_01", "relevance": 2}
+{"query_id": "q5", "patent_id": "TODO_FILL_Q5_LOW_01", "relevance": 1}
+{"query_id": "q5", "patent_id": "TODO_FILL_Q5_LOW_02", "relevance": 1}
+{"query_id": "q5", "patent_id": "TODO_FILL_Q5_MEDIUM_01", "relevance": 2}
+{"query_id": "q5", "patent_id": "TODO_FILL_Q5_LOW_03", "relevance": 1}
+{"query_id": "q6", "patent_id": "TODO_FILL_Q6_LOW_01", "relevance": 1}
+{"query_id": "q6", "patent_id": "TODO_FILL_Q6_LOW_02", "relevance": 1}
+{"query_id": "q6", "patent_id": "TODO_FILL_Q6_MEDIUM_01", "relevance": 2}
+{"query_id": "q6", "patent_id": "TODO_FILL_Q6_MEDIUM_02", "relevance": 2}
+{"query_id": "q7", "patent_id": "TODO_FILL_Q7_LOW_01", "relevance": 1}
+{"query_id": "q7", "patent_id": "TODO_FILL_Q7_LOW_02", "relevance": 1}
+{"query_id": "q7", "patent_id": "TODO_FILL_Q7_MEDIUM_01", "relevance": 2}
+{"query_id": "q7", "patent_id": "TODO_FILL_Q7_MEDIUM_02", "relevance": 2}
+{"query_id": "q8", "patent_id": "TODO_FILL_Q8_LOW_01", "relevance": 1}
+{"query_id": "q8", "patent_id": "TODO_FILL_Q8_LOW_02", "relevance": 1}
+{"query_id": "q8", "patent_id": "TODO_FILL_Q8_MEDIUM_01", "relevance": 2}
+{"query_id": "q8", "patent_id": "TODO_FILL_Q8_MEDIUM_02", "relevance": 2}
+{"query_id": "q9", "patent_id": "TODO_FILL_Q9_LOW_01", "relevance": 1}
+{"query_id": "q9", "patent_id": "TODO_FILL_Q9_LOW_02", "relevance": 1}
+{"query_id": "q9", "patent_id": "TODO_FILL_Q9_MEDIUM_01", "relevance": 2}
+{"query_id": "q9", "patent_id": "TODO_FILL_Q9_LOW_03", "relevance": 1}
+{"query_id": "q10", "patent_id": "TODO_FILL_Q10_LOW_01", "relevance": 1}
+{"query_id": "q10", "patent_id": "TODO_FILL_Q10_MEDIUM_01", "relevance": 2}
+{"query_id": "q10", "patent_id": "TODO_FILL_Q10_MEDIUM_02", "relevance": 2}
+{"query_id": "q10", "patent_id": "TODO_FILL_Q10_LOW_02", "relevance": 1}
+{"query_id": "q11", "patent_id": "TODO_FILL_Q11_LOW_01", "relevance": 1}
+{"query_id": "q11", "patent_id": "TODO_FILL_Q11_LOW_02", "relevance": 1}
+{"query_id": "q11", "patent_id": "TODO_FILL_Q11_LOW_03", "relevance": 1}
+{"query_id": "q11", "patent_id": "TODO_FILL_Q11_MEDIUM_01", "relevance": 2}
+{"query_id": "q12", "patent_id": "TODO_FILL_Q12_LOW_01", "relevance": 1}
+{"query_id": "q12", "patent_id": "TODO_FILL_Q12_LOW_02", "relevance": 1}
+{"query_id": "q12", "patent_id": "TODO_FILL_Q12_LOW_03", "relevance": 1}
+{"query_id": "q12", "patent_id": "TODO_FILL_Q12_MEDIUM_01", "relevance": 2}
