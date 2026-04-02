@@ -567,7 +567,6 @@ export default function HomePage() {
           coreFindings: 'Core Findings',
           recommendations: 'Recommendations',
           evidenceList: 'Evidence List',
-          riskDistribution: 'Risk Distribution',
           noEvidence: 'No evidence available.',
           fallbackNotice: 'Notice: fallback font is used.',
         }
@@ -582,47 +581,22 @@ export default function HomePage() {
           executiveSummary: '执行摘要',
           coreFindings: '核心发现',
           recommendations: '行动建议',
-          evidenceList: '证据清单',
-          riskDistribution: '风险分布',
+          evidenceList: '证据清单（可追溯）',
           noEvidence: '暂无证据。',
           fallbackNotice: '提示：当前使用回退字体。',
         };
 
-    const riskDistribution = report.risk_distribution || {};
-    const riskSummary = useAsciiFallback
-      ? `${labels.riskDistribution}: high=${Number(riskDistribution.high || 0)}, medium=${Number(
-          riskDistribution.medium || 0
-        )}, low=${Number(riskDistribution.low || 0)}`
-      : `${labels.riskDistribution}：高=${toFullWidthDigits(Number(riskDistribution.high || 0))}，中=${toFullWidthDigits(
-          Number(riskDistribution.medium || 0)
-        )}，低=${toFullWidthDigits(Number(riskDistribution.low || 0))}`;
-
     const evidence = (report.evidence || []).map((item) => ({
-      heading: `#${item.rank} ${safeText(item.patent_id)} | ${safeText(item.title)} | risk=${safeText(
-        item.risk_level
-      )} | final=${Number(item.final_score || 0).toFixed(4)}`,
-      source: `source: ${safeText(item.source_url || item.patent_url)}`,
-      reason: `reason: ${safeText(item.reason)}`,
+      rank: safeText(item.rank),
+      patentId: safeText(item.patent_id),
+      title: safeText(item.title),
+      risk: safeText(item.risk_level),
+      finalScore: Number(item.final_score || 0).toFixed(4),
+      modelScore: item.model_score === undefined ? '-' : Number(item.model_score).toFixed(4),
+      deepScore: item.deep_score === undefined ? '-' : Number(item.deep_score).toFixed(4),
+      encoderScore: item.encoder_score === undefined ? '-' : Number(item.encoder_score).toFixed(4),
+      reason: safeText(item.reason),
     }));
-
-    const fallbackCoreFindings = useAsciiFallback
-      ? ['No structured findings were returned. Please review evidence items directly.']
-      : ['未返回结构化核心发现，请直接查看证据清单中的证据条目。'];
-
-    const fallbackRecommendations = useAsciiFallback
-      ? [
-          'Prioritize claim chart comparison for high-risk patents.',
-          'Evaluate substitute technical routes for medium-risk candidates.',
-          'Archive source links for compliance and audit traceability.',
-        ]
-      : [
-          '优先对高风险专利进行权利要求逐条比对，输出可规避的结构差异清单。',
-          '对中风险候选开展技术特征映射，评估侵权边界和可替代方案。',
-          '将本次证据链接纳入评审记录，形成可追溯审计链路。',
-        ];
-
-    const coreFindings = (report.core_findings || []).map((item) => safeText(item)).filter(Boolean);
-    const recommendations = (report.recommendations || []).map((item) => safeText(item)).filter(Boolean);
 
     return {
       labels,
@@ -639,21 +613,21 @@ export default function HomePage() {
         {
           title: labels.executiveSummary,
           type: 'paragraph',
-          content: [useAsciiFallback ? safeText(report.executive_summary) : buildChineseExecutiveSummary(report), riskSummary],
+          content: [safeText(report.executive_summary)],
         },
         {
           title: labels.coreFindings,
           type: 'list',
-          content: coreFindings.length > 0 ? coreFindings : fallbackCoreFindings,
+          content: (report.core_findings || []).map((item) => safeText(item)),
         },
         {
           title: labels.recommendations,
           type: 'list',
-          content: recommendations.length > 0 ? recommendations : fallbackRecommendations,
+          content: (report.recommendations || []).map((item) => safeText(item)),
         },
         {
           title: labels.evidenceList,
-          type: 'evidence',
+          type: 'evidence-table',
           content: evidence,
           emptyText: labels.noEvidence,
         },
@@ -799,9 +773,17 @@ export default function HomePage() {
       }
 
       evidenceItems.forEach((item) => {
-        drawWrapped(item.heading, { fontSize: 10.5 });
-        drawWrapped(item.source, { fontSize: 9.5, lineHeight: 14 });
-        drawWrapped(item.reason, { fontSize: 9.5, lineHeight: 14 });
+        drawWrapped(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`, {
+          fontSize: 10.2,
+        });
+        drawWrapped(
+          `Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}`,
+          {
+            fontSize: 9.5,
+            lineHeight: 14,
+          }
+        );
+        drawWrapped(`Reason ${item.reason}`, { fontSize: 9.5, lineHeight: 14 });
         y += 4;
       });
       y += 4;
