@@ -904,6 +904,9 @@ func (r *LocalPatentRepository) rankDualCandidatesForPatentIDs(query string, lim
 			}
 			return ranked[i].fusionScore > ranked[j].fusionScore
 		})
+		if len(ranked) > limit {
+			ranked = ranked[:limit]
+		}
 		r.applyDeepRerank(ranked)
 		sort.SliceStable(ranked, func(i, j int) bool {
 			if ranked[i].fusionScore == ranked[j].fusionScore {
@@ -911,9 +914,6 @@ func (r *LocalPatentRepository) rankDualCandidatesForPatentIDs(query string, lim
 			}
 			return ranked[i].fusionScore > ranked[j].fusionScore
 		})
-		if len(ranked) > limit {
-			ranked = ranked[:limit]
-		}
 		return ranked, totalCandidates
 	}
 
