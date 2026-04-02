@@ -1081,18 +1081,65 @@ export default function HomePage() {
         children.push(new Paragraph(section.emptyText || '-'));
         return;
       }
-      items.forEach((item) => {
-        children.push(
-          new Paragraph(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`)
-        );
-        children.push(
-          new Paragraph(
-            `Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}`
-          )
-        );
-        children.push(new Paragraph(`Reason ${item.reason}`));
-        children.push(new Paragraph(''));
-      });
+      if (section.type === 'evidence-table') {
+        items.forEach((item) => {
+          children.push(
+            new Paragraph(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`)
+          );
+          children.push(
+            new Paragraph(
+              `Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}`
+            )
+          );
+          children.push(new Paragraph(`Reason ${item.reason}`));
+          children.push(new Paragraph(''));
+        });
+        return;
+      }
+      if (section.type === 'task-table') {
+        items.forEach((item) => {
+          children.push(new Paragraph(`专利号 ${item.patentId} | 标题 ${item.title}`));
+          children.push(new Paragraph(`Risk ${item.risk} | Reason ${item.reason}`));
+          children.push(new Paragraph(''));
+        });
+        return;
+      }
+      if (section.type === 'recall-table') {
+        items.forEach((item) => {
+          children.push(new Paragraph(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`));
+          children.push(new Paragraph(`Lexical ${item.lexicalScore} | Semantic ${item.semanticScore}`));
+          children.push(new Paragraph(`Matched ${item.matched}`));
+          children.push(new Paragraph(''));
+        });
+        return;
+      }
+      if (section.type === 'reranker-table') {
+        items.forEach((item) => {
+          children.push(new Paragraph(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`));
+          children.push(new Paragraph(`Model ${item.modelScore} | Deep ${item.deepScore} | Final ${item.finalScore}`));
+          children.push(new Paragraph(`Features ${item.features}`));
+          children.push(new Paragraph(''));
+        });
+        return;
+      }
+      if (section.type === 'encoder-table') {
+        items.forEach((item) => {
+          children.push(new Paragraph(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`));
+          children.push(new Paragraph(`Encoder ${item.encoderScore} | Final ${item.finalScore}`));
+          children.push(new Paragraph(`Embedding ${item.embedding}`));
+          children.push(new Paragraph(`Features ${item.features}`));
+          children.push(new Paragraph(''));
+        });
+        return;
+      }
+      if (section.type === 'judge-table') {
+        items.forEach((item) => {
+          children.push(new Paragraph(`Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}`));
+          children.push(new Paragraph(`Risk ${item.risk} | Final ${item.finalScore}`));
+          children.push(new Paragraph(`Reason ${item.reason}`));
+          children.push(new Paragraph(''));
+        });
+      }
     });
 
     const doc = new Document({ sections: [{ children }] });
@@ -1121,12 +1168,50 @@ export default function HomePage() {
         if (items.length === 0) {
           return `<section><h2>${section.title}</h2><p>${section.emptyText || '-'}</p></section>`;
         }
-        const blocks = items
-          .map(
-            (item) =>
-              `<div class="evidence"><p><strong>Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}</strong></p><p>Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}</p><p>Reason ${item.reason}</p></div>`
-          )
-          .join('');
+        let blocks = '';
+        if (section.type === 'evidence-table') {
+          blocks = items
+            .map(
+              (item) =>
+                `<div class="evidence"><p><strong>Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}</strong></p><p>Risk ${item.risk} | Final ${item.finalScore} | Model ${item.modelScore} | Deep ${item.deepScore} | Encoder ${item.encoderScore}</p><p>Reason ${item.reason}</p></div>`
+            )
+            .join('');
+        } else if (section.type === 'task-table') {
+          blocks = items
+            .map(
+              (item) =>
+                `<div class="evidence"><p><strong>专利号 ${item.patentId} | 标题 ${item.title}</strong></p><p>Risk ${item.risk}</p><p>Reason ${item.reason}</p></div>`
+            )
+            .join('');
+        } else if (section.type === 'recall-table') {
+          blocks = items
+            .map(
+              (item) =>
+                `<div class="evidence"><p><strong>Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}</strong></p><p>Lexical ${item.lexicalScore} | Semantic ${item.semanticScore}</p><p>Matched ${item.matched}</p></div>`
+            )
+            .join('');
+        } else if (section.type === 'reranker-table') {
+          blocks = items
+            .map(
+              (item) =>
+                `<div class="evidence"><p><strong>Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}</strong></p><p>Model ${item.modelScore} | Deep ${item.deepScore} | Final ${item.finalScore}</p><p>Features ${item.features}</p></div>`
+            )
+            .join('');
+        } else if (section.type === 'encoder-table') {
+          blocks = items
+            .map(
+              (item) =>
+                `<div class="evidence"><p><strong>Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}</strong></p><p>Encoder ${item.encoderScore} | Final ${item.finalScore}</p><p>Embedding ${item.embedding}</p><p>Features ${item.features}</p></div>`
+            )
+            .join('');
+        } else if (section.type === 'judge-table') {
+          blocks = items
+            .map(
+              (item) =>
+                `<div class="evidence"><p><strong>Rank ${item.rank} | 专利号 ${item.patentId} | 标题 ${item.title}</strong></p><p>Risk ${item.risk} | Final ${item.finalScore}</p><p>Reason ${item.reason}</p></div>`
+            )
+            .join('');
+        }
         return `<section><h2>${section.title}</h2>${blocks}</section>`;
       })
       .join('');
