@@ -1,4 +1,4 @@
-.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet patent-incremental-sync patent-process-pending-embeddings index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus search-stack-up search-stack-down search-stack-logs eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model check-qrels-distribution generate-qrels-label-tasks merge-qrels-batch compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
+.PHONY: help frontend-install frontend-dev frontend-build frontend-start backend-deps backend-run backend-health backend-metrics alert-check trend-report load-test load-test-compare gray-rollout-guard rollback-now ci-gate ops-gate data-source-check sync-patent-data export-patents-parquet patent-incremental-sync patent-process-pending-embeddings index-patents-es index-patents-es-from-parquet index-patent-embeddings-milvus search-stack-up search-stack-down search-stack-logs eval-retrieval eval-query-rewrite-ab analyze-query-rewrite-rules auto-prune-query-rewrite-rules auto-prune-query-rewrite-status eval-ab-reranker eval-reranker-model eval-judge-model check-qrels-distribution generate-qrels-label-tasks merge-qrels-batch merge-and-check-qrels compare-online-offline generate-report-sample train-fto-model train-fto-reranker-model train-fto-recall-model train-fto-judge-model train-fto-encoder-model train-eval-fto-recall train-eval-fto-reranker train-eval-fto-judge train-eval-fto-encoder tune-fto-4-models-grid-8x310p3 eval-retrieval-model import-patent curl nginx-test nginx-reload git-auto-start git-auto-stop git-auto-status git-auto-log git-auto-service-install git-auto-pull-service-install logs service-install service-start service-stop service-restart service-status service-restart-backend service-restart-frontend
 
 help:
 	@echo "Available targets:"
@@ -53,6 +53,7 @@ help:
 	@echo "  make check-qrels-distribution # Check qrels class/query balance for judge labeling"
 	@echo "  make generate-qrels-label-tasks # Generate markdown task list and today's qrels batch template"
 	@echo "  make merge-qrels-batch BATCH=... # Safely merge a labeled qrels batch into qrels.jsonl"
+	@echo "  make merge-and-check-qrels BATCH=... # Merge labeled qrels batch and immediately run distribution checks"
 	@echo "  make import-patent PATENT_ID=CN202410001A # Import from Google Patents"
 	@echo "  make git-auto-start  # Start git auto commit/push daemon"
 	@echo "  make git-auto-stop   # Stop git auto commit/push daemon"
@@ -226,6 +227,10 @@ generate-qrels-label-tasks:
 merge-qrels-batch:
 	@test -n "$(BATCH)" || (echo "Usage: make merge-qrels-batch BATCH=data_sources/qrels_batch_YYYYMMDD.jsonl" && exit 1)
 	python3 scripts/merge_qrels_batch.py --batch-qrels "$(BATCH)"
+
+merge-and-check-qrels:
+	@test -n "$(BATCH)" || (echo "Usage: make merge-and-check-qrels BATCH=data_sources/qrels_batch_YYYYMMDD.jsonl" && exit 1)
+	python3 scripts/merge_and_check_qrels.py --batch-qrels "$(BATCH)"
 
 compare-online-offline:
 	node scripts/compare_online_offline.mjs --k 5 --sample 5 --verbose
