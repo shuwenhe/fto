@@ -1,0 +1,206 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_judge_train_eval_20260401_005732.log
+[info] tensor_device=npu
+[info] ascend_visible_devices=0,1,2,3,4,5,6,7
+[info] world_size=8
+[info] dist_backend=hccl
+[info] master_addr=127.0.0.1
+[info] master_port=29601
+[info] loading CANN runtime env
+[info] using python=/usr/bin/python3 (CANN runtime)
+[info] validating neurx npu backend
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+[info] neurx_accel_available=True
+[ok] neurx_npu_smoke=6.000000
+[info] neurx_tensor_device=cuda
+[info] training judge model with neurx
+[info] launching distributed training on 8 NPUs
+WARNING:__main__:
+*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+........Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 456, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 402, in main
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 189, in train_model
+    model.load_state_dict(reduced, strict=True)
+  File "/app/neurx/python/neurx/nn/modules.py", line 374, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Linear: shape_mismatch=[{'name': 'weight', 'expected': (), 'got': (11, 1)}, {'name': 'bias', 'expected': (), 'got': (1,)}], dtype_mismatch=[{'name': 'weight', 'expected': 'object', 'got': 'float32'}, {'name': 'bias', 'expected': 'object', 'got': 'float32'}]
+Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 456, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 402, in main
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 189, in train_model
+    model.load_state_dict(reduced, strict=True)
+  File "/app/neurx/python/neurx/nn/modules.py", line 374, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Linear: shape_mismatch=[{'name': 'weight', 'expected': (), 'got': (11, 1)}, {'name': 'bias', 'expected': (), 'got': (1,)}], dtype_mismatch=[{'name': 'weight', 'expected': 'object', 'got': 'float32'}, {'name': 'bias', 'expected': 'object', 'got': 'float32'}]
+Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 456, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 402, in main
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 189, in train_model
+    model.load_state_dict(reduced, strict=True)
+  File "/app/neurx/python/neurx/nn/modules.py", line 374, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Linear: shape_mismatch=[{'name': 'weight', 'expected': (), 'got': (11, 1)}, {'name': 'bias', 'expected': (), 'got': (1,)}], dtype_mismatch=[{'name': 'weight', 'expected': 'object', 'got': 'float32'}, {'name': 'bias', 'expected': 'object', 'got': 'float32'}]
+Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 456, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 402, in main
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 189, in train_model
+    model.load_state_dict(reduced, strict=True)
+  File "/app/neurx/python/neurx/nn/modules.py", line 374, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Linear: shape_mismatch=[{'name': 'weight', 'expected': (), 'got': (11, 1)}, {'name': 'bias', 'expected': (), 'got': (1,)}], dtype_mismatch=[{'name': 'weight', 'expected': 'object', 'got': 'float32'}, {'name': 'bias', 'expected': 'object', 'got': 'float32'}]
+Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 456, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 402, in main
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 189, in train_model
+    model.load_state_dict(reduced, strict=True)
+  File "/app/neurx/python/neurx/nn/modules.py", line 374, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Linear: shape_mismatch=[{'name': 'weight', 'expected': (), 'got': (11, 1)}, {'name': 'bias', 'expected': (), 'got': (1,)}], dtype_mismatch=[{'name': 'weight', 'expected': 'object', 'got': 'float32'}, {'name': 'bias', 'expected': 'object', 'got': 'float32'}]
+Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 456, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 402, in main
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 189, in train_model
+    model.load_state_dict(reduced, strict=True)
+  File "/app/neurx/python/neurx/nn/modules.py", line 374, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Linear: shape_mismatch=[{'name': 'weight', 'expected': (), 'got': (11, 1)}, {'name': 'bias', 'expected': (), 'got': (1,)}], dtype_mismatch=[{'name': 'weight', 'expected': 'object', 'got': 'float32'}, {'name': 'bias', 'expected': 'object', 'got': 'float32'}]
+Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 456, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 402, in main
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 189, in train_model
+    model.load_state_dict(reduced, strict=True)
+  File "/app/neurx/python/neurx/nn/modules.py", line 374, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Linear: shape_mismatch=[{'name': 'weight', 'expected': (), 'got': (11, 1)}, {'name': 'bias', 'expected': (), 'got': (1,)}], dtype_mismatch=[{'name': 'weight', 'expected': 'object', 'got': 'float32'}, {'name': 'bias', 'expected': 'object', 'got': 'float32'}]
+Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 456, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 402, in main
+    models, train_mse = train_model(local_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 189, in train_model
+    model.load_state_dict(reduced, strict=True)
+  File "/app/neurx/python/neurx/nn/modules.py", line 374, in load_state_dict
+    raise RuntimeError(
+RuntimeError: Error(s) in loading state_dict for Linear: shape_mismatch=[{'name': 'weight', 'expected': (), 'got': (11, 1)}, {'name': 'bias', 'expected': (), 'got': (1,)}], dtype_mismatch=[{'name': 'weight', 'expected': 'object', 'got': 'float32'}, {'name': 'bias', 'expected': 'object', 'got': 'float32'}]
+[2026-04-01 00:58:42,808] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 3401839 closing signal SIGTERM
+[2026-04-01 00:58:42,808] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 3401844 closing signal SIGTERM
+[2026-04-01 00:58:43,086] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 3401837) of binary: /usr/bin/python3
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/run.py", line 810, in <module>
+    main()
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 346, in wrapper
+    return f(*args, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/run.py", line 806, in main
+    run(args)
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/run.py", line 797, in run
+    elastic_launch(
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/usr/local/lib/python3.10/dist-packages/torch/distributed/launcher/api.py", line 264, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+/app/fto/scripts/train_fto_judge_model_neurx.py FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-04-01_00:58:42
+  host      : huawei
+  rank      : 1 (local_rank: 1)
+  exitcode  : 1 (pid: 3401838)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[2]:
+  time      : 2026-04-01_00:58:42
+  host      : huawei
+  rank      : 3 (local_rank: 3)
+  exitcode  : 1 (pid: 3401840)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[3]:
+  time      : 2026-04-01_00:58:42
+  host      : huawei
+  rank      : 4 (local_rank: 4)
+  exitcode  : 1 (pid: 3401841)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[4]:
+  time      : 2026-04-01_00:58:42
+  host      : huawei
+  rank      : 5 (local_rank: 5)
+  exitcode  : 1 (pid: 3401842)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[5]:
+  time      : 2026-04-01_00:58:42
+  host      : huawei
+  rank      : 6 (local_rank: 6)
+  exitcode  : 1 (pid: 3401843)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-04-01_00:58:42
+  host      : huawei
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 3401837)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================

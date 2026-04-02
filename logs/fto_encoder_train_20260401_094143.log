@@ -1,0 +1,30 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_encoder_train_20260401_094143.log
+[info] tensor_device=npu
+[info] ascend_visible_devices=0
+[info] loading CANN runtime env
+[info] using python=/usr/bin/python3 (CANN runtime)
+[info] validating neurx npu backend
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+[info] neurx_accel_available=True
+.[ok] neurx_npu_smoke=6.000000
+[info] neurx_tensor_device=cuda
+[info] training feature encoder with neurx
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+.[ok] samples=15 queries=5
+[ok] candidate_k=24
+[ok] embedding_dim=8
+[ok] train_mse=0.000067
+[ok] Recall@5=0.8333
+[ok] MRR@5=1.0000
+[ok] NDCG@5=0.9459
+[ok] artifact=/app/fto/model_artifacts/fto_encoder_neurx_v1.json
+[ok] done
+[ok] artifact=/app/fto/model_artifacts/fto_encoder_neurx_v1.json
+[ok] log=/app/fto/logs/fto_encoder_train_20260401_094143.log

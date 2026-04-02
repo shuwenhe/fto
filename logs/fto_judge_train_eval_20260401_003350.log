@@ -1,0 +1,74 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_judge_train_eval_20260401_003350.log
+[info] tensor_device=npu
+[info] ascend_visible_devices=0
+[info] loading CANN runtime env
+[info] using python=/usr/bin/python3 (CANN runtime)
+[info] validating neurx npu backend
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+[info] neurx_accel_available=True
+.[ok] neurx_npu_smoke=6.000000
+[info] neurx_tensor_device=cuda
+[info] training judge model with neurx
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+.[ok] samples=15
+[ok] candidate_k=24
+[ok] medium_rel_threshold=2.0
+[ok] high_rel_threshold=3.0
+[ok] train_mse=low:0.000051, medium:0.000426, high:0.000056
+[ok] accuracy=1.0000
+[ok] macro_precision=0.6667
+[ok] macro_recall=0.6667
+[ok] macro_f1=0.6667
+[ok] weighted_f1=1.0000
+[ok] class=low precision=1.0000 recall=1.0000 f1=1.0000 auc=1.0000
+[ok] class=medium precision=0.0000 recall=0.0000 f1=0.0000 auc=0.0000
+[ok] class=high precision=1.0000 recall=1.0000 f1=1.0000 auc=1.0000
+[ok] artifact=/app/fto/model_artifacts/fto_judge_neurx_v1.json
+[info] evaluating judge model with trained artifact
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+JudgeEval
+candidate_k=24
+medium_rel_threshold=2.0
+high_rel_threshold=3.0
+model=/app/fto/model_artifacts/fto_judge_neurx_v1.json
+samples=15
+accuracy=1.0000
+macro_precision=0.6667
+macro_recall=0.6667
+macro_f1=0.6667
+weighted_f1=1.0000
+class=low precision=1.0000 recall=1.0000 f1=1.0000 support=10
+class=medium precision=0.0000 recall=0.0000 f1=0.0000 support=0
+class=high precision=1.0000 recall=1.0000 f1=1.0000 support=5
+confusion_matrix=[[10, 0, 0], [0, 0, 0], [0, 0, 5]]
+--- per-sample ---
+q1:CN202355566A label=low pred=low low=0.9657 medium=0.0187 high=0.0155
+q1:CN202410001A label=high pred=high low=0.0001 medium=0.0132 high=0.9867
+q1:JP2023176543A label=low pred=low low=0.9747 medium=0.0247 high=0.0006
+q2:CN202209876U label=low pred=low low=0.9663 medium=0.0242 high=0.0095
+q2:CN202311998B label=high pred=high low=0.0001 medium=0.0123 high=0.9876
+q2:CN202355566A label=low pred=low low=0.9738 medium=0.0209 high=0.0053
+q2:JP2023176543A label=low pred=low low=0.9749 medium=0.0239 high=0.0012
+q3:CN202410001A label=low pred=low low=0.9746 medium=0.0232 high=0.0023
+q3:JP2023176543A label=high pred=high low=0.0015 medium=0.0136 high=0.9849
+q4:CN202209876U label=high pred=high low=0.0100 medium=0.0128 high=0.9772
+q4:CN202311998B label=low pred=low low=0.9604 medium=0.0210 high=0.0185
+q4:CN202410001A label=low pred=low low=0.9748 medium=0.0240 high=0.0012
+q4:JP2023176543A label=low pred=low low=0.9746 medium=0.0246 high=0.0009
+q5:CN202355566A label=high pred=high low=0.0006 medium=0.0153 high=0.9841
+q5:CN202410001A label=low pred=low low=0.9747 medium=0.0221 high=0.0032
+[ok] done
+[ok] recall_artifact=/app/fto/model_artifacts/fto_recall_dual_v1.json
+[ok] reranker_artifact=/app/fto/model_artifacts/fto_reranker_neurx_v1.json
+[ok] judge_artifact=/app/fto/model_artifacts/fto_judge_neurx_v1.json
+[ok] log=/app/fto/logs/fto_judge_train_eval_20260401_003350.log

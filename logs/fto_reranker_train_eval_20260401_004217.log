@@ -1,0 +1,45 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_reranker_train_eval_20260401_004217.log
+[info] tensor_device=npu
+[info] ascend_visible_devices=0
+[info] loading CANN runtime env
+[info] using python=/usr/bin/python3 (CANN runtime)
+[info] validating neurx npu backend
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+[info] neurx_accel_available=True
+[ok] neurx_npu_smoke=6.000000
+[info] neurx_tensor_device=cuda
+[info] training reranker model with neurx
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+.[ok] samples=15 queries=5
+[ok] candidate_k=24
+[ok] train_mse=0.000036
+[ok] Recall@5=0.8333
+[ok] MRR@5=1.0000
+[ok] NDCG@5=0.9459
+[ok] artifact=/app/fto/model_artifacts/fto_reranker_neurx_v1.json
+[info] evaluating reranker model with trained artifact
+RerankEval@5
+candidate_k=24
+recall_model=model_artifacts/fto_recall_dual_v1.json
+model=model_artifacts/fto_reranker_neurx_v1.json
+queries=5
+Recall@5=0.8333
+MRR@5=1.0000
+NDCG@5=0.9459
+--- per-query ---
+q1: recall=0.6667 mrr=1.0000 ndcg=0.8124 topk=CN202410001A,CN202355566A,JP2023176543A candidates=CN202410001A,CN202355566A,JP2023176543A
+q2: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202311998B,CN202209876U,JP2023176543A,CN202355566A candidates=CN202311998B,CN202209876U,JP2023176543A,CN202355566A
+q3: recall=0.5000 mrr=1.0000 ndcg=0.9173 topk=JP2023176543A,CN202410001A candidates=JP2023176543A,CN202410001A
+q4: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202209876U,CN202311998B,CN202410001A,JP2023176543A candidates=CN202209876U,CN202311998B,CN202410001A,JP2023176543A
+q5: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202355566A,CN202410001A candidates=CN202355566A,CN202410001A
+[ok] done
+[ok] recall_artifact=/app/fto/model_artifacts/fto_recall_dual_v1.json
+[ok] reranker_artifact=/app/fto/model_artifacts/fto_reranker_neurx_v1.json
+[ok] log=/app/fto/logs/fto_reranker_train_eval_20260401_004217.log

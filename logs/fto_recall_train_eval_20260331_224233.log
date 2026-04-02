@@ -1,0 +1,69 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_recall_train_eval_20260331_224233.log
+[info] upgrading pip/setuptools/wheel
+Looking in indexes: https://mirrors.huaweicloud.com/repository/pypi/simple/
+Requirement already satisfied: pip in ./.venv/lib/python3.10/site-packages (26.0.1)
+Requirement already satisfied: setuptools in ./.venv/lib/python3.10/site-packages (65.5.0)
+Collecting setuptools
+  Downloading https://mirrors.huaweicloud.com/repository/pypi/packages/9d/76/f789f7a86709c6b087c5a2f52f911838cad707cc613162401badc665acfe/setuptools-82.0.1-py3-none-any.whl (1.0 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.0/1.0 MB 551.4 kB/s  0:00:01
+Collecting wheel
+  Downloading https://mirrors.huaweicloud.com/repository/pypi/packages/87/22/b76d483683216dde3d67cba61fb2444be8d5be289bf628c13fc0fd90e5f9/wheel-0.46.3-py3-none-any.whl (30 kB)
+Collecting packaging>=24.0 (from wheel)
+  Downloading https://mirrors.huaweicloud.com/repository/pypi/packages/b7/b9/c538f279a4e237a006a2c98387d081e9eb060d203d8ed34467cc0f0b9b53/packaging-26.0-py3-none-any.whl (74 kB)
+Installing collected packages: setuptools, packaging, wheel
+  Attempting uninstall: setuptools
+    Found existing installation: setuptools 65.5.0
+    Uninstalling setuptools-65.5.0:
+      Successfully uninstalled setuptools-65.5.0
+
+Successfully installed packaging-26.0 setuptools-82.0.1 wheel-0.46.3
+[info] installing neurx editable package and scipy
+Looking in indexes: https://mirrors.huaweicloud.com/repository/pypi/simple/
+Obtaining file:///app/neurx
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: scipy in ./.venv/lib/python3.10/site-packages (1.15.3)
+Requirement already satisfied: numpy in ./.venv/lib/python3.10/site-packages (from neurx==0.2.0) (2.2.6)
+Building wheels for collected packages: neurx
+  Building editable for neurx (pyproject.toml): started
+  Building editable for neurx (pyproject.toml): finished with status 'done'
+  Created wheel for neurx: filename=neurx-0.2.0-0.editable-py3-none-any.whl size=1471 sha256=bc8f44f8a31bf7c15d0a1e688c0a368c77c8339ff1575617ca731a0116c29fcb
+  Stored in directory: /tmp/pip-ephem-wheel-cache-577vqjtk/wheels/52/c5/4f/00dab1e403c03286d85af4ddd3e69b46f1a262af05e2410cd8
+Successfully built neurx
+Installing collected packages: neurx
+  Attempting uninstall: neurx
+    Found existing installation: neurx 0.2.0
+    Uninstalling neurx-0.2.0:
+      Successfully uninstalled neurx-0.2.0
+Successfully installed neurx-0.2.0
+[info] training recall model with neurx
+[ok] queries=5
+[ok] Recall@5=0.8333
+[ok] MRR@5=1.0000
+[ok] NDCG@5=0.9459
+[ok] train_loss=0.005641
+[ok] artifact=/app/fto/model_artifacts/fto_recall_dual_v1.json
+[ok] params={"titleWeight": 3.9735, "abstractWeight": 1.7083, "claimWeight": 0.6098, "keywordWeight": 5.7084, "fusionLexicalWeight": 0.9053, "recallDepthMultiplier": 3, "recallDepthMin": 6}
+[info] evaluating retrieval model with trained artifact
+Eval@5
+model=model_artifacts/fto_recall_dual_v1.json
+queries=5
+Recall@5=0.8333
+MRR@5=1.0000
+NDCG@5=0.9459
+--- per-query ---
+q1: recall=0.6667 mrr=1.0000 ndcg=0.8124 topk=CN202410001A,CN202355566A,JP2023176543A
+q2: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202311998B,CN202209876U,JP2023176543A,CN202355566A
+q3: recall=0.5000 mrr=1.0000 ndcg=0.9173 topk=JP2023176543A,CN202410001A
+q4: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202209876U,CN202311998B,CN202410001A,JP2023176543A
+q5: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202355566A,CN202410001A
+[ok] done
+[ok] artifact=/app/fto/model_artifacts/fto_recall_dual_v1.json
+[ok] log=/app/fto/logs/fto_recall_train_eval_20260331_224233.log

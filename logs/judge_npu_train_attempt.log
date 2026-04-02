@@ -1,0 +1,16 @@
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+.Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 405, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 367, in main
+    models, train_mse = train_model(judge_samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_judge_model_neurx.py", line 175, in train_model
+    diff = probs - labels_by_head[class_idx]
+  File "/app/neurx/python/neurx/core/neurx.py", line 256, in __sub__
+    return self + (-other)
+  File "/app/neurx/python/neurx/core/neurx.py", line 262, in __neg__
+    out = Tensor(-self.data, self.requires_grad, (self,), "neg")
+TypeError: bad operand type for unary -: 'DeviceArray'

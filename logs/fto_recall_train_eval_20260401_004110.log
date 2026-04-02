@@ -1,0 +1,42 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_recall_train_eval_20260401_004110.log
+[info] tensor_device=npu
+[info] ascend_visible_devices=0
+[info] loading CANN runtime env
+[info] using python=/usr/bin/python3 (CANN runtime)
+[info] validating neurx npu backend
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+[info] neurx_accel_available=True
+[ok] neurx_npu_smoke=6.000000
+[info] neurx_tensor_device=cuda
+[info] training recall model with neurx
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+.[ok] queries=5
+[ok] Recall@5=0.8333
+[ok] MRR@5=1.0000
+[ok] NDCG@5=0.9459
+[ok] train_loss=0.002410
+[ok] artifact=/app/fto/model_artifacts/fto_recall_dual_v1.json
+[ok] params={"titleWeight": 4.2433, "abstractWeight": 1.3998, "claimWeight": 0.4282, "keywordWeight": 5.9287, "fusionLexicalWeight": 0.9262, "recallDepthMultiplier": 3, "recallDepthMin": 6}
+[info] evaluating retrieval model with trained artifact
+Eval@5
+model=model_artifacts/fto_recall_dual_v1.json
+queries=5
+Recall@5=0.8333
+MRR@5=1.0000
+NDCG@5=0.9459
+--- per-query ---
+q1: recall=0.6667 mrr=1.0000 ndcg=0.8124 topk=CN202410001A,CN202355566A,JP2023176543A
+q2: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202311998B,CN202209876U,JP2023176543A,CN202355566A
+q3: recall=0.5000 mrr=1.0000 ndcg=0.9173 topk=JP2023176543A,CN202410001A
+q4: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202209876U,CN202311998B,CN202410001A,JP2023176543A
+q5: recall=1.0000 mrr=1.0000 ndcg=1.0000 topk=CN202355566A,CN202410001A
+[ok] done
+[ok] artifact=/app/fto/model_artifacts/fto_recall_dual_v1.json
+[ok] log=/app/fto/logs/fto_recall_train_eval_20260401_004110.log

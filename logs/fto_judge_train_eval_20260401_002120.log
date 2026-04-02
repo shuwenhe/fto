@@ -1,0 +1,89 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_judge_train_eval_20260401_002120.log
+[info] tensor_device=npu
+[info] ascend_visible_devices=0
+[info] upgrading pip/setuptools/wheel
+Looking in indexes: https://mirrors.huaweicloud.com/repository/pypi/simple/
+Requirement already satisfied: pip in ./.venv/lib/python3.10/site-packages (26.0.1)
+Requirement already satisfied: setuptools in ./.venv/lib/python3.10/site-packages (82.0.1)
+Requirement already satisfied: wheel in ./.venv/lib/python3.10/site-packages (0.46.3)
+Requirement already satisfied: packaging>=24.0 in ./.venv/lib/python3.10/site-packages (from wheel) (26.0)
+[info] installing neurx editable package and scipy
+Looking in indexes: https://mirrors.huaweicloud.com/repository/pypi/simple/
+Obtaining file:///app/neurx
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: scipy in ./.venv/lib/python3.10/site-packages (1.15.3)
+Requirement already satisfied: numpy in ./.venv/lib/python3.10/site-packages (from neurx==0.2.0) (2.2.6)
+Building wheels for collected packages: neurx
+  Building editable for neurx (pyproject.toml): started
+  Building editable for neurx (pyproject.toml): finished with status 'done'
+  Created wheel for neurx: filename=neurx-0.2.0-0.editable-py3-none-any.whl size=1471 sha256=56f3a4f184a2d18f6fb8999258996c9821785183c935504204a24d3832a4ceb1
+  Stored in directory: /tmp/pip-ephem-wheel-cache-7zcg6m8c/wheels/52/c5/4f/00dab1e403c03286d85af4ddd3e69b46f1a262af05e2410cd8
+Successfully built neurx
+Installing collected packages: neurx
+  Attempting uninstall: neurx
+    Found existing installation: neurx 0.2.0
+    Uninstalling neurx-0.2.0:
+      Successfully uninstalled neurx-0.2.0
+Successfully installed neurx-0.2.0
+[info] validating neurx npu backend
+[ok] neurx_npu_smoke=6.000000
+[info] training judge model with neurx
+[ok] samples=15
+[ok] candidate_k=24
+[ok] medium_rel_threshold=2.0
+[ok] high_rel_threshold=3.0
+[ok] train_mse=low:0.000009, medium:0.000426, high:0.000042
+[ok] accuracy=1.0000
+[ok] macro_precision=0.6667
+[ok] macro_recall=0.6667
+[ok] macro_f1=0.6667
+[ok] weighted_f1=1.0000
+[ok] class=low precision=1.0000 recall=1.0000 f1=1.0000 auc=1.0000
+[ok] class=medium precision=0.0000 recall=0.0000 f1=0.0000 auc=0.0000
+[ok] class=high precision=1.0000 recall=1.0000 f1=1.0000 auc=1.0000
+[ok] artifact=/app/fto/model_artifacts/fto_judge_neurx_v1.json
+[info] evaluating judge model with trained artifact
+JudgeEval
+candidate_k=24
+medium_rel_threshold=2.0
+high_rel_threshold=3.0
+model=/app/fto/model_artifacts/fto_judge_neurx_v1.json
+samples=15
+accuracy=1.0000
+macro_precision=0.6667
+macro_recall=0.6667
+macro_f1=0.6667
+weighted_f1=1.0000
+class=low precision=1.0000 recall=1.0000 f1=1.0000 support=10
+class=medium precision=0.0000 recall=0.0000 f1=0.0000 support=0
+class=high precision=1.0000 recall=1.0000 f1=1.0000 support=5
+confusion_matrix=[[10, 0, 0], [0, 0, 0], [0, 0, 5]]
+--- per-sample ---
+q1:CN202355566A label=low pred=low low=0.9681 medium=0.0179 high=0.0141
+q1:CN202410001A label=high pred=high low=0.0000 medium=0.0130 high=0.9870
+q1:JP2023176543A label=low pred=low low=0.9714 medium=0.0282 high=0.0004
+q2:CN202209876U label=low pred=low low=0.9634 medium=0.0247 high=0.0119
+q2:CN202311998B label=high pred=high low=0.0000 medium=0.0123 high=0.9877
+q2:CN202355566A label=low pred=low low=0.9797 medium=0.0185 high=0.0018
+q2:JP2023176543A label=low pred=low low=0.9784 medium=0.0208 high=0.0008
+q3:CN202410001A label=low pred=low low=0.9750 medium=0.0234 high=0.0015
+q3:JP2023176543A label=high pred=high low=0.0000 medium=0.0143 high=0.9857
+q4:CN202209876U label=high pred=high low=0.0006 medium=0.0112 high=0.9882
+q4:CN202311998B label=low pred=low low=0.9660 medium=0.0202 high=0.0138
+q4:CN202410001A label=low pred=low low=0.9728 medium=0.0267 high=0.0005
+q4:JP2023176543A label=low pred=low low=0.9750 medium=0.0246 high=0.0003
+q5:CN202355566A label=high pred=high low=0.0000 medium=0.0164 high=0.9836
+q5:CN202410001A label=low pred=low low=0.9763 medium=0.0199 high=0.0038
+[ok] done
+[ok] recall_artifact=/app/fto/model_artifacts/fto_recall_dual_v1.json
+[ok] reranker_artifact=/app/fto/model_artifacts/fto_reranker_neurx_v1.json
+[ok] judge_artifact=/app/fto/model_artifacts/fto_judge_neurx_v1.json
+[ok] log=/app/fto/logs/fto_judge_train_eval_20260401_002120.log

@@ -1,0 +1,18 @@
+[info] root=/app/fto
+[info] rules=/app/fto/backend/config/query_rewrite_rules.json
+[info] min_ndcg_contribution=0
+[info] min_hit_queries=2
+[info] auto_apply=1
+[ok] pruned_rules_written=/app/fto/backend/config/query_rewrite_rules.pruned.json
+[ok] baseline_ndcg=0.6803
+[ok] full_ndcg=0.6803 delta=0.0000
+[ok] pruned_ndcg=0.6803 delta_vs_baseline=0.0000 delta_vs_full=0.0000
+[ok] harmful_terms=0
+[ok] protected_by_min_samples=0
+[ok] out_json=/app/fto/docs/query_rewrite_rule_contrib_v1.json
+[ok] out_md=/app/fto/docs/query_rewrite_rule_contrib_v1.md
+[info] full_ndcg=0.6802949195049343 pruned_ndcg=0.6802949195049343 harmful_terms=0
+[info] skip apply (no harmful terms or pruned score worse)
+[ok] report_json=/app/fto/docs/query_rewrite_rule_contrib_v1.json
+[ok] report_md=/app/fto/docs/query_rewrite_rule_contrib_v1.md
+[ok] log=/app/fto/logs/query_rewrite_auto_prune_20260402_033108.log

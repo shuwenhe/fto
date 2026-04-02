@@ -1,0 +1,19 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_judge_train_eval_20260401_003316.log
+[info] tensor_device=npu
+[info] ascend_visible_devices=0
+[info] loading CANN runtime env
+[info] using python=/usr/bin/python3 (CANN runtime)
+[info] validating neurx npu backend
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+[info] neurx_accel_available=True
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+  File "/app/neurx/python/neurx/core/neurx.py", line 278, in __mul__
+    out_data = _cuda_ops.mul(_as_device(self), _as_device(other))
+  File "/app/neurx/cann/npu_ops.py", line 167, in mul
+    raise ValueError("mul expects same shape and dtype")
+ValueError: mul expects same shape and dtype

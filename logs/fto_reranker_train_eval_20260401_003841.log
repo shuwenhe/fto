@@ -1,0 +1,27 @@
+[info] root=/app/fto
+[info] log_file=/app/fto/logs/fto_reranker_train_eval_20260401_003841.log
+[info] tensor_device=npu
+[info] ascend_visible_devices=0
+[info] loading CANN runtime env
+[info] using python=/usr/bin/python3 (CANN runtime)
+[info] validating neurx npu backend
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+[info] neurx_accel_available=True
+[ok] neurx_npu_smoke=6.000000
+[info] neurx_tensor_device=cuda
+[info] training reranker model with neurx
+Disabling PyTorch because PyTorch >= 2.4 is required but found 2.1.0
+PyTorch was not found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+/usr/local/lib/python3.10/dist-packages/torch_npu/dynamo/__init__.py:18: UserWarning: Register eager implementation for the 'npu' backend of dynamo, as torch_npu was not compiled with torchair.
+  warnings.warn(
+.Traceback (most recent call last):
+  File "/app/fto/scripts/train_fto_model_neurx.py", line 475, in <module>
+    main()
+  File "/app/fto/scripts/train_fto_model_neurx.py", line 459, in main
+    model, train_mse = train_model(samples, args.epochs, args.lr)
+  File "/app/fto/scripts/train_fto_model_neurx.py", line 328, in train_model
+    preds = model(features).sigmoid().data.reshape(-1).tolist()
+AttributeError: 'DeviceArray' object has no attribute 'reshape'. Did you mean: 'shape'?
