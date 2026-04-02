@@ -48,6 +48,10 @@ def normalize_qrels_row(row: dict, line_no: int, path: Path) -> dict:
         raise SystemExit(f"[error] missing query_id line={line_no} path={path}")
     if not patent_id:
         raise SystemExit(f"[error] missing patent_id line={line_no} path={path}")
+    if patent_id.startswith("TODO_FILL_"):
+        raise SystemExit(
+            f"[error] unresolved placeholder patent_id line={line_no} path={path}: {patent_id}"
+        )
     if relevance not in {0, 1, 2, 3}:
         raise SystemExit(
             f"[error] invalid relevance line={line_no} path={path}: expected one of 0/1/2/3, got {relevance!r}"
