@@ -80,7 +80,7 @@ func main() {
 	deepRerankEnabled := getEnvBool("RANKING_DEEP_ENABLED", true)
 	deepRerankTopN := getEnvInt("RANKING_DEEP_TOP_N", 8)
 	deepRerankMixAlpha := getEnvFloat("RANKING_DEEP_MIX_ALPHA", 0.35)
-	queryRewriteEnabled := getEnvBool("QUERY_REWRITE_ENABLED", false)
+	queryRewriteEnabled := getEnvBool("QUERY_REWRITE_ENABLED", true)
 	queryRewriteRulesPath := getEnv("QUERY_REWRITE_RULES_PATH", "/app/fto/backend/config/query_rewrite_rules.json")
 
 	rdb := redis.NewClient(&redis.Options{
