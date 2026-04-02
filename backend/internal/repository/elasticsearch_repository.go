@@ -61,6 +61,7 @@ func (r *ElasticsearchPatentRepository) ExplainQuery(ctx context.Context, query 
 			resp.RecallDebug = &model.RecallDebugInfo{
 				ElasticsearchCount: 0,
 				MergedCount:        resp.CandidateCount,
+				MergedIDs:          rankingExplainPatentIDs(resp.Results),
 				HybridActive:       false,
 				Sources:            []string{"local"},
 				Fallback:           "local_only",
@@ -73,6 +74,7 @@ func (r *ElasticsearchPatentRepository) ExplainQuery(ctx context.Context, query 
 		resp.RecallDebug = &model.RecallDebugInfo{
 			ElasticsearchCount: len(patentIDs),
 			MergedCount:        len(patentIDs),
+			MergedIDs:          append([]string(nil), patentIDs...),
 			HybridActive:       false,
 			Sources:            []string{"elasticsearch"},
 			ElasticsearchIDs:   append([]string(nil), patentIDs...),
@@ -89,6 +91,7 @@ func (r *ElasticsearchPatentRepository) ExplainEncoder(ctx context.Context, quer
 			resp.RecallDebug = &model.RecallDebugInfo{
 				ElasticsearchCount: 0,
 				MergedCount:        resp.CandidateCount,
+				MergedIDs:          encoderExplainPatentIDs(resp.Results),
 				HybridActive:       false,
 				Sources:            []string{"local"},
 				Fallback:           "local_only",
@@ -101,6 +104,7 @@ func (r *ElasticsearchPatentRepository) ExplainEncoder(ctx context.Context, quer
 		resp.RecallDebug = &model.RecallDebugInfo{
 			ElasticsearchCount: len(patentIDs),
 			MergedCount:        len(patentIDs),
+			MergedIDs:          append([]string(nil), patentIDs...),
 			HybridActive:       false,
 			Sources:            []string{"elasticsearch"},
 			ElasticsearchIDs:   append([]string(nil), patentIDs...),
@@ -118,6 +122,30 @@ func (r *ElasticsearchPatentRepository) Search(ctx context.Context, query string
 		return r.local.Search(ctx, query, limit)
 	}
 	return r.local.searchDualForPatentIDs(query, limit, patentIDs), nil
+}
+
+func rankingExplainPatentIDs(items []model.RankingExplainItem) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		id := strings.TrimSpace(item.PatentID)
+		if id == "" {
+			continue
+		}
+		out = append(out, id)
+	}
+	return out
+}
+
+func encoderExplainPatentIDs(items []model.EncoderExplainItem) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		id := strings.TrimSpace(item.PatentID)
+		if id == "" {
+			continue
+		}
+		out = append(out, id)
+	}
+	return out
 }
 
 func (r *ElasticsearchPatentRepository) fetchCandidatePatentIDs(ctx context.Context, query string, limit int) ([]string, error) {
