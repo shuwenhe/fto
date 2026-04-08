@@ -178,6 +178,18 @@ func main() {
 
 	r := gin.New()
 	r.Use(gin.Recovery())
+	// Support clients that send requests with a leading /api prefix
+	// (some proxies/frontends may forward as /api/...). Normalize by
+	// stripping a leading /api so existing handlers registered at
+	// "/tasks", "/ops/..." continue to work.
+	r.Use(func(c *gin.Context) {
+		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+			c.Request.URL.Path = strings.TrimPrefix(c.Request.URL.Path, "/api")
+		} else if c.Request.URL.Path == "/api" {
+			c.Request.URL.Path = "/"
+		}
+		c.Next()
+	})
 	r.Use(observability.RequestIDMiddleware())
 	r.Use(observability.AccessLogMiddleware(metrics))
 	router.RegisterRoutes(r, taskService, metrics, rankingCtrl, queryRewriter)
