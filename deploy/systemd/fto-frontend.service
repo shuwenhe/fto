@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/app/fto/frontend
-ExecStartPre=/bin/bash -lc 'if [[ -f /root/.nvm/nvm.sh ]]; then source /root/.nvm/nvm.sh; fi; if command -v npm >/dev/null 2>&1; then npm run build; elif [ -x /usr/bin/npm ]; then /usr/bin/npm run build; else echo "[error] npm not found" >&2; exit 1; fi'
-ExecStart=/bin/bash -lc 'if [[ -f /root/.nvm/nvm.sh ]]; then source /root/.nvm/nvm.sh; fi; if command -v npm >/dev/null 2>&1; then npm run start; elif [ -x /usr/bin/npm ]; then /usr/bin/npm run start; else echo "[error] npm not found" >&2; exit 1; fi'
+# Do not build on service start. Build should be done during deployment.
+ExecStart=/bin/bash -lc 'if [[ -f /root/.nvm/nvm.sh ]]; then source /root/.nvm/nvm.sh; fi; if command -v npm >/dev/null 2>&1; then npm run start -p 3010; elif [ -x /usr/bin/npm ]; then /usr/bin/npm run start -- -p 3010; else echo "[error] npm not found" >&2; exit 1; fi'
 Restart=always
 RestartSec=2
 User=root
